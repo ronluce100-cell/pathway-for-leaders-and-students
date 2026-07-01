@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>PTL Pastor Dashboard</title>
+<style>
+:root{--navy:#0d2240;--navy2:#163355;--gold:#c9a227;--gold2:#f5c842;--green:#1a7a4a;--red:#c0392b;--border:#e2e8f0;--muted:#8899aa;--text:#1a2b3c;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f7fa;color:var(--text);min-height:100vh;padding-bottom:40px;}
+button{cursor:pointer;font-family:inherit;}
+input,textarea,select{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;background:#fff;color:var(--text);margin-bottom:10px;outline:none;}
+input:focus,textarea:focus,select:focus{border-color:var(--navy);}
+textarea{min-height:70px;resize:vertical;}
+.btn{display:inline-block;padding:11px 20px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s;}
+.btn:active{opacity:.8;}
+.btn-primary{background:var(--navy);color:#fff;}
+.btn-gold{background:var(--gold);color:var(--navy);}
+.btn-green{background:var(--green);color:#fff;}
+.btn-outline{background:transparent;border:1.5px solid var(--navy);color:var(--navy);}
+.btn-sm{padding:7px 14px;font-size:12px;}
+.btn-danger{background:var(--red);color:#fff;}
+
+.hdr{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.hdr-title{font-size:17px;font-weight:900;}
+.hdr-sub{font-size:11px;opacity:.7;margin-top:2px;}
+.sync-banner{background:#e6f4ea;border:1.5px solid #1a7a4a;border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;display:none;}
+.sync-banner.show{display:flex;}
+.sync-banner-icon{font-size:22px;}
+.sync-banner-text{flex:1;font-size:13px;color:var(--green);font-weight:600;}
+
+.container{max-width:960px;margin:0 auto;padding:14px;}
+.card{background:#fff;border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.07);}
+.card-title{font-size:12px;font-weight:800;color:var(--navy);letter-spacing:.5px;margin-bottom:10px;text-transform:uppercase;}
+.section-title{font-size:16px;font-weight:800;color:var(--navy);margin:14px 0 8px;}
+.label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;display:block;}
+
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;}
+.stat-box{background:#fff;border-radius:14px;padding:14px 10px;text-align:center;box-shadow:0 1px 5px rgba(0,0,0,.06);}
+.stat-num{font-size:26px;font-weight:900;color:var(--navy);}
+.stat-label{font-size:10px;color:var(--muted);margin-top:2px;font-weight:600;}
+
+.student-table{width:100%;border-collapse:collapse;}
+.student-table th{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;padding:8px 8px;text-align:left;border-bottom:2px solid var(--border);}
+.student-table td{padding:10px 8px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+.student-table tr:last-child td{border-bottom:none;}
+.student-table tr:hover td{background:#f8fafc;}
+.auto-badge{background:#e6f4ea;border:1px solid var(--green);border-radius:8px;padding:2px 6px;font-size:10px;font-weight:700;color:var(--green);margin-left:4px;}
+.streak-chip{display:inline-flex;align-items:center;gap:3px;background:#fff3cd;border:1px solid var(--gold);border-radius:10px;padding:2px 7px;font-size:12px;font-weight:700;color:#7a5c00;}
+.streak-chip.hot{background:#fde8e8;border-color:var(--red);color:var(--red);}
+.streak-chip.cold{background:#e8ecf0;border-color:#aaa;color:#666;}
+.prog-mini{background:#e8ecf0;border-radius:6px;height:8px;overflow:hidden;width:70px;display:inline-block;vertical-align:middle;margin-right:4px;}
+.prog-mini-fill{height:100%;background:linear-gradient(90deg,var(--navy),var(--gold));border-radius:6px;}
+.risk-tag{display:inline-block;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700;}
+.risk-high{background:#fde8e8;color:var(--red);}
+.risk-med{background:#fff3cd;color:#7a5c00;}
+.risk-low{background:#e6f4ea;color:var(--green);}
+.action-btn{background:none;border:none;font-size:17px;cursor:pointer;padding:2px 3px;}
+
+.assess-panel{background:#f8fafc;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-top:8px;}
+.assess-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);}
+.assess-row:last-child{border-bottom:none;}
+.assess-key{font-size:12px;color:var(--muted);}
+.assess-val{font-size:13px;font-weight:700;color:var(--navy);max-width:60%;text-align:right;}
+
+.note-card{background:#fffbf0;border:1px solid var(--gold);border-radius:12px;padding:10px 12px;margin-bottom:8px;}
+.note-meta{font-size:10px;color:var(--muted);margin-bottom:3px;}
+.note-text{font-size:13px;line-height:1.5;}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.tab-bar{display:flex;gap:4px;margin-bottom:12px;border-bottom:2px solid var(--border);flex-wrap:wrap;}
+.tab{padding:9px 14px;font-size:12px;font-weight:700;border:none;background:none;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;}
+.tab.active{color:var(--navy);border-bottom-color:var(--navy);}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.hidden{display:none;}
+.modal-box{background:#fff;border-radius:20px;padding:20px 18px;width:100%;max-width:500px;max-height:88vh;overflow-y:auto;}
+.modal-title{font-size:17px;font-weight:900;color:var(--navy);margin-bottom:12px;}
+
+.announce-card{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px;}
+.empty-state{text-align:center;padding:28px;color:var(--muted);}
+.empty-state-icon{font-size:36px;margin-bottom:8px;}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#222;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(max-width:600px){.stats-strip{grid-template-columns:repeat(2,1fr);}.form-grid{grid-template-columns:1fr;}.student-table th:nth-child(5),.student-table td:nth-child(5){display:none;}}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div>
+    <div class="hdr-title">🧭 PTL Pastor Dashboard</div>
+    <div class="hdr-sub">Pathway to Leadership — Trimester 4</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <button class="btn btn-gold btn-sm" onclick="syncNow()">⟳ Sync Now</button>
+    <span style="background:var(--gold);color:var(--navy);border-radius:14px;padding:4px 12px;font-size:11px;font-weight:800;" id="hdrBadge">0 Leaders</span>
+  </div>
+</header>
+
+<div class="toast" id="toast"></div>
+
+<!-- SYNC BANNER -->
+<div class="container" style="padding-bottom:0;">
+  <div class="sync-banner" id="syncBanner">
+    <div class="sync-banner-icon">✅</div>
+    <div class="sync-banner-text" id="syncBannerText">Auto-sync complete</div>
+    <button class="btn btn-outline btn-sm" onclick="document.getElementById('syncBanner').classList.remove('show')">Dismiss</button>
+  </div>
+</div>
+
+<!-- STUDENT DETAIL MODAL -->
+<div class="modal-overlay hidden" id="studentModal">
+  <div class="modal-box">
+    <div class="modal-title" id="modalStudentName">Student</div>
+    <div id="modalContent"></div>
+    <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;">
+      <button class="btn btn-primary btn-sm" onclick="emailStudent('prayer')">🙏 Send Prayer</button>
+      <button class="btn btn-gold btn-sm" onclick="emailStudent('encourage')">💬 Encourage</button>
+      <button class="btn btn-outline btn-sm" onclick="closeStudentModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT STUDENT MODAL -->
+<div class="modal-overlay hidden" id="addModal">
+  <div class="modal-box">
+    <div class="modal-title" id="addModalTitle">Add Young Leader</div>
+    <input type="hidden" id="edit_idx" value="-1"/>
+    <label class="label">Full Name</label>
+    <input type="text" id="add_name" placeholder="First Last"/>
+    <label class="label">Email</label>
+    <input type="email" id="add_email" placeholder="student@email.com"/>
+    <label class="label">Group Code</label>
+    <input type="text" id="add_code" placeholder="e.g. LEAD2024" style="text-transform:uppercase;"/>
+    <label class="label">Phone (optional)</label>
+    <input type="tel" id="add_phone" placeholder="+1 555 000 0000"/>
+    <label class="label">Days Completed (manual entry)</label>
+    <input type="number" id="add_days" min="0" max="84" value="0"/>
+    <label class="label">Current Streak</label>
+    <input type="number" id="add_streak" min="0" max="84" value="0"/>
+    <label class="label">Notes</label>
+    <textarea id="add_notes" placeholder="Any notes about this leader candidate..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn btn-primary" onclick="saveStudent()">Save</button>
+      <button class="btn btn-outline" onclick="closeAddModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTE MODAL -->
+<div class="modal-overlay hidden" id="noteModal">
+  <div class="modal-box">
+    <div class="modal-title">Add Note</div>
+    <label class="label">Note about <span id="noteStudentName"></span></label>
+    <textarea id="noteText" placeholder="What did you observe, discuss, or want to follow up on..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn btn-primary" onclick="saveNote()">Save Note</button>
+      <button class="btn btn-outline" onclick="closeNoteModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="stats-strip">
+    <div class="stat-box"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Leaders</div></div>
+    <div class="stat-box"><div class="stat-num" id="statActive">0</div><div class="stat-label">Active (≥1 day)</div></div>
+    <div class="stat-box"><div class="stat-num" id="statAssess">0</div><div class="stat-label">Assessments</div></div>
+    <div class="stat-box"><div class="stat-num" id="statAvgPct">0%</div><div class="stat-label">Avg Progress</div></div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="showTab('roster',this)">📋 Roster</button>
+    <button class="tab" onclick="showTab('assessments',this)">📊 Assessments</button>
+    <button class="tab" onclick="showTab('at-risk',this)">⚠️ At Risk</button>
+    <button class="tab" onclick="showTab('notes',this)">📝 Notes</button>
+    <button class="tab" onclick="showTab('settings',this)">⚙️ Settings</button>
+  </div>
+
+  <!-- ROSTER -->
+  <div id="tab-roster">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap;">
+      <div class="section-title" style="margin:0;">Young Leaders</div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-green btn-sm" onclick="syncNow()">⟳ Sync from Apps</button>
+        <button class="btn btn-primary btn-sm" onclick="openAddModal(-1)">+ Add Leader</button>
+      </div>
+    </div>
+    <div class="announce-card">
+      <div style="font-size:13px;font-weight:800;margin-bottom:4px;">🔄 Auto-Sync Active</div>
+      <div style="font-size:12px;opacity:.8;">When students use the PTL Companion app on this device or submit assessments, their progress automatically appears here. Click <strong>Sync Now</strong> to pull the latest data.</div>
+    </div>
+    <div class="card"><div id="rosterContent"></div></div>
+  </div>
+
+  <!-- ASSESSMENTS -->
+  <div id="tab-assessments" style="display:none;">
+    <div class="section-title">Assessment Results</div>
+    <div class="card"><div id="assessmentContent"></div></div>
+  </div>
+
+  <!-- AT RISK -->
+  <div id="tab-at-risk" style="display:none;">
+    <div class="section-title">Leaders Needing Attention</div>
+    <div id="atRiskContent"></div>
+  </div>
+
+  <!-- NOTES -->
+  <div id="tab-notes" style="display:none;">
+    <div class="section-title">Pastoral Notes</div>
+    <div id="notesContent"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="tab-settings" style="display:none;">
+    <div class="section-title">Dashboard Settings</div>
+    <div class="card">
+      <label class="label">Your Name (Pastor/Leader)</label>
+      <input type="text" id="set_pastorName" placeholder="Pastor Ron"/>
+      <label class="label">Your Email</label>
+      <input type="email" id="set_pastorEmail" placeholder="pastor@church.com"/>
+      <label class="label">Group Code to Auto-Sync</label>
+      <input type="text" id="set_groupCode" placeholder="LEAD2024 — students' group code" style="text-transform:uppercase;"/>
+      <label class="label">ntfy Channel (for push alerts)</label>
+      <input type="text" id="set_ntfy" placeholder="my-pastor-channel"/>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:10px;">Students should enter the same ntfy channel in their PTL Companion app. This dashboard will receive their progress pushes.</p>
+      <button class="btn btn-primary" onclick="saveSettings()" style="width:100%;">Save Settings</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Export / Import</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline btn-sm" onclick="exportData()">📥 Export JSON</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('importFile').click()">📤 Import JSON</button>
+      </div>
+      <input type="file" id="importFile" style="display:none;" accept=".json" onchange="importData(event)"/>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--red);">Danger Zone</div>
+      <button class="btn btn-danger btn-sm" onclick="clearAllData()">🗑 Clear All Data</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var DASH_KEY = 'ptl_pastor_v2';
+var STUDENT_APP_KEY = 'ptl_t4_v2';  // same key student app uses
+var D;
+var activeStudent = null;
+var noteStudentIdx = null;
+
+function loadState(){
+  try { D = JSON.parse(localStorage.getItem(DASH_KEY)) || {}; } catch(e){ D={}; }
+  if (!D.students)  D.students  = [];
+  if (!D.settings)  D.settings  = {pastorName:'',pastorEmail:'',groupCode:'',ntfy:''};
+  if (!D.notes)     D.notes     = [];
+  if (!D.lastSync)  D.lastSync  = null;
+}
+function saveState(){ localStorage.setItem(DASH_KEY, JSON.stringify(D)); }
+
+// ── AUTO-SYNC ──────────────────────────────────────────────────────────────
+function syncNow(){
+  var updated = 0;
+  var added = 0;
+
+  // 1. Scan all localStorage keys for student shared progress
+  //    Key pattern: ptl_t4_shared_{groupCode}_{identifier}
+  for (var i=0; i<localStorage.length; i++){
+    var key = localStorage.key(i);
+    if (!key || key.indexOf('ptl_t4_shared_') !== 0) continue;
+    try {
+      var shared = JSON.parse(localStorage.getItem(key));
+      if (!shared || !shared.name) continue;
+      var result = upsertStudent(shared);
+      if (result === 'added') added++;
+      else if (result === 'updated') updated++;
+    } catch(e){ console.warn('Sync parse error:', key, e); }
+  }
+
+  // 2. Also check if the student app is on this same device (direct state read)
+  try {
+    var studentState = JSON.parse(localStorage.getItem(STUDENT_APP_KEY));
+    if (studentState && studentState.profile && studentState.profile.name) {
+      var sp = studentState.profile;
+      var result = upsertStudent({
+        name: sp.name,
+        email: sp.email || '',
+        groupCode: sp.groupCode || '',
+        daysCompleted: (studentState.completedDays||[]).length,
+        streak: studentState.streak || 0,
+        longestStreak: studentState.longestStreak || 0,
+        xp: studentState.xp || 0,
+        assessments: buildAssessFromState(studentState),
+        lastUpdated: new Date().toISOString(),
+        fromDirectSync: true
+      });
+      if (result === 'added') added++;
+      else if (result === 'updated') updated++;
+    }
+  } catch(e){ console.warn('Direct sync error:', e); }
+
+  D.lastSync = new Date().toISOString();
+  saveState();
+  updateStats();
+  renderRoster();
+
+  var msg = '';
+  if (added + updated === 0) msg = 'Already up to date — no new changes.';
+  else msg = (added>0?added+' new leader'+(added>1?'s':'')+' added. ':'') + (updated>0?updated+' leader'+(updated>1?'s':'')+' updated.':'');
+
+  var banner = document.getElementById('syncBanner');
+  document.getElementById('syncBannerText').textContent = '✅ ' + msg;
+  banner.classList.add('show');
+  setTimeout(function(){ banner.classList.remove('show'); }, 5000);
+  toast(msg);
+}
+
+function buildAssessFromState(st){
+  // Build assessment object from student state
+  var result = {};
+  var done = st.assessDone || [];
+  // We don't have scores from direct state, just which weeks completed
+  done.forEach(function(w){
+    if (!result[w]) result[w] = {score: null, notes: 'Completed (no scores)', ts: Date.now(), autoSync: true};
+  });
+  return result;
+}
+
+function upsertStudent(shared){
+  // Find existing by email or name+groupCode
+  var idx = -1;
+  for (var i=0;i<D.students.length;i++){
+    var s = D.students[i];
+    if (shared.email && s.email && s.email.toLowerCase() === shared.email.toLowerCase()){ idx=i; break; }
+    if (!shared.email && s.name && s.name.toLowerCase() === shared.name.toLowerCase() &&
+        s.groupCode && s.groupCode === shared.groupCode){ idx=i; break; }
+  }
+
+  if (idx < 0){
+    // Add new student
+    D.students.push({
+      name: shared.name,
+      email: shared.email || '',
+      groupCode: shared.groupCode || '',
+      phone: '',
+      daysCompleted: shared.daysCompleted || 0,
+      streak: shared.streak || 0,
+      longestStreak: shared.longestStreak || 0,
+      xp: shared.xp || 0,
+      assessments: shared.assessments || {},
+      autoSynced: true,
+      lastSyncedAt: shared.lastUpdated || new Date().toISOString(),
+      addedAt: Date.now()
+    });
+    return 'added';
+  } else {
+    // Update existing — only update progress fields, keep manual notes/edits
+    var s = D.students[idx];
+    var changed = false;
+    if ((shared.daysCompleted||0) > (s.daysCompleted||0)){ s.daysCompleted=shared.daysCompleted; changed=true; }
+    if ((shared.streak||0) !== (s.streak||0)){ s.streak=shared.streak||0; changed=true; }
+    if ((shared.longestStreak||0) > (s.longestStreak||0)){ s.longestStreak=shared.longestStreak||0; changed=true; }
+    if (shared.xp > (s.xp||0)){ s.xp=shared.xp; changed=true; }
+    // Merge assessments
+    var incomingAssess = shared.assessments || {};
+    if (typeof incomingAssess === 'object' && !Array.isArray(incomingAssess)){
+      if (!s.assessments) s.assessments = {};
+      Object.keys(incomingAssess).forEach(function(wk){
+        if (!s.assessments[wk] || incomingAssess[wk].score > 0){
+          s.assessments[wk] = incomingAssess[wk];
+          changed = true;
+        }
+      });
+    } else if (Array.isArray(incomingAssess)){
+      // assessDone array from direct state
+      if (!s.assessments) s.assessments = {};
+      incomingAssess.forEach(function(wk){
+        if (!s.assessments[wk]){ s.assessments[wk]={score:null,notes:'Completed',ts:Date.now(),autoSync:true}; changed=true; }
+      });
+    }
+    if (changed){ s.autoSynced=true; s.lastSyncedAt=new Date().toISOString(); }
+    return changed ? 'updated' : 'same';
+  }
+}
+
+// ── STATS ──────────────────────────────────────────────────────────────────
+function updateStats(){
+  var total = D.students.length;
+  var active = D.students.filter(function(s){ return (s.daysCompleted||0)>0; }).length;
+  var assessCount = D.students.reduce(function(acc,s){ return acc+Object.keys(s.assessments||{}).length; },0);
+  var avgPct = total>0 ? Math.round(D.students.reduce(function(acc,s){ return acc+((s.daysCompleted||0)/84*100); },0)/total) : 0;
+  document.getElementById('statTotal').textContent=total;
+  document.getElementById('statActive').textContent=active;
+  document.getElementById('statAssess').textContent=assessCount;
+  document.getElementById('statAvgPct').textContent=avgPct+'%';
+  document.getElementById('hdrBadge').textContent=total+' Leader'+(total===1?'':'s');
+}
+
+// ── ROSTER ──────────────────────────────────────────────────────────────────
+function renderRoster(){
+  var el=document.getElementById('rosterContent');
+  if(D.students.length===0){
+    el.innerHTML='<div class="empty-state"><div class="empty-state-icon">👥</div><p>No leaders yet.<br><strong>Sync Now</strong> pulls from the PTL Companion app on this device,<br>or click <strong>+ Add Leader</strong> to add manually.</p></div>';
+    return;
+  }
+  var html='<table class="student-table"><thead><tr><th>Name</th><th>Progress</th><th>Streak</th><th>Assess</th><th>Risk</th><th>Actions</th></tr></thead><tbody>';
+  D.students.forEach(function(s,i){
+    var pct=Math.round((s.daysCompleted||0)/84*100);
+    var streak=s.streak||0;
+    var scls=streak===0?'cold':streak>=7?'hot':'';
+    var sicon=streak===0?'😴':streak>=14?'🔥🔥':streak>=7?'🔥':'✨';
+    var aDone=Object.keys(s.assessments||{}).length;
+    var risk=getRisk(s);
+    var rcls=risk==='High'?'risk-high':risk==='Medium'?'risk-med':'risk-low';
+    var syncTag=s.autoSynced?'<span class="auto-badge">⟳ auto</span>':'';
+    var lastSync=s.lastSyncedAt?'<div style="font-size:10px;color:var(--muted);">Synced '+timeSince(s.lastSyncedAt)+'</div>':'';
+    html+='<tr>'
+      +'<td><strong>'+esc(s.name)+'</strong>'+syncTag+'<br><span style="font-size:11px;color:var(--muted);">'+esc(s.email||'')+'</span>'+lastSync+'</td>'
+      +'<td><div class="prog-mini"><div class="prog-mini-fill" style="width:'+pct+'%"></div></div><strong>'+pct+'%</strong><br><span style="font-size:11px;color:var(--muted);">'+(s.daysCompleted||0)+'/84 days</span></td>'
+      +'<td><span class="streak-chip '+scls+'">'+sicon+' '+streak+'</span></td>'
+      +'<td><span style="font-size:14px;font-weight:800;color:var(--navy);">'+aDone+'</span><span style="font-size:11px;color:var(--muted);">/3</span></td>'
+      +'<td><span class="risk-tag '+rcls+'">'+risk+'</span></td>'
+      +'<td><button class="action-btn" onclick="openStudentModal('+i+')" title="View">👁</button>'
+          +'<button class="action-btn" onclick="openAddModal('+i+')" title="Edit">✏️</button>'
+          +'<button class="action-btn" onclick="openNoteModal('+i+')" title="Note">📝</button>'
+          +'<button class="action-btn" onclick="removeStudent('+i+')" title="Remove">🗑</button></td>'
+      +'</tr>';
+  });
+  html+='</tbody></table>';
+  el.innerHTML=html;
+}
+
+function getRisk(s){
+  var streak=s.streak||0, pct=(s.daysCompleted||0)/84*100;
+  if(streak===0&&pct<5) return 'High';
+  if(streak<3&&pct<35) return 'Medium';
+  return 'Low';
+}
+
+function timeSince(iso){
+  var ms=Date.now()-new Date(iso).getTime();
+  if(ms<60000) return 'just now';
+  if(ms<3600000) return Math.floor(ms/60000)+'m ago';
+  if(ms<86400000) return Math.floor(ms/3600000)+'h ago';
+  return Math.floor(ms/86400000)+'d ago';
+}
+
+// ── STUDENT MODAL ──────────────────────────────────────────────────────────
+function openStudentModal(i){
+  activeStudent=i;
+  var s=D.students[i];
+  document.getElementById('modalStudentName').textContent=s.name+(s.autoSynced?' ⟳':'');
+  var pct=Math.round((s.daysCompleted||0)/84*100);
+  var html='<div class="assess-panel" style="margin-bottom:10px;">'
+    +'<div class="assess-row"><span class="assess-key">Days Completed</span><span class="assess-val">'+(s.daysCompleted||0)+' / 84</span></div>'
+    +'<div class="assess-row"><span class="assess-key">Overall Progress</span><span class="assess-val">'+pct+'%</span></div>'
+    +'<div class="assess-row"><span class="assess-key">Current Streak</span><span class="assess-val">'+(s.streak||0)+' days</span></div>'
+    +'<div class="assess-row"><span class="assess-key">Longest Streak</span><span class="assess-val">'+(s.longestStreak||0)+' days</span></div>'
+    +'<div class="assess-row"><span class="assess-key">XP Earned</span><span class="assess-val">'+(s.xp||0)+' XP</span></div>'
+    +'<div class="assess-row"><span class="assess-key">Assessments Done</span><span class="assess-val">'+Object.keys(s.assessments||{}).length+' / 3</span></div>'
+    +(s.lastSyncedAt?'<div class="assess-row"><span class="assess-key">Last Auto-Sync</span><span class="assess-val">'+timeSince(s.lastSyncedAt)+'</span></div>':'')
+    +'</div>';
+
+  // Manual progress override
+  html+='<div class="card" style="margin-bottom:8px;">'
+    +'<div class="card-title">Manual Update</div>'
+    +'<div class="form-grid">'
+    +'<div><label class="label">Days Done</label><input type="number" id="upd_days" min="0" max="84" value="'+(s.daysCompleted||0)+'" style="margin-bottom:0;"/></div>'
+    +'<div><label class="label">Streak</label><input type="number" id="upd_streak" min="0" max="84" value="'+(s.streak||0)+'" style="margin-bottom:0;"/></div>'
+    +'</div>'
+    +'<button class="btn btn-primary btn-sm" style="margin-top:8px;width:100%;" onclick="updateStudentProgress()">Save Manual Update</button>'
+    +'</div>';
+
+  // Assessment entry
+  html+='<div class="card" style="margin-bottom:8px;">'
+    +'<div class="card-title">Enter Assessment Scores</div>'
+    +'<select id="upd_assessWeek"><option value="">Select week...</option><option value="w4">Week 4</option><option value="w8">Week 8</option><option value="w12">Week 12</option></select>'
+    +'<input type="number" id="upd_assessScore" min="1" max="10" placeholder="Overall score 1–10"/>'
+    +'<textarea id="upd_assessNotes" placeholder="Notes from this assessment..." style="min-height:50px;"></textarea>'
+    +'<button class="btn btn-gold btn-sm" style="width:100%;" onclick="addAssessmentScore()">Save Assessment</button>'
+    +'</div>';
+
+  // Existing assessments
+  var assess=s.assessments||{};
+  if(Object.keys(assess).length>0){
+    html+='<div style="font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Assessment History</div>';
+    ['w4','w8','w12'].forEach(function(wk){
+      if(!assess[wk]) return;
+      var a=assess[wk];
+      var wl=wk==='w4'?'Week 4':wk==='w8'?'Week 8':'Week 12';
+      html+='<div class="assess-panel" style="margin-bottom:6px;">'
+        +'<div style="font-size:12px;font-weight:800;color:var(--navy);margin-bottom:4px;">'+wl+(a.autoSync?' <span style="font-size:10px;color:var(--green);">⟳ auto</span>':'')+'</div>';
+      if(a.score) html+='<div class="assess-row"><span class="assess-key">Score</span><span class="assess-val">'+a.score+'/10</span></div>';
+      if(a.notes) html+='<div class="assess-row"><span class="assess-key">Notes</span><span class="assess-val" style="font-size:12px;">'+esc(a.notes)+'</span></div>';
+      html+='</div>';
+    });
+  }
+
+  // Pastoral notes
+  var pnotes=D.notes.filter(function(n){ return n.studentIdx===i; });
+  if(pnotes.length>0){
+    html+='<div style="font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin:8px 0 6px;">Pastoral Notes</div>';
+    pnotes.forEach(function(n){
+      html+='<div class="note-card"><div class="note-meta">'+new Date(n.ts).toLocaleDateString()+'</div><div class="note-text">'+esc(n.text)+'</div></div>';
+    });
+  }
+
+  document.getElementById('modalContent').innerHTML=html;
+  document.getElementById('studentModal').classList.remove('hidden');
+}
+
+function closeStudentModal(){ document.getElementById('studentModal').classList.add('hidden'); activeStudent=null; }
+
+function updateStudentProgress(){
+  if(activeStudent===null) return;
+  D.students[activeStudent].daysCompleted=parseInt(document.getElementById('upd_days').value)||0;
+  D.students[activeStudent].streak=parseInt(document.getElementById('upd_streak').value)||0;
+  saveState(); updateStats(); renderRoster(); toast('Progress updated!'); closeStudentModal();
+}
+
+function addAssessmentScore(){
+  if(activeStudent===null) return;
+  var wk=document.getElementById('upd_assessWeek').value;
+  var score=document.getElementById('upd_assessScore').value;
+  var notes=document.getElementById('upd_assessNotes').value.trim();
+  if(!wk||!score){ toast('Select a week and enter a score.'); return; }
+  if(!D.students[activeStudent].assessments) D.students[activeStudent].assessments={};
+  D.students[activeStudent].assessments[wk]={score:parseInt(score),notes:notes,ts:Date.now()};
+  saveState(); updateStats(); toast('Assessment saved!'); openStudentModal(activeStudent);
+}
+
+function emailStudent(type){
+  if(activeStudent===null) return;
+  var s=D.students[activeStudent];
+  if(!s.email){ toast('No email on file for '+s.name); return; }
+  var fn=s.name.split(' ')[0]||s.name;
+  var pn=D.settings.pastorName||'Your Leader';
+  var pct=Math.round((s.daysCompleted||0)/84*100);
+  if(type==='prayer'){
+    window.location.href='mailto:'+s.email+'?subject=Praying for you!&body=Hi '+fn+', I want you to know I am praying for you today in Pathway to Leadership. Keep going — God is using this time to shape you into an amazing leader! — '+pn;
+  } else {
+    window.location.href='mailto:'+s.email+'?subject=Keep Going!&body=Hi '+fn+'! You are '+pct+'% through Pathway to Leadership — I am so proud of how you are growing. Keep going! — '+pn;
+  }
+}
+
+// ── ADD / EDIT STUDENT ──────────────────────────────────────────────────────
+function openAddModal(idx){
+  document.getElementById('edit_idx').value=idx;
+  document.getElementById('addModalTitle').textContent=idx<0?'Add Young Leader':'Edit Leader';
+  var s=idx>=0?D.students[idx]:{};
+  document.getElementById('add_name').value=s.name||'';
+  document.getElementById('add_email').value=s.email||'';
+  document.getElementById('add_code').value=s.groupCode||'';
+  document.getElementById('add_phone').value=s.phone||'';
+  document.getElementById('add_days').value=s.daysCompleted||0;
+  document.getElementById('add_streak').value=s.streak||0;
+  document.getElementById('add_notes').value=s.notes||'';
+  document.getElementById('addModal').classList.remove('hidden');
+}
+function closeAddModal(){ document.getElementById('addModal').classList.add('hidden'); }
+
+function saveStudent(){
+  var name=document.getElementById('add_name').value.trim();
+  if(!name){ toast('Enter a name.'); return; }
+  var idx=parseInt(document.getElementById('edit_idx').value);
+  var data={
+    name:name, email:document.getElementById('add_email').value.trim(),
+    groupCode:document.getElementById('add_code').value.trim().toUpperCase(),
+    phone:document.getElementById('add_phone').value.trim(),
+    daysCompleted:parseInt(document.getElementById('add_days').value)||0,
+    streak:parseInt(document.getElementById('add_streak').value)||0,
+    notes:document.getElementById('add_notes').value.trim()
+  };
+  if(idx<0){
+    D.students.push(Object.assign({longestStreak:0,xp:0,assessments:{},addedAt:Date.now()},data));
+  } else {
+    D.students[idx]=Object.assign(D.students[idx],data);
+  }
+  saveState(); closeAddModal(); updateStats(); renderRoster();
+  toast(name+(idx<0?' added':'updated')+'! 🙌');
+}
+
+function removeStudent(i){
+  if(!confirm('Remove '+D.students[i].name+'? This cannot be undone.')) return;
+  D.notes=D.notes.filter(function(n){ return n.studentIdx!==i; });
+  D.students.splice(i,1);
+  saveState(); updateStats(); renderRoster(); toast('Leader removed.');
+}
+
+// ── ASSESSMENTS TAB ──────────────────────────────────────────────────────────
+function renderAssessments(){
+  var el=document.getElementById('assessmentContent');
+  var has=D.students.filter(function(s){ return Object.keys(s.assessments||{}).length>0; });
+  if(has.length===0){
+    el.innerHTML='<div class="empty-state"><div class="empty-state-icon">📊</div><p>No assessment data yet.<br>Data appears here automatically when students<br>submit from the PTL Companion app.</p></div>';
+    return;
+  }
+  var html='<table class="student-table"><thead><tr><th>Leader</th><th>Wk 4</th><th>Wk 8</th><th>Wk 12</th><th>Trend</th></tr></thead><tbody>';
+  D.students.forEach(function(s){
+    var a=s.assessments||{};
+    if(Object.keys(a).length===0) return;
+    function fmtScore(wk){ if(!a[wk]) return '<span style="color:var(--muted);">—</span>'; return a[wk].score?'<strong>'+a[wk].score+'</strong>/10'+(a[wk].autoSync?'<span class="auto-badge">⟳</span>':''):'<span style="color:var(--green);">✓</span>'+(a[wk].autoSync?'<span class="auto-badge">⟳</span>':''); }
+    var trend='';
+    if(a.w4&&a.w8&&a.w4.score&&a.w8.score) trend=a.w8.score>a.w4.score?'📈':a.w8.score<a.w4.score?'📉':'➡️';
+    if(a.w8&&a.w12&&a.w8.score&&a.w12.score) trend=a.w12.score>a.w8.score?'📈':a.w12.score<a.w8.score?'📉':'➡️';
+    html+='<tr><td><strong>'+esc(s.name)+'</strong></td><td>'+fmtScore('w4')+'</td><td>'+fmtScore('w8')+'</td><td>'+fmtScore('w12')+'</td><td>'+trend+'</td></tr>';
+  });
+  html+='</tbody></table>';
+  el.innerHTML=html;
+}
+
+// ── AT RISK ──────────────────────────────────────────────────────────────────
+function renderAtRisk(){
+  var el=document.getElementById('atRiskContent');
+  var risks=D.students.filter(function(s){ return getRisk(s)!=='Low'; });
+  if(risks.length===0){ el.innerHTML='<div class="empty-state"><div class="empty-state-icon">✅</div><p>All leaders are on track!</p></div>'; return; }
+  var html='';
+  risks.forEach(function(s){
+    var risk=getRisk(s),pct=Math.round((s.daysCompleted||0)/84*100);
+    var rcls=risk==='High'?'risk-high':'risk-med';
+    html+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+      +'<strong>'+esc(s.name)+'</strong><span class="risk-tag '+rcls+'">'+risk+' Risk</span></div>'
+      +'<div style="font-size:13px;color:var(--muted);">'+pct+'% done &bull; '+(s.streak||0)+' day streak</div>'
+      +'<div style="font-size:12px;color:var(--red);font-weight:600;margin-top:6px;">'
+      +(risk==='High'?'⚠️ Has not started or lost momentum — reach out now!':'🟡 Falling behind — encouragement could make the difference.')
+      +'</div>'
+      +'<div style="display:flex;gap:6px;margin-top:8px;">'
+      +(s.email?'<a href="mailto:'+esc(s.email)+'?subject=Checking in&body=Hi '+esc(s.name.split(' ')[0])+', I noticed you might need some encouragement. I am in your corner! — '+(D.settings.pastorName||'Your Leader')+'" class="btn btn-primary btn-sm">✉️ Email</a>':'')
+      +'<button class="btn btn-gold btn-sm" onclick="openNoteModal('+D.students.indexOf(s)+')">📝 Note</button>'
+      +'</div></div>';
+  });
+  el.innerHTML=html;
+}
+
+// ── NOTES ──────────────────────────────────────────────────────────────────
+function openNoteModal(i){ noteStudentIdx=i; document.getElementById('noteStudentName').textContent=D.students[i].name; document.getElementById('noteText').value=''; document.getElementById('noteModal').classList.remove('hidden'); }
+function closeNoteModal(){ document.getElementById('noteModal').classList.add('hidden'); noteStudentIdx=null; }
+function saveNote(){
+  var txt=document.getElementById('noteText').value.trim();
+  if(!txt){ toast('Write something first.'); return; }
+  D.notes.push({studentIdx:noteStudentIdx,text:txt,ts:Date.now()});
+  saveState(); closeNoteModal(); renderNotes(); toast('Note saved!');
+}
+function renderNotes(){
+  var el=document.getElementById('notesContent');
+  var notes=(D.notes||[]).slice().sort(function(a,b){ return b.ts-a.ts; });
+  if(notes.length===0){ el.innerHTML='<div class="empty-state"><div class="empty-state-icon">📝</div><p>No notes yet.</p></div>'; return; }
+  var html='';
+  notes.forEach(function(n){
+    var sname=D.students[n.studentIdx]?D.students[n.studentIdx].name:'Unknown';
+    html+='<div class="note-card"><div class="note-meta"><strong>'+esc(sname)+'</strong> — '+new Date(n.ts).toLocaleDateString()+'</div><div class="note-text">'+esc(n.text)+'</div></div>';
+  });
+  el.innerHTML=html;
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────
+function loadSettings(){
+  document.getElementById('set_pastorName').value=D.settings.pastorName||'';
+  document.getElementById('set_pastorEmail').value=D.settings.pastorEmail||'';
+  document.getElementById('set_groupCode').value=D.settings.groupCode||'';
+  document.getElementById('set_ntfy').value=D.settings.ntfy||'';
+}
+function saveSettings(){
+  D.settings.pastorName=document.getElementById('set_pastorName').value.trim();
+  D.settings.pastorEmail=document.getElementById('set_pastorEmail').value.trim();
+  D.settings.groupCode=document.getElementById('set_groupCode').value.trim().toUpperCase();
+  D.settings.ntfy=document.getElementById('set_ntfy').value.trim();
+  saveState(); toast('Settings saved!');
+}
+function exportData(){
+  var blob=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='ptl-pastor-data-'+new Date().toISOString().split('T')[0]+'.json';a.click();
+}
+function importData(e){
+  var file=e.target.files[0]; if(!file) return;
+  var r=new FileReader();
+  r.onload=function(ev){ try{ D=JSON.parse(ev.target.result); saveState(); init(); toast('Imported!'); }catch(e){ toast('Invalid file.'); } };
+  r.readAsText(file);
+}
+function clearAllData(){
+  if(!confirm('Delete ALL data?')) return;
+  D={students:[],settings:{pastorName:'',pastorEmail:'',groupCode:'',ntfy:''},notes:[]};
+  saveState(); init(); toast('Cleared.');
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+function showTab(name,btn){
+  ['roster','assessments','at-risk','notes','settings'].forEach(function(t){ document.getElementById('tab-'+t).style.display='none'; });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('tab-'+name).style.display='';
+  if(btn) btn.classList.add('active');
+  if(name==='assessments') renderAssessments();
+  if(name==='at-risk') renderAtRisk();
+  if(name==='notes') renderNotes();
+  if(name==='settings') loadSettings();
+}
+
+// ── UTILS ──────────────────────────────────────────────────────────────────
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },2800); }
+function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+function init(){ updateStats(); renderRoster(); }
+loadState();
+init();
+// Auto-sync silently on load
+setTimeout(syncNow, 500);
+</script>
+</body>
+</html>

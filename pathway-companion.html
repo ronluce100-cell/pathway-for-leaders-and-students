@@ -1,0 +1,1822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pathway to Freedom">
+<title>Pathway to Freedom</title>
+<style>
+:root {
+  --teal: #00B5C5;
+  --teal-dark: #007d8c;
+  --teal-deeper: #005f6e;
+  --cream: #FDF6E3;
+  --gold: #E8C87A;
+  --white: #ffffff;
+  --text: #1a2e33;
+  --muted: #5a8a92;
+  --border: #b8e4ea;
+  --bg: #e4f6f9;
+  --green: #2e7d6a;
+  --card-bg: #ffffff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 72px; }
+
+/* ── HEADER ── */
+.app-header {
+  background: linear-gradient(160deg, #00c8da 0%, #00a0b0 55%, var(--teal-dark) 100%);
+  color: white; padding: 14px 52px 16px; position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 3px 14px rgba(0,100,120,0.35); text-align: center;
+}
+.hdr-pre { font-size: 9px; letter-spacing: 5px; text-transform: uppercase; opacity: .75; margin-bottom: 4px; }
+.hdr-bird { height: 38px; margin: 2px auto; display: block; }
+.hdr-rule { border: none; border-top: 1px solid rgba(255,255,255,0.35); margin: 5px auto; width: 70%; }
+.hdr-title { font-size: 22px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; font-family: Georgia, serif; line-height: 1; }
+.hdr-sub { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; opacity: .65; margin-top: 4px; }
+.hdr-day { position: absolute; top: 14px; right: 12px; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.4); padding: 4px 11px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.hdr-profile { position: absolute; top: 14px; left: 12px; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.4); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; border-top: 1px solid #ddd; z-index: 200; padding-bottom: env(safe-area-inset-bottom,0); }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 8px 2px 5px; border: none; background: none; cursor: pointer; font-size: 9px; color: #999; gap: 2px; }
+.nav-btn svg { width: 20px; height: 20px; }
+.nav-btn.active { color: var(--teal-dark); }
+
+/* ── IN-APP NOTIFICATION BANNER ── */
+.notif-banner {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+  background: linear-gradient(135deg, var(--teal-dark), var(--teal-deeper));
+  color: white; padding: 14px 16px 14px 16px;
+  display: flex; align-items: flex-start; gap: 12px;
+  transform: translateY(-100%); transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 4px 20px rgba(0,80,95,.4);
+}
+.notif-banner.show { transform: translateY(0); }
+.notif-icon { font-size: 24px; flex-shrink: 0; }
+.notif-body { flex: 1; }
+.notif-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.notif-text { font-size: 12px; opacity: .85; line-height: 1.4; }
+.notif-close { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0 0 0 8px; opacity: .7; align-self: flex-start; }
+
+/* ── PAGES ── */
+.page { display: none; padding: 14px; }
+.page.active { display: block; }
+
+/* ── CARDS ── */
+.card { background: var(--card-bg); border-radius: 16px; padding: 16px 18px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--teal-dark); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+/* ── VERSE BLOCK ── */
+.verse-block {
+  background: linear-gradient(145deg, #00c8da 0%, var(--teal-dark) 100%);
+  color: white; border-radius: 18px; padding: 18px 18px 14px;
+  margin-bottom: 12px; box-shadow: 0 4px 16px rgba(0,140,160,.3);
+}
+.vb-bird { text-align: center; margin-bottom: 8px; }
+.vb-rule { border: none; border-top: 1px solid rgba(255,255,255,.3); margin: 8px 0; }
+.vb-text { font-size: 16px; line-height: 1.65; font-style: italic; font-family: Georgia, serif; margin-bottom: 8px; }
+.vb-ref { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; text-align: right; opacity: .85; }
+
+/* ── DAY HEADER ── */
+.day-hero {
+  background: linear-gradient(145deg, #00c8da, var(--teal-dark));
+  border-radius: 16px; padding: 16px 20px 14px; text-align: center;
+  margin-bottom: 12px; box-shadow: 0 4px 14px rgba(0,140,160,.25);
+}
+.dh-pre { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: rgba(255,255,255,.7); margin-bottom: 6px; }
+.dh-bird { height: 30px; margin: 0 auto 4px; display: block; }
+.dh-rule { border: none; border-top: 1px solid rgba(255,255,255,.3); margin: 6px auto; width: 60%; }
+.dh-week { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,.75); margin-bottom: 4px; }
+.dh-title { font-size: 19px; font-weight: 900; color: white; font-family: Georgia, serif; line-height: 1.25; }
+.dh-credit { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.5); margin-top: 8px; }
+
+/* ── SECTION TITLE ── */
+.section-title { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.section-title::before, .section-title::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+/* ── ACTION ITEMS ── */
+.action-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.action-item:last-child { border-bottom: none; }
+.action-dot { width: 7px; height: 7px; background: var(--teal); border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+.action-text { font-size: 14px; line-height: 1.55; }
+
+/* ── BUTTONS ── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 12px 18px; border-radius: 12px; border: none; cursor: pointer; font-size: 14px; font-weight: 600; transition: all .15s; width: 100%; margin-bottom: 8px; }
+.btn:active { opacity: .85; transform: scale(.98); }
+.btn-primary { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; }
+.btn-outline { background: transparent; border: 2px solid var(--teal-dark); color: var(--teal-dark); }
+.btn-green { background: var(--green); color: white; }
+.btn-gold { background: var(--gold); color: var(--teal-deeper); font-weight: 700; }
+.btn-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.btn-row .btn { margin-bottom: 0; }
+.btn-sm { padding: 9px 14px; font-size: 13px; border-radius: 10px; }
+.btn-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.btn-2col .btn { margin-bottom: 0; }
+
+/* ── PROGRESS ── */
+.prog-wrap { background: var(--border); border-radius: 10px; height: 7px; margin: 8px 0; }
+.prog-bar { background: linear-gradient(90deg, var(--teal), var(--teal-dark)); height: 100%; border-radius: 10px; transition: width .5s; }
+.day-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; margin-top: 8px; }
+.day-dot { aspect-ratio: 1; border-radius: 6px; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 9px; color: #999; cursor: pointer; }
+.day-dot.done { background: var(--green); color: white; }
+.day-dot.today { background: var(--teal); color: white; font-weight: 700; }
+.week-tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; }
+.week-tab { padding: 5px 13px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.week-tab.active { background: var(--teal-dark); color: white; border-color: var(--teal-dark); }
+
+/* ── COMMIT ── */
+.commit-row { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.commit-row:last-child { border-bottom: none; }
+.commit-check { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--border); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.commit-check.done { background: var(--teal-dark); border-color: var(--teal-dark); }
+.commit-text { flex: 1; font-size: 14px; line-height: 1.4; }
+.commit-time { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.del-btn { background: none; border: none; color: #e53935; cursor: pointer; font-size: 20px; padding: 0 2px; line-height: 1; }
+.chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip { background: var(--teal-dark); color: white; padding: 4px 11px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+.chip button { background: none; border: none; color: white; cursor: pointer; font-size: 15px; line-height: 1; }
+
+/* ── FORM INPUTS ── */
+input[type=text], input[type=number], input[type=time], input[type=date], textarea, select {
+  width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 14px; background: white; margin-bottom: 10px; font-family: inherit; color: var(--text);
+}
+textarea { resize: vertical; min-height: 80px; }
+.form-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--teal-dark); display: block; margin-bottom: 5px; margin-top: 12px; }
+.form-label:first-child { margin-top: 0; }
+
+/* ── FLASHCARD ── */
+.flashcard {
+  background: linear-gradient(145deg, #00c8da, var(--teal-dark));
+  color: white; border-radius: 20px; padding: 28px 22px;
+  text-align: center; min-height: 190px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; cursor: pointer;
+  margin-bottom: 12px; box-shadow: 0 6px 20px rgba(0,140,160,.3); position: relative;
+}
+.fc-hint { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; opacity: .65; margin-bottom: 10px; }
+.fc-text { font-size: 16px; line-height: 1.65; font-style: italic; font-family: Georgia, serif; display: none; }
+.fc-ref { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; opacity: .85; margin-top: 12px; display: none; }
+.fc-flip { position: absolute; bottom: 12px; right: 14px; opacity: .45; font-size: 18px; }
+
+/* ── COMMUNITY / CHAT ── */
+.post-card { background: white; border-radius: 14px; padding: 14px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); border-left: 4px solid var(--teal); }
+.post-meta { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
+.post-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: Georgia, serif; }
+.post-name { font-size: 13px; font-weight: 700; color: var(--teal-dark); }
+.post-day { font-size: 11px; color: var(--muted); }
+.post-ref { font-size: 10px; background: var(--bg); border: 1px solid var(--border); color: var(--teal-dark); padding: 2px 7px; border-radius: 20px; margin-left: auto; white-space: nowrap; }
+.post-text { font-size: 14px; line-height: 1.6; font-style: italic; font-family: Georgia, serif; margin-bottom: 6px; }
+.post-time { font-size: 11px; color: var(--muted); text-align: right; }
+.share-box { background: #e8f9fb; border: 1.5px solid var(--border); border-radius: 12px; padding: 14px; font-size: 14px; line-height: 1.6; margin-bottom: 10px; white-space: pre-line; font-family: Georgia, serif; }
+.group-banner { background: linear-gradient(135deg, var(--teal-dark), var(--teal-deeper)); color: white; border-radius: 14px; padding: 14px 16px; text-align: center; margin-bottom: 12px; }
+.group-code { font-size: 26px; font-weight: 900; letter-spacing: 8px; font-family: Georgia, serif; margin: 5px 0 3px; }
+.chat-wrap { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; max-height: 52vh; overflow-y: auto; }
+.chat-msg { max-width: 86%; padding: 11px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; }
+.chat-msg.ai { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; border-bottom-left-radius: 4px; align-self: flex-start; }
+.chat-msg.user { background: var(--teal-deeper); color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+.chat-row { display: flex; gap: 8px; }
+.chat-row input { flex: 1; margin-bottom: 0; }
+.prompt-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.prompt-chip { padding: 6px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-size: 12px; font-weight: 500; cursor: pointer; }
+
+/* ── APPT CARD ── */
+.appt-card { background: linear-gradient(135deg, var(--teal-dark), var(--teal-deeper)); color: white; border-radius: 16px; padding: 16px 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; }
+.appt-time { font-size: 28px; font-weight: 900; font-family: Georgia, serif; line-height: 1; }
+.appt-info { flex: 1; }
+.appt-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; opacity: .7; margin-bottom: 3px; }
+.appt-place { font-size: 13px; font-weight: 600; }
+.appt-hint { font-size: 10px; opacity: .6; margin-top: 2px; }
+
+/* ── MODAL ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,70,85,.65); z-index: 400; display: flex; align-items: flex-end; }
+.modal-overlay.hidden { display: none; }
+.modal-sheet { background: white; border-radius: 22px 22px 0 0; padding: 24px 18px 36px; width: 100%; max-height: 92vh; overflow-y: auto; animation: slideUp .3s ease; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-head { text-align: center; margin-bottom: 20px; }
+.modal-pre { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 6px; }
+.modal-title { font-size: 20px; font-weight: 800; color: var(--teal-deeper); font-family: Georgia, serif; }
+.modal-desc { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+.appt-setup { background: linear-gradient(135deg, #d4f5f9, #eafcff); border: 1.5px solid var(--border); border-radius: 14px; padding: 14px; margin: 12px 0; }
+
+/* ── REMINDER NOTE ── */
+.reminder-note { background: linear-gradient(135deg, #d4f5f9, #eafcff); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
+.reminder-status { font-size: 13px; color: var(--teal-deeper); line-height: 1.5; }
+
+/* ── IDENTITY CARD ── */
+.identity-card { background: linear-gradient(145deg, #00c8da, var(--teal-dark)); color: white; border-radius: 16px; padding: 18px; margin-bottom: 12px; font-size: 15px; line-height: 1.7; font-style: italic; font-family: Georgia, serif; text-align: center; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 82px; left: 50%; transform: translateX(-50%) translateY(10px); background: #1a2e33; color: white; padding: 9px 20px; border-radius: 22px; font-size: 13px; opacity: 0; transition: all .3s; z-index: 999; white-space: nowrap; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── ASSESSMENT ── */
+.assess-section { display: none; }
+.assess-section.active { display: block; }
+.range-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.range-row input[type=range] { flex: 1; margin-bottom: 0; accent-color: var(--teal-dark); }
+.range-num { font-size: 22px; font-weight: 900; color: var(--teal-dark); min-width: 32px; text-align: center; font-family: Georgia, serif; }
+.assess-pill { display: inline-block; background: var(--teal-dark); color: white; border-radius: 20px; padding: 3px 12px; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+.assess-alert { background: linear-gradient(135deg, #e8f9e9, #d4f5d4); border: 1.5px solid #7ec87e; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; font-size: 13px; color: #1a4a1a; line-height: 1.5; }
+
+/* GAMIFICATION */
+.game-bar{background:linear-gradient(135deg,#005f6e,#007d8c);border-radius:16px;padding:14px 16px;margin-bottom:12px;color:white;}
+.game-bar-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.streak-display{display:flex;align-items:center;gap:8px;}
+.streak-fire{font-size:28px;line-height:1;animation:pulse-fire 1.5s ease-in-out infinite;}
+@keyframes pulse-fire{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.streak-num{font-size:30px;font-weight:900;font-family:Georgia,serif;line-height:1;}
+.streak-label{font-size:10px;opacity:.75;letter-spacing:1px;text-transform:uppercase;}
+.level-badge{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);border-radius:20px;padding:5px 12px;text-align:center;}
+.level-icon{font-size:18px;}
+.level-name{font-size:9px;letter-spacing:1px;text-transform:uppercase;opacity:.85;margin-top:1px;}
+.xp-bar-wrap{margin-top:4px;}
+.xp-bar-label{display:flex;justify-content:space-between;font-size:10px;opacity:.75;margin-bottom:4px;}
+.xp-bar-track{background:rgba(255,255,255,.2);border-radius:99px;height:8px;overflow:hidden;}
+.xp-bar-fill{background:linear-gradient(90deg,#E8C87A,#f0d890);border-radius:99px;height:100%;transition:width .6s ease;}
+.shield-pill{background:rgba(255,255,255,.12);border-radius:10px;padding:4px 8px;font-size:11px;display:flex;align-items:center;gap:4px;}
+.badges-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.badge-item{background:white;border:2px solid var(--border);border-radius:12px;padding:8px 10px;text-align:center;min-width:68px;flex:0 0 auto;}
+.badge-item.earned{border-color:#E8C87A;background:linear-gradient(135deg,#fffbee,#fff8d6);}
+.badge-item.locked{opacity:.3;filter:grayscale(1);}
+.badge-icon{font-size:22px;}
+.badge-name{font-size:9px;font-weight:700;color:var(--teal-dark);margin-top:2px;letter-spacing:.3px;line-height:1.2;}
+.badge-xp{font-size:9px;color:var(--muted);}
+.milestone-overlay{position:fixed;inset:0;background:rgba(0,60,70,.85);z-index:999;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .4s;pointer-events:none;}
+.milestone-overlay.show{opacity:1;pointer-events:all;}
+.milestone-card{background:white;border-radius:24px;padding:36px 28px;text-align:center;max-width:320px;width:90%;animation:bounceIn .5s cubic-bezier(.36,.07,.19,.97);}
+@keyframes bounceIn{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.milestone-emoji{font-size:64px;margin-bottom:8px;}
+.milestone-title{font-size:22px;font-weight:900;color:var(--teal-dark);margin-bottom:6px;}
+.milestone-sub{font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.5;}
+.milestone-xp{font-size:28px;font-weight:900;color:#E8C87A;margin-bottom:18px;}
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:998;overflow:hidden;}
+</style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<!-- IN-APP NOTIFICATION BANNER -->
+<div class="notif-banner" id="notifBanner">
+  <div class="notif-icon" id="notifIcon">🕊️</div>
+  <div class="notif-body">
+    <div class="notif-title" id="notifTitle">Pathway to Freedom</div>
+    <div class="notif-text" id="notifText"></div>
+  </div>
+  <button class="notif-close" onclick="closeNotif()">×</button>
+</div>
+
+<!-- APP HEADER -->
+<div class="app-header">
+<a href="ptf-portal.html" style="position:absolute;left:12px;top:12px;background:rgba(255,255,255,.1);border-radius:10px;padding:5px 10px;font-size:10px;letter-spacing:1px;color:#fff;text-decoration:none;opacity:.7;">← Portal</a>
+  <span class="hdr-day" id="hdrDay">Day 1</span>
+  <button class="hdr-profile" onclick="openProfile()" title="My Profile" style="width:auto;padding:4px 10px;border-radius:16px;font-size:9px;letter-spacing:1px;flex-direction:column;gap:1px;">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="white"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+    <span style="font-size:8px;letter-spacing:1px;opacity:.85;">PROFILE</span>
+  </button>
+  <div class="hdr-pre">Pathway to</div>
+  <img class="hdr-bird" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAABBCAYAAAB4ko6YAAAR+UlEQVR42u2deXRcV33Hv79773uzz2i1lmxOICy2k8OJTWLjLPaBnhBOUzi0Ek0pOQ2H2gUaSGJILCllNCGWzBrowsFpKFuTQ2VOT2jAhEKRSU28RCZpcVJjyOY4GknWOsubN2+5v/4xGltO7NiOHcuS3+ccyfIs79259/t+73t/dxkgICAgICAgICAgICAgICAgICAgICAgIOB1wQDxwCajvz+tgto4MdLptGBOi6AmzhYRH6MxmJmC2jm+mINamG0B97VJ7k8r7k+rPX1pEwD6+9OKOS0O7Fxf7+/b8MUD2zo+Xn1tUGNHZ2BgjQEA//fwp986+Pj69wJA33R9MTMxp0U1KMz8+2xj3kSt7FPrYkmR3D9u2WsvWN77QwDggTXGKC94SglqNjyx+IUXMb74aXiUyeiz5oLsTysksgQsRfcjg35mFsrW19cm29s3+/seu7WxuXHBXitXeqD5qp679uxJm4vtLNOy+91D5R1YY8z8fyDo0xiZfx9vVsm6xPpkInztVM42wqa6RhlCW5ZzC7t6G5niXlOpm2IxA8MHi7dfcM3Gr/GetElLMk46nRaZWRQ2c1oIymg+yuNEZ6Zc3Ncm0dYGonZ/ZGdXTyoV/miZkXUmSn9cv8IYJsp4ADC0vaOp6e3nJUafPWg1Ls0M8ou9lwwNFSPNV16+F2jXROBA0KchogzuWv/O5trErmLJA4GRK5RZSkEhU8L3NZSSsEqOFpJ02DT8ku1+qHl5z4+yT62LtbzjK8UzKZ5jiXZoR8fakKHOi4ZN7B8pfu/S1Rv/UL3oTs+5+uTu3b8QALB0aYtPlNHMTNjaLWl1RbAjT9z9j40X1X9y/KWxvc/vHblm2YfvHwUAfjkdHdrv3qUkfSIcDcVzueJX6pIxwzTkncOj+bWtKzfez5xW2J0l5Fu4erzZZG73/llw0XJ1wSp7IJJCkNSauVR2GUzkuD4TkdA+k+P6IhEPPbz/sfU3iLLgoR13R4gyD3N/v6LVq89YQwwMrDGIMu6L/71uaSIa7VNKXBKNmJBSoCFl3DL4666raUnmxVO92DidFlj8DBG1+wD8mQInIh+A9/KvO6+Px80fEnMsl829r37pvT8FgML/ZG7IlZzFxTG6va4m0povlpHPWeWQYdwiJbUOjuY2nN9as294e8cHiTL/fjZJYn6ks4gkAbLyJ6j6G6Dp30Su68MC/Pq6yE8KBecGDb1g/2Of/QBdu/ph7k8rrIKuCuiNitzTx3Wf37p+RV0qvIWAmrxV9oqWwwB0PBo6PxrBY6MDXZuJMp+pvAd0srf0meUf2dV5WyhkXB0xlDk+af2AqP0h3vv5i0emSvck46EboeQ/T42VtoD0b7M7Ox8SQEs4LFeRMGE7HgpFx2WwklKETFO2jk5agxHTuB5CdIHoq5NPpgupZOgTwwfznqPtNResuG8CYBARB4I+WR0LiHjMFMWS42Ja0MdCCCLX80XJBjH0I8T4t1Qy8pEDv+5aSSszj1etTFvbIibKaE6nxensPFZFNryr611hQ/7UdXXSdlxfEKmq8csXy6iriV4YSobXZbd3NNq2uXbz5mdcYLN/ItXBfW0C72hWRJny/q13XdbUlPgr1/XuCJkKruuXIXmnu/feDbmy+9naVMSYzNlj5bL7O8OQDxhKXRSLGvB9xsHxogcCgSGIyCAQmIFC0WHDkK2pRLh1ODv1JDO/KWTIn03lbIamP73gwIopIElENGt9k7nbKRxYY4zkW0Iy5nYlE9H1Y1OWT8cRNQBoZpaCKBYxUXZ8OK5n1SQjz41P2v963sqeLwzvScdDjt6+v+hee9nVoSkAoto5OtXy0rL73ezOzq82N8Rvz44UyoIQOnyTITCzy+AniKimqTm1KDc00ZC6auPYa0Vp7muTaFxEM/3r0PaOy5UhH6tNRlIjYwVPSkGe60+RoHJTY6Jl6GAeRPAECdVYF8Vkzobj+gDYq5yL5LEvTDCz5pBpCCEItuPp2mTEmZiyP9GyYsO3uT+tZtNLz9kIPZ06cpm5c2hHZ00yHv6bXKHsEx0nUhORZnDBcrRmlkqKaNn1ljQ3xjaO7Owc0wUnkTqvbkmrnrqTKNMBQPf3p9WqrdDdAE4lM8LMNLyr03YdnwkQMx5n05DkuP5Ey/LelfzUl2KT4/n2Gnlxbto48cxIf/iIi6seGQMDa4yLdOOfpxLha8emSjeGDJkaHs07QgjT9xmGqeqEIAyN5DwhhAKgtGYeGS16DKhpq6aIjufuQIAgZkYkbEJrbTuuNyFY76vkprtnNSU65yI0c1p0dwMff6+zpCYZ/RPLdu50XL8kBC3QmvlkPxMzGAQtBUgKKUCA77NbkwgZjut/I19wvtvyrp5dMyNtxR+ceK9+2m7wyM70pVL6v3U9bbyqnAy3rjaiRidKva0rerqAygDRqkSWdgNYeoxzDj/esbK+PvrmgxPWung0dFk4pKoRl5U40sgyMxMRnVr9g01DwvN1Vmv9UPPCt3dTy83FIG13ClmCZcvudwe3d3y85c1N3xh+dsSfzm6c4oUyLatKh4a0Zr+hNioLllNyXG9LU23k70Ym/YmmqzJDR3t/Op0W3d2HI+YrIzMR8fDOdLNpcNYuu68SFjN7tamoKhTL34fvdDYs/+KBo53n4EDH2wATvud8sCYRed9k3r6iqTERGZ+0UHY8BuATIE9VuK8laEMJaM1jntY/95g/J1gviEfC35zU3vULl/VkZzPHP6fz0C9v77yrpSG2MV90ULAcluL0NqLW7CslZDikoKTAVN7OMvj78XBIWrY32LR8w32YdgPVXn1VvMyH63br1rRctSrjD+/s6oiE1QbLdjSBxFGEr6NhQ1i2N8HgBwRAGmAhAK0BgjCUxG2mWXGKSgoULAe+r10iqDdKxEepF4RDCrUtKdgTFpQUmJi0tivl31D73HMFtPXp2cpyzN1OIbdJos3+yM6uv45HzY85nn9lyXY1EYnTex7mSsBmMg0pUvEwhCCUbBd5q5wFQ9ckwmIib/9EMm+LxsK9xZKrGVrMsBMEAodN1eJ6Gq91N9HMbEhBNanIUQoDjE5aDJ6+nxAYTKKapDwz9Y5pv+9N1qYiP5vMlf+3aWHjt6j5tpFKdZ18mjEQNID+/uvUqoOf5OyFT34slYoMuLZ3PwHvsGwXp1vUR4gb5DEYIBIhQ8qqXQmZEkpJFEvOMSu17Hgn5GGZwQR4x2gxY3YDCetwyGDX8dcuWL7hO5g5aFNJ/M/qMPicnS646uACpvZ2n5jKXtnb5Xn6CtvxxRsl5mlbQSAYldwsZNnxuOx47Lge5y3Hn8hZnjP92NF+TtQSEIFAMI76M5tiBiClEJGwIZUhHig/c483tKPrJmam/v7r1GyLeU5H6Jns+6/PvCkZNz4XDhk3lUqOJBLBvN43QM9CwPc8toSgR2vioeay638nZ+tt5y+XzwIZPhsmKc35oe9Nm9YYb3n3l5/dO3DHukuj8ZvLZR96Zo8s4HT4ZhBB16aiyrKcpK957A/P6I8sab/HOdvKSnO/spnQ3U3Z9zv1hivu9VnfPD2YQGeyszTPxczhkCKr5H67oTaiJ/L2b6yi8S8LE1kfSzd5s5XRmLeWo/pBGMDwjs6bFzQkvpsdmdJVy/pG+up5LGWPmVhKSCWlcBxvoHlF7zvngg7mR/Wn0+KFVTCNaDkWN0OPCMIVDIS0Zli2owURAYQgah87gwMCVwIDcSoelkIQBAFjOetTLVf1/gPvSZuwWxnP/UJT+wlNmAoEfYq3RyICb/n6raEb2i9MDb8wflskYtxkGmqhZbvQvobraRaCAlHPQLP2TKWUUgLMgKEE8pbzH3XJcHkib/+y+aqeb57tS6/mpaCrnnqmp3vhV50tNQn1E0/rlOfppnBIxSzb9avTpY83Q08QQTPPp4ueAdbTXgwAU1NdXAyPFXIADibjYZUv2j9oXt67/vB7ZmdlzzmZ5XjVFTpj2Hnr1rRceF0mC+AKABh5vPMKJcSWVDzcRARoZhQKlQnsR8sRMzNrwCFCaD5omplZSUGxaEgCBGaGVXLg+v7XlMamxpW9ew+9tq9N4pJagecmNFHGnzPtP++9YTotxD0ZrXXFjuzbcmtjfWPqo7G4+e7JSdusq41cVyg6KJc9tzJmy4qIoJQgz9VjRHg0EjE+XLQcPVc7l1wZKncNJU3X9wvQtD0SVqJU9oZBdHfL8g3Pz7Rscykin3OCPrJhX91Qwzs6/kwDPc1NqUsd20W+UIbjetUMCUkpyPe1Py12qkwqYg2c3eKeFjFrZoRMJVKJCFzXw1Te/lHLit4PHPnaPonup/ls2t4hEPRJeGxsbhdoXERbAaxenfEO7Oq6oC5i3DlZdHzB+IuaVLjRLnsQlcQIqm7E8zTKjuuFTEOVyq4nQBUnQkwEImboavqw+i/A4rVWgBy3vIcOMz1RgpkB8iv2igkgdfillU+oNXxDCSMUUgibBsZz1vP1qcgjI5NWf2vJ/PHvS+Py0kidvxXAqq3Q80HI56ygXyWYVywZemnHnecvqI3XT4wVtVZmmHz3PiFlmH3WAJpSifCFU3l7f0Nd7MLK1DLA9xll10M0fORUCyEIZcfHZK6E1zOzk2ZcTARAMxAOKcQilfO4nsbElKWJSEshFKOSoaitjWJoOJerSUZ+53n6wSKVf9B8ee/wudCeQfqqGrV3r1XAoaVdR+WFX3W2REL6PcwUTibCi3O58h4ICAAtAK4E8CPNLIUQHmmtfGbLZ748GQvfYZVejwdnDZALQIOho1FDFC3nCSJ6EABI4C21ieg6EDA+WXQiYcMv2e5vGxpi35oYLj/ZuPLzTxw60sAmA0sH/bnqjc/ZLMfrzYwAcKudSHTPeHLzM7QZQBsAuq4nC+D7/PjtEVrSWzrecZ/v/3RNfV3tbZ7nn5SIGOzVJaNqbKr4wxZj4V8OqX21hh23ExdEKPF15GdahNGBz72Uqgsv00BvMhF9+SVVKjW/+W7nUKaibRF3dwO0bK17TrRlIOeTjOTTOw4xp8Xu3VkJAEufm9DUvtnngTXGC/kWefHqjP3s1tsvS8Wij0UjZs1k3tbiJKIzM7NhSB0JGWOjk6UPX3TNxl/MfH5gYI2xNN/CM/cSOeL9A2sMTO+SdM4Fp0Cmp0vsoOoGK+MDd1+mDPUomFsLluNLQfJk09iamcOmItOQbq7kvmfTFrWt+8asfKUlYu6T2D0huh8Z9Lu7M4xKP5bP1XYIBH26xLx7jQKWYgIHvmOY8v2O48fKrudLOnkxHxK1ZreuJmLkC/aPG6/sufFw9D27ZrgFgp5nHFq0u63je60tiY8MjRTAzKc8Z4QAeJr9+lRUThZK34LmruYV50a2IhD0LIq5rW2zHnmia0U0ZGwpu17U9XxJp3fgxY9FTZkv2IWamugX8+Plh5qu3vDsK+etBMzhNYVnC42Ni4gIrH3/rZGwkfI8zadZzGBmyhdsp7EuHjelvMeXfHvwFRuBoN8QVq/OeH19bbJlxcZvD48WbquviZpas1OZ13TKQta+Zj9sGqKpIWGWHe8bQ6O5K1pX9Pwt0B1E56MQ5KFPA08/vYi5P60GQ3iwaDmfbqiLXWzbLiz79aV+GewRE0cjphEJGyjZzjMTOevBhmUbeipCn7uThwIPPWcyHRU/+3z/HW+rr02uLdvuI5D4uedrBsAEUsx8zNHC6RUjPhiioTYmtGaM5e3r4iHVnh3N9b71Pfe9zNwngac5EHMg6DMk6sO7Bu37za2NTVQ7IqWAUgKTuZIXCZnKsl0GVQ0wMcCsGUJJIVLxMFxfwyo5X3B9f/C8FRv//tCxZ3mb2sBynIvRgcDTm6bT8A5HlIX3os/8EkAjNYnIB6dy9h7DEEuUFKSZYSgJKSqbieeL5UnN+pelkvPLBVdu+CegugEkAHQzEQViDiL07FDdffPgts+2Nl79pUEAGNre8UdC8ItCqEd9X3M8FlK5gv2fDHq0Nhn+6lTe/lDz8p4dwNE3MQ8IOGuCRfVLLY/HwMAaI/hy0ICz11On06K6vrHy7bZH3hErz/fJauYiqLGAgICAgICAgICAgICAgICAgICAeQidaNI/ICAgIOBMR+js9s5PBdUQMG8EzdmvBKseAuYNamT/2C1BNQTMF/4fzAVqFtUAzTAAAAAASUVORK5CYII=" alt="bird" />
+  <hr class="hdr-rule"/>
+  <div class="hdr-title">Freedom</div>
+  <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:.85;margin-top:3px;font-family:Georgia,serif;">Companion</div>
+  <hr class="hdr-rule"/>
+  <div class="hdr-sub" id="hdrSub">Trimester One</div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay hidden" id="profileModal">
+  <div class="modal-sheet">
+    <div class="modal-head">
+      <img src="data:image/png;base64,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" alt="bird" style="height:34px;margin:0 auto 10px;display:block;"/>
+      <div class="modal-pre">Pathway to Freedom</div>
+      <div class="modal-title">Set Up Your Journey</div>
+      <div class="modal-desc">Personalize your experience and set your daily appointment with Jesus.</div>
+    </div>
+    <label class="form-label">Your Name</label>
+    <input type="text" id="pName" placeholder="First name"/>
+    <label class="form-label">Age</label>
+    <input type="number" id="pAge" placeholder="Your age" min="10" max="99"/>
+    <label class="form-label">Start Date</label>
+    <input type="date" id="pStart"/>
+    <div class="appt-setup">
+      <div class="form-label" style="margin-top:0;">☀️ My Daily Appointment with Jesus</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;">"Start your day with at least fifteen minutes alone with Jesus." — Pathway to Freedom</p>
+      <label class="form-label">What time will I meet with Jesus?</label>
+      <input type="time" id="pTime" value="07:00"/>
+      <label class="form-label">Where will I sit with Jesus?</label>
+      <input type="text" id="pPlace" placeholder="e.g. my bedroom desk, the back porch..."/>
+    </div>
+    <label class="form-label">📱 Your Phone Number</label>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:6px;">For sending daily verse reminders to your phone via text.</p>
+    <input type="tel" id="pPhone" placeholder="e.g. 555-867-5309"/>
+    <label class="form-label">📧 Your Email</label>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:6px;">Receives a copy of your assessments.</p>
+    <input type="email" id="pEmail" placeholder="your@email.com"/>
+    <label class="form-label">Small Group Name (optional)</label>
+    <input type="text" id="pGroup" placeholder="e.g. Fire Squad, Tuesday Night..."/>
+    <label class="form-label">Group Code</label>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:6px;">Enter the code your leader gave you — this connects your assessments to their dashboard automatically.</p>
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="pCode" placeholder="Code" style="text-transform:uppercase;letter-spacing:3px;font-weight:700;flex:1;margin-bottom:0;"/>
+      <button class="btn btn-outline btn-sm" style="width:auto;margin-bottom:0;" onclick="clickGenCode()">Generate</button>
+    </div>
+    <div style="border-top:1px solid #e8f4f5;margin-top:18px;padding-top:18px;">
+      <div style="font-size:15px;font-weight:900;color:#005f6e;margin-bottom:4px;">👥 Your Connect Group Leader</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Your leader receives your weekly check-ins and prays for you.</p>
+      <label class="form-label">Connect Group Leader's Name</label>
+      <input type="text" id="pLeaderName" placeholder="Leader's first and last name"/>
+      <label class="form-label">Connect Group Leader's Email</label>
+      <input type="email" id="pLeaderEmail" placeholder="leader@email.com"/>
+    </div>
+    <div style="border-top:1px solid #e8f4f5;margin-top:14px;padding-top:14px;">
+      <div style="font-size:15px;font-weight:900;color:#005f6e;margin-bottom:4px;">🏛️ Your Youth Pastor</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Your youth pastor oversees the whole Pathway to Freedom program.</p>
+      <label class="form-label">Youth Pastor's Name</label>
+      <input type="text" id="pPastorName" placeholder="Pastor's first and last name"/>
+      <label class="form-label">Youth Pastor's Email</label>
+      <input type="email" id="pPastorEmail" placeholder="pastor@email.com"/>
+    </div>
+    <div style="border-top:1px solid #e8f4f5;margin-top:18px;padding-top:18px;">
+      <div style="font-size:15px;font-weight:900;color:#005f6e;margin-bottom:6px;">📋 Week 1 Check-In</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Answer a few quick questions so your leader can care for you well from the start.</p>
+      <label class="form-label">Where are you on the growth scale right now?</label>
+      <select id="p1_growth" style="margin-bottom:12px;">
+        <option value="">Choose one...</option>
+        <option>Newborn</option><option>Infant</option><option>Toddler</option>
+        <option>Child</option><option>Preteen</option><option>Teen</option>
+        <option>Young Adult</option><option>Adult</option>
+      </select>
+      <label class="form-label">What do you hope will happen in these 12 weeks?</label>
+      <textarea id="p1_hope" placeholder="Share your hopes..." style="min-height:70px;"></textarea>
+      <label class="form-label">Likelihood to finish all 12 weeks &nbsp;<span id="p1_likelyVal" style="font-weight:900;color:#005f6e;">8</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="p1_likely" min="1" max="10" value="8" oninput="document.getElementById('p1_likelyVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">How can we pray for you?</label>
+      <textarea id="p1_prayer" placeholder="Prayer request..." style="min-height:70px;"></textarea>
+    </div>
+    <button class="btn btn-primary" style="margin-top:18px;padding:15px;" onclick="saveProfile()">Begin My Journey →</button>
+  </div>
+</div>
+
+<!-- ASSESSMENT MODAL -->
+<div class="modal-overlay hidden" id="assessModal">
+  <div class="modal-sheet">
+    <div class="modal-head">
+      <div class="modal-pre">Pathway to Freedom</div>
+      <div class="modal-title" id="assessTitle">Week 1 Check-In</div>
+      <div class="modal-desc">Help your leader track your growth — takes just 2 minutes.</div>
+    </div>
+
+    <!-- WEEK 1 -->
+    <div class="assess-section" id="assess-w1">
+      <div class="assess-alert">You just finished Week 1! Answer a few quick questions so your leader can care for you well.</div>
+      <label class="form-label">Where are you on the growth scale right now?</label>
+      <select id="a1_growth" style="margin-bottom:12px;">
+        <option value="">Choose one...</option>
+        <option>Newborn</option><option>Infant</option><option>Toddler</option>
+        <option>Child</option><option>Preteen</option><option>Teen</option>
+        <option>Young Adult</option><option>Adult</option>
+      </select>
+      <label class="form-label">What do you hope will happen in these 12 weeks?</label>
+      <textarea id="a1_hope" placeholder="Share your hopes..."></textarea>
+      <label class="form-label">Likelihood to finish all 12 weeks &nbsp;<span id="a1_likelyVal" class="range-num" style="font-size:16px;">8</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a1_likely" min="1" max="10" value="8" oninput="document.getElementById('a1_likelyVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">How can we pray for you?</label>
+      <textarea id="a1_prayer" placeholder="Prayer request..."></textarea>
+    </div>
+
+    <!-- WEEK 4 -->
+    <div class="assess-section" id="assess-w4">
+      <div class="assess-alert">Four weeks in — incredible! Share how your journey is going so your leader can support you.</div>
+      <label class="form-label">Enjoy your daily Quiet Time with Jesus &nbsp;<span id="a4_qtVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_qt" min="1" max="10" value="7" oninput="document.getElementById('a4_qtVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Can hear Jesus speaking to you &nbsp;<span id="a4_hearVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_hear" min="1" max="10" value="7" oninput="document.getElementById('a4_hearVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Growing closer to Jesus &nbsp;<span id="a4_growVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_grow" min="1" max="10" value="7" oninput="document.getElementById('a4_growVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Close to your small group &nbsp;<span id="a4_groupVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_group" min="1" max="10" value="7" oninput="document.getElementById('a4_groupVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Can trust your group with deep thoughts &nbsp;<span id="a4_trustVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_trust" min="1" max="10" value="7" oninput="document.getElementById('a4_trustVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Your leader has qualities you admire &nbsp;<span id="a4_ldrqVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_ldrq" min="1" max="10" value="7" oninput="document.getElementById('a4_ldrqVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Your leader connects well with the group &nbsp;<span id="a4_ldrcVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_ldrc" min="1" max="10" value="7" oninput="document.getElementById('a4_ldrcVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Likely to finish all 12 weeks &nbsp;<span id="a4_likelyVal" class="range-num" style="font-size:16px;">8</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_likely" min="1" max="10" value="8" oninput="document.getElementById('a4_likelyVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Biggest issue Jesus has helped you with so far</label>
+      <textarea id="a4_issue" placeholder="Describe how he has helped you..."></textarea>
+      <label class="form-label">How can we pray for you this week?</label>
+      <textarea id="a4_prayer" placeholder="Prayer request..."></textarea>
+    </div>
+
+    <!-- WEEK 8 -->
+    <div class="assess-section" id="assess-w8">
+      <div class="assess-alert">Eight weeks strong! Keep going — you are more than halfway. Share how you are doing.</div>
+      <label class="form-label">Close to your small group &nbsp;<span id="a8_groupVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a8_group" min="1" max="10" value="7" oninput="document.getElementById('a8_groupVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Trust your group with deep thoughts &nbsp;<span id="a8_trustVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a8_trust" min="1" max="10" value="7" oninput="document.getElementById('a8_trustVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Leader has qualities you admire &nbsp;<span id="a8_ldrqVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a8_ldrq" min="1" max="10" value="7" oninput="document.getElementById('a8_ldrqVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Leader connects well with the group &nbsp;<span id="a8_ldrcVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a8_ldrc" min="1" max="10" value="7" oninput="document.getElementById('a8_ldrcVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Biggest issue Jesus has helped you with</label>
+      <textarea id="a8_issue" placeholder="Describe how he has helped you..."></textarea>
+      <label class="form-label">Are you signing up for Trimester 2?</label>
+      <select id="a8_tri2" style="margin-bottom:12px;">
+        <option value="">Choose...</option>
+        <option value="Yes">Yes — I want to sign up!</option>
+        <option value="No">Not yet</option>
+        <option value="Maybe">Maybe</option>
+      </select>
+    </div>
+
+    <!-- WEEK 12 -->
+    <div class="assess-section" id="assess-w12">
+      <div class="assess-alert">You completed 12 weeks! This is HUGE. Take a moment to reflect on your journey.</div>
+      <label class="form-label">Close to your small group &nbsp;<span id="a12_groupVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a12_group" min="1" max="10" value="7" oninput="document.getElementById('a12_groupVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Trust your group with deep thoughts &nbsp;<span id="a12_trustVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a12_trust" min="1" max="10" value="7" oninput="document.getElementById('a12_trustVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Leader has qualities you admire &nbsp;<span id="a12_ldrqVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a12_ldrq" min="1" max="10" value="7" oninput="document.getElementById('a12_ldrqVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Biggest thing Jesus helped you with over 12 weeks</label>
+      <textarea id="a12_issue" placeholder="Reflect on your journey..."></textarea>
+      <label class="form-label">Where are you NOW on the growth scale?</label>
+      <select id="a12_growth" style="margin-bottom:12px;">
+        <option value="">Choose one...</option>
+        <option>Newborn</option><option>Infant</option><option>Toddler</option>
+        <option>Child</option><option>Preteen</option><option>Teen</option>
+        <option>Young Adult</option><option>Adult</option>
+      </select>
+      <label class="form-label">Have you signed up for Trimester 2?</label>
+      <select id="a12_tri2" style="margin-bottom:12px;">
+        <option value="">Choose...</option>
+        <option value="Yes">Yes!</option>
+        <option value="No">Not yet</option>
+        <option value="Maybe">Thinking about it</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary" style="margin-top:16px;font-size:15px;padding:15px;" id="assessSubmitBtn" onclick="submitAssessment()">Send to My Leader →</button>
+    <button class="btn btn-outline btn-sm" onclick="closeAssessment()">Do This Later</button>
+  </div>
+</div>
+
+<!-- IMPORT POST MODAL -->
+<div class="modal-overlay hidden" id="importModal">
+  <div class="modal-sheet" style="border-radius:20px;padding:22px 18px 32px;">
+    <div style="text-align:center;margin-bottom:14px;">
+      <div style="font-size:26px;margin-bottom:6px;">🤝</div>
+      <div style="font-size:16px;font-weight:800;color:var(--teal-dark);" id="importName">A group member shared!</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px;" id="importDay"></div>
+    </div>
+    <div class="share-box" id="importText"></div>
+    <button class="btn btn-primary" onclick="confirmImport()">Add to My Group Feed ✓</button>
+    <button class="btn btn-outline" onclick="closeImport()">Dismiss</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-today" onclick="showPage('today')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>Today
+  </button>
+  <button class="nav-btn" id="nav-verse" onclick="showPage('verse')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 14H8v-2h8v2zm0-4H8v-2h8v2zm0-4H8V6h8v2z"/></svg>Verse
+  </button>
+  <button class="nav-btn" id="nav-commit" onclick="showPage('commit')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM12 3c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>Commit
+  </button>
+  <button class="nav-btn" id="nav-share" onclick="showPage('share')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Group
+  </button>
+  <button class="nav-btn" id="nav-progress" onclick="showPage('progress')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>Progress
+  </button>
+  <button class="nav-btn" id="nav-chat" onclick="showPage('chat')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Chat
+  </button>
+</nav>
+
+<!-- TODAY PAGE -->
+<div id="page-today" class="page active">
+  <div id="pendingAssessBanner" style="display:none;"></div>
+  <div id="gameBarWrap"></div>
+  <div id="setupBanner" style="display:none;background:linear-gradient(135deg,#007d8c,#005f6e);color:white;border-radius:14px;padding:14px 16px;margin-bottom:12px;cursor:pointer;" onclick="openProfile()">
+    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:.75;margin-bottom:4px;">Welcome to Pathway to Freedom</div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:4px;">👆 Tap to set up your profile</div>
+    <div style="font-size:12px;opacity:.8;">Set your name, daily appointment with Jesus, and group code to get started.</div>
+  </div>
+  <div class="day-hero">
+    <div class="dh-pre">Pathway to</div>
+    <img class="dh-bird" src="data:image/png;base64,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" alt="bird"/>
+    <div class="dh-rule"></div>
+    <div class="dh-week" id="todayWeek">Week 1</div>
+    <div class="dh-title" id="todayTitle">The Greatest Commandment</div>
+    <div class="dh-credit">Ron &amp; Katie Luce</div>
+  </div>
+  <div class="verse-block">
+    <div class="vb-bird"><img src="data:image/png;base64,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" alt="" style="height:26px;opacity:.75;"/></div>
+    <div class="vb-rule"></div>
+    <div class="vb-text" id="verseText"></div>
+    <div class="vb-rule"></div>
+    <div class="vb-ref" id="verseRef"></div>
+  </div>
+  <div class="card">
+    <div class="card-label">📖 Today's Teaching</div>
+    <div style="font-size:15px;line-height:1.7;" id="teachingText"></div>
+  </div>
+  <div class="card">
+    <div class="card-label">✅ Action Steps</div>
+    <div id="actionSteps"></div>
+  </div>
+  <div class="card">
+    <div class="card-label">📚 Daily Bible Reading</div>
+    <div style="font-size:14px;color:var(--text);" id="bibleReading"></div>
+  </div>
+  <div id="apptCardWrap"></div>
+  <div class="btn-row">
+    <button class="btn btn-outline" onclick="changeDay(-1)">← Prev</button>
+    <button class="btn btn-primary" id="completeBtn" onclick="markComplete()">Mark Complete ✓</button>
+    <button class="btn btn-outline" onclick="changeDay(1)">Next →</button>
+  </div>
+  <div class="reminder-note">
+    <div class="card-label">🔔 Daily Reminders</div>
+    <div class="reminder-status" id="reminderStatus">Set up reminders to stay on track with your devotional journey.</div>
+
+    <!-- Browser / Phone notifications -->
+    <div style="background:#f0fafa;border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:10px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--teal-dark);margin-bottom:6px;">📱 Phone Notifications</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Tap below and choose <strong>Allow</strong> when your browser asks. Then add this app to your <strong>Home Screen</strong> so reminders arrive even when your screen is off.</div>
+      <button class="btn btn-primary" style="width:100%;margin-bottom:6px;" onclick="activateReminders()">Enable Reminders 🔔</button>
+      <div id="notifPermStatus" style="font-size:11px;color:var(--teal-dark);min-height:16px;"></div>
+    </div>
+
+    <!-- ntfy.sh push (works offline) -->
+    <div style="background:#f0fafa;border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:10px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--teal-dark);margin-bottom:6px;">📲 Push to Phone When App is Closed</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">1) Download the free <strong>ntfy</strong> app (search "ntfy" in App Store / Play Store, or visit ntfy.sh).<br>2) Create a topic name like <em>ptf-myname</em> — then subscribe to it in the ntfy app.<br>3) Enter that same topic name here and save it.</div>
+      <input type="text" id="ntfyTopic" placeholder="e.g. ptf-myname-2025" style="width:100%;padding:9px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:6px;box-sizing:border-box;" />
+      <button class="btn btn-outline" style="width:100%;font-size:13px;" onclick="saveNtfyTopic()">Save &amp; Test Push 🚀</button>
+      <div id="ntfyStatus" style="font-size:11px;color:var(--teal-dark);margin-top:4px;min-height:14px;"></div>
+    </div>
+
+    <!-- Email / SMS / WhatsApp -->
+    <div style="background:#f0fafa;border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:10px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--teal-dark);margin-bottom:6px;">✉️ Send to Phone Now</div>
+      <div class="btn-row" style="gap:6px;margin-bottom:6px;">
+        <button class="btn btn-sm btn-outline" style="font-size:12px;" onclick="smsVerse()">Text Today's Verse</button>
+        <button class="btn btn-sm btn-outline" style="font-size:12px;" onclick="smsCommitments()">Text Commitments</button>
+      </div>
+      <button class="btn btn-sm" style="background:#25D366;color:white;font-size:12px;width:100%;margin-bottom:0;" onclick="smsWhatsApp()">WhatsApp Reminder 💬</button>
+    </div>
+
+    <div id="smsReminderWrap" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- VERSE PAGE -->
+<div id="page-verse" class="page">
+  <div class="section-title">Memory Verse</div>
+  <div class="card" style="background:linear-gradient(135deg,#d4f5f9,#eafcff);border:1.5px solid var(--border);">
+    <div class="card-label" id="verseWeekTitle">This Week's Theme</div>
+    <div style="font-size:13px;color:var(--muted);font-style:italic;" id="verseWeekTheme"></div>
+  </div>
+  <div class="flashcard" onclick="flipCard()" id="flashcard">
+    <img src="data:image/png;base64,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" alt="" style="height:24px;margin-bottom:10px;opacity:.35;"/>
+    <div class="fc-hint" id="fcHint">Tap to reveal the verse</div>
+    <div class="fc-text" id="fcText"></div>
+    <div class="fc-ref" id="fcRef"></div>
+    <div class="fc-flip">↻</div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-outline" onclick="prevVerse()">← Prev</button>
+    <button class="btn btn-primary" onclick="shuffleVerse()">Shuffle ✦</button>
+    <button class="btn btn-outline" onclick="nextVerse()">Next →</button>
+  </div>
+  <div class="card">
+    <div class="card-label">All 7 Verses This Week</div>
+    <div id="allVerses"></div>
+  </div>
+</div>
+
+<!-- COMMIT PAGE -->
+<div id="page-commit" class="page">
+  <div class="section-title">My Commitments</div>
+  <div class="card" style="background:linear-gradient(135deg,#d4f5f9,#eafcff);border:1.5px solid var(--border);">
+    <div class="card-label">Today's Prompt</div>
+    <div style="font-size:14px;line-height:1.6;" id="commitPrompt"></div>
+  </div>
+  <div class="card">
+    <div class="card-label">Add a Commitment</div>
+    <input type="text" id="newCommit" placeholder="I commit to..."/>
+    <div class="btn-row">
+      <input type="time" id="commitTime" value="12:00" style="margin-bottom:0;flex:1;"/>
+      <button class="btn btn-primary btn-sm" style="width:auto;margin-bottom:0;" onclick="addCommitment()">Add + Remind</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-label">Active Commitments</div>
+    <div id="commitList"></div>
+    <div id="noCommits" style="text-align:center;color:var(--muted);font-size:13px;padding:14px 0;">No commitments yet — add one above!</div>
+  </div>
+  <div class="card">
+    <div class="card-label">🕐 Reminder Times</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Times to receive daily verse and commitment reminders:</p>
+    <div class="chip-wrap" id="reminderChips"></div>
+    <div class="btn-row">
+      <input type="time" id="newReminderTime" style="flex:1;margin-bottom:0;"/>
+      <button class="btn btn-primary btn-sm" style="width:auto;margin-bottom:0;" onclick="addReminderTime()">Add Time</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMMUNITY PAGE -->
+<div id="page-share" class="page">
+  <div class="section-title">Group</div>
+  <div class="card">
+    <div class="card-label">What Jesus Spoke to Me Today</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;" id="communityVTag"></div>
+    <textarea id="communityText" placeholder="Share what God showed you in today's devotional..."></textarea>
+    <button class="btn btn-primary" onclick="postReflection()">Post to Group Feed</button>
+  </div>
+  <div class="group-banner" id="groupBanner">
+    <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;opacity:.75;">Your Group Code</div>
+    <div class="group-code" id="groupCodeDisplay">——</div>
+    <div style="font-size:10px;opacity:.7;margin-bottom:10px;">Share this code with your small group</div>
+    <button class="btn btn-sm" style="background:rgba(255,255,255,.2);color:white;width:auto;margin:0 auto;display:block;" onclick="copyGroupCode()">Copy Code</button>
+  </div>
+  <div class="section-title">Group Feed</div>
+  <div id="groupFeed"></div>
+  <div class="section-title" style="margin-top:4px;">Share Broadly</div>
+  <div class="card">
+    <div class="card-label">Today's Post</div>
+    <div class="share-box" id="sharePostText"></div>
+    <div class="btn-2col">
+      <button class="btn btn-primary btn-sm" onclick="shareToX()">𝕏 Post to X</button>
+      <button class="btn btn-sm" style="background:#1877f2;color:white;" onclick="shareToFB()">Facebook</button>
+      <button class="btn btn-gold btn-sm" onclick="shareToIG()">📸 Instagram</button>
+      <button class="btn btn-green btn-sm" onclick="shareViaSMS()">💬 Text/SMS</button>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="copyPost()">📋 Copy Post</button>
+  </div>
+  <div class="identity-card" id="identityText"></div>
+</div>
+
+<!-- PROGRESS PAGE -->
+<div id="page-progress" class="page">
+  <div class="section-title">Your Journey</div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div><div style="font-size:26px;font-weight:900;color:var(--teal-dark);" id="statDone">0</div><div style="font-size:11px;color:var(--muted);">days done</div></div>
+      <div style="text-align:center;"><div style="font-size:26px;font-weight:900;color:var(--teal);" id="statStreak">0</div><div style="font-size:11px;color:var(--muted);">day streak 🔥</div></div>
+      <div style="text-align:right;"><div style="font-size:26px;font-weight:900;color:var(--green);" id="statPct">0%</div><div style="font-size:11px;color:var(--muted);">complete</div></div>
+    </div>
+    <div class="prog-wrap"><div class="prog-bar" id="mainProg" style="width:0%"></div></div>
+  </div>
+  <div id="weekCards"></div>
+  <div class="card">
+    <div class="card-label">Jump to Any Day</div>
+    <div class="week-tabs" id="weekTabs"></div>
+    <div class="day-grid" id="dayGrid"></div>
+  </div>
+
+  <div class="card" style="margin-top:12px;">
+    <div id="badgesGridWrap"></div>
+  </div>
+  <button class="btn btn-outline" onclick="resetAll()" style="margin-top:4px;">Reset Progress</button>
+</div>
+
+<!-- CHAT PAGE -->
+<div id="page-chat" class="page">
+  <div class="section-title">AI Companion</div>
+  <div style="background:linear-gradient(135deg,#d4f5f9,#eafcff);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px;font-size:13px;color:var(--teal-deeper);line-height:1.5;">
+    <strong>Your companion is here.</strong> Ask about today's teaching, get encouragement, talk through your commitments, or ask for a prayer.
+  </div>
+  <div class="chat-wrap" id="chatWrap"></div>
+  <div class="chat-row">
+    <input type="text" id="chatInput" placeholder="Ask or reflect..." onkeydown="if(event.key==='Enter')sendChat()"/>
+    <button class="btn btn-primary btn-sm" style="width:auto;margin-bottom:0;" onclick="sendChat()">Send</button>
+  </div>
+  <div class="prompt-chips" id="promptChips"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+// ── Firebase real-time sync ──
+if (!firebase.apps.length) firebase.initializeApp({
+  apiKey: "AIzaSyA4u3QQgC39uxTAIXuzexTg0Pz889YovoI",
+  authDomain: "pathway-to-freedom.firebaseapp.com",
+  projectId: "pathway-to-freedom",
+  storageBucket: "pathway-to-freedom.firebasestorage.app",
+  messagingSenderId: "542778457653",
+  appId: "1:542778457653:web:9b937f54c4bbe850adbb7c"
+});
+var _db = firebase.firestore();
+function ptfSanitize(s){return (s||'').toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,40);}
+function ptfWriteCheckin(data){
+  try {
+    var lid = ptfSanitize(data.leaderEmail||data.groupCode||'anon');
+    var nid = ptfSanitize(data.name||'unknown');
+    var prog = data.program||'ptf1';
+    var docId = lid+'_'+nid+'_'+prog+'_w'+(data.week||'0');
+    _db.collection('ptf_checkins').doc(docId).set(data);
+  } catch(e){ console.warn('FB write err',e); }
+}
+function ptfWriteProgress(prog){
+  try {
+    var prof = (typeof S!=='undefined'?S.profile:null)||{};
+    var lid = ptfSanitize(prof.leaderEmail||prof.groupCode||'anon');
+    var nid = ptfSanitize(prof.name||'unknown');
+    var done = typeof S!=='undefined'?(S.done||S.completedDays||[]):[];
+    var data = {
+      name:prof.name||'', program:prog, week:'0',
+      leaderEmail:prof.leaderEmail||'', pastorEmail:prof.pastorEmail||'',
+      groupCode:prof.groupCode||'', group:prof.groupName||prof.groupCode||'',
+      age:prof.age||'',
+      daysCompleted:Array.isArray(done)?done:[],
+      streak:(typeof S!=='undefined'?S.streak:0)||0,
+      xp:(typeof S!=='undefined'?S.xp:0)||0,
+      date:new Date().toLocaleDateString(),
+      lastUpdated:new Date().toISOString()
+    };
+    _db.collection('ptf_checkins').doc(lid+'_'+nid+'_'+prog+'_prog').set(data);
+  } catch(e){ console.warn('FB progress err',e); }
+}
+
+// ── BIRD IMAGE (for dynamic use) ──
+const BIRD_SRC = "data:image/png;base64,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";
+
+// ── STATE ──
+// ══════════════════════════════════════════════════════════════════
+// CONFIGURE: Paste the central Google Apps Script URL here.
+// Students just enter their leader's group code — no long URLs needed.
+// ══════════════════════════════════════════════════════════════════
+var CENTRAL_URL = "YOUR_GAS_URL_HERE";
+
+let S = JSON.parse(localStorage.getItem("ptf_v3") || "null") || {
+  day: 0, done: [], commits: [], remTimes: ["07:00","12:00","17:00"],
+  streak: 0, lastDone: null, posts: [], chat: [], profile: null,
+  remActive: false, assessments: {}, pendingAssess: null,
+  xp: 0, level: 1, badges: [], streakShield: 0, lastLogin: null, longestStreak: 0,
+  ntfyTopic: null
+};
+// ── Auto-fill from shared portal profile ──
+(function(){
+  try {
+    var sp = JSON.parse(localStorage.getItem('ptf_shared_profile') || 'null');
+    if (sp && sp.name && !S.profile) {
+      S.profile = {
+        name: sp.name,
+        email: sp.email || '',
+        leaderEmail: sp.leaderEmail || '',
+        groupCode: sp.group || '',
+        age: sp.age || '',
+        gender: sp.gender || '',
+        apptTime: '',
+        apptPlace: ''
+      };
+      save();
+    }
+  } catch(e) {}
+})();
+// Migrate old state — fill in any missing gamification fields
+if (!Array.isArray(S.badges))   S.badges = [];
+if (S.xp == null)               S.xp = 0;
+if (S.streakShield == null)     S.streakShield = 0;
+if (S.lastLogin == null)        S.lastLogin = null;
+if (S.longestStreak == null)    S.longestStreak = 0;
+if (S.streak == null)           S.streak = 0;
+if (S.ntfyTopic === undefined)  S.ntfyTopic = null;
+function save() { localStorage.setItem("ptf_v3", JSON.stringify(S)); }
+
+// ── DEVOTIONAL DATA ──
+const W = [
+{title:"What It Means to Live for Jesus",theme:"love, commitment, living for God",id:"I am someone who loves God above everything else — with my whole heart, soul, and mind.",days:[
+{t:"The Greatest Commandment",v:"\"Love the Lord your God with all your heart and with all your soul and with all your mind.\" This is the first and greatest commandment. And the second is like it: \"Love your neighbor as yourself.\"",r:"Matthew 22:37-40",teach:"If you have made the decision to follow Jesus, you no longer live for the world — you live for God. The most important thing you can do with your life is to love him with your whole heart. Think about the things you love most: if you really love something, you put your energy into it, you invest your time, you become consumed with it. Jesus calls us to that same passionate pursuit of him.",act:["Think honestly: does anything — a relationship, social media, sports, money — have more priority than Jesus?","Ask God to become the most important thing in your life today.","Choose to love Jesus more than the things you have loved in the past."],read:"Matthew 1"},
+{t:"He Loved You First",v:"God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",r:"John 3:16",teach:"God loves us so much that he gave his only Son. He did not send an angel or an Instagram post from heaven — he sent Jesus, his very best. We love him because he loved us first (1 John 4:19). The best response to such incredible love is to love him back with everything we have. That is what being a follower of Christ is all about.",act:["Meditate on John 3:16 all day — say it aloud, write it where you can see it.","Write down ways you can give God your best today.","Give your very best to God because he gave his very best for you."],read:"Matthew 2"},
+{t:"Love God with Your Whole Being",v:"See what great love the Father has lavished on us, that we should be called children of God! And that is what we are!",r:"1 John 3:1",teach:"God has lavished his love on you — he did not have to, but he chose to. He calls you his child. The woman who washed Jesus feet with her tears shows us what it looks like to respond to that love: extravagant, wholehearted devotion. Someone who is forgiven much loves much. How much have you been forgiven?",act:["Write out 1 John 3:1 in your own words.","Write a prayer of thanks to God for his love and forgiveness.","Ask him to help you love him back extravagantly."],read:"Matthew 3"},
+{t:"Do You Love the World?",v:"Do not love the world or anything in the world. If anyone loves the world, love for the Father is not in them. The world and its desires pass away, but whoever does the will of God lives forever.",r:"1 John 2:15-17",teach:"Our lives get caught up in this craze or that fad. Many things we crave end up placing us in sinful situations. A lot of the music, movies, and things the world loves are anti-God — they drown out our love for him. Loving the world waters down our love for God.",act:["List things the world loves that are clearly traps to distract people from God.","Make a list of things you need to remove from your life.","Pray over that list and decide to walk away from those things."],read:"Matthew 4"},
+{t:"Do You Love Me More than These?",v:"\"Simon son of John, do you love me more than these?\"",r:"John 21:15",teach:"Jesus asked Peter if he loved him more than his fish, his income, the things he had been blessed with. He asks us the same: Do you love me more than your phone, your social media, your popularity? Are you willing to give them all up for Jesus if he asked you to? That is the central question of whether we love Jesus with all that we have.",act:["How much time do you spend thinking about the things in your room and activities?","Do you think about Jesus as much as those things?","Decide how to reprioritize so Jesus is number one."],read:"Matthew 5"},
+{t:"To Love God Is to Obey Him",v:"\"If you love me, keep my commands.\"",r:"John 14:15",teach:"Jesus said that if we really love him, we must obey him and joyfully submit to him. Many people think Jesus comes to spoil all the fun — that is a lie. He said he came so we may have life to the full. God created you, he knows what you were born to do, and when we obey him, we find true fulfillment.",act:["List ways you have recently not obeyed God.","Pray and ask the Lord to give you understanding about how his ways set you free.","Make a commitment today to submit to Jesus with your whole heart."],read:"Matthew 6"},
+{t:"Lay Down Your Life",v:"\"Greater love has no one than this: to lay down one's life for one's friends.\"",r:"John 15:13",teach:"This is the true definition of love. Jesus gave up his life for us. He wants the same kind of commitment from us: that we love him so much we give up our plans, our pride, our selfishness. We can give up the time we have here so that everything — our goals, our dreams, our careers — revolves around our love for him.",act:["Can you think of anyone who has sacrificed something for you? Name them.","Have you ever sacrificed for someone else? What made you do that?","How can you practically lay down your life for Jesus today?"],read:"Matthew 7"}
+]},
+{title:"Becoming Completely New",theme:"identity, strength, who God says you are",id:"I am fearfully and wonderfully made. God says I am more than a conqueror, and I choose to believe what he says about me.",days:[
+{t:"Teenage Bubonic Plague: Inferiority",v:"Humble yourselves before the Lord, and he will lift you up.",r:"James 4:10",teach:"There is an epidemic of inferiority running through this generation — it kills dreams and stifles potential. The world, media, and peer pressure constantly tell us we do not measure up. But God has a different goal for you. He lifts you up because he thinks you are more valuable than any of his other creations.",act:["What do you say about yourself when no one is looking?","Where do you get your identity from — friends, social media, something else?","Spend time praying James 4:10. Pour out your heart to the Lord honestly."],read:"Matthew 8"},
+{t:"Are You Supposed to Love Yourself?",v:"Love your neighbor as yourself.",r:"Matthew 22:39",teach:"Jesus said the second greatest commandment is to love your neighbor as yourself — which means you ARE supposed to love yourself. It is not a sin. It is holy. It is right. Arrogance actually comes from low self-esteem. True self-love means you are so self-assured that your focus turns outward to lift others up.",act:["How do you talk about yourself?","How do you treat yourself?","Ask God to show you how he sees you and write down what he speaks to your heart."],read:"Matthew 9"},
+{t:"What Is the Real Truth about You?",v:"I praise you because I am fearfully and wonderfully made; your works are wonderful, I know that full well.",r:"Psalm 139:13-14",teach:"God created you in his image. He does not make junk. He got excited the day you were born because he made you unique. An object is worth whatever someone is willing to pay for it — and God paid for you with the blood of Jesus. That is your worth. If God says it about you, then you can say it about yourself.",act:["Memorize Philippians 4:13: I can do all things through Christ who strengthens me.","Say it emphasizing different words to make it come alive.","Choose to believe what God says about you instead of what the world says."],read:"Matthew 10"},
+{t:"Changing Yourself by Changing Your Mind",v:"I can do all things through Christ who strengthens me.",r:"Philippians 4:13",teach:"You get strength by rebuilding the inside of your heart and mind with God's words. The world tries to tell you it is foolish to live for God, but God's Word is truth and reality. Say this verse so many times that it explodes and comes alive inside your heart.",act:["Write out Philippians 4:13 in your own words.","List your biggest obstacles and the areas where you feel powerless.","Say I can do [obstacle] through Christ over each weak area."],read:"Matthew 11"},
+{t:"What God Says about You",v:"In all these things we are more than conquerors through him who loved us.",r:"Romans 8:37",teach:"In the middle of every kind of persecution and circumstance, we are MORE than conquerors. That means we have the strength of God. You do not have to just barely make it — you can overcome. The key: God says you are more than a conqueror. When God says it, you can say it.",act:["Write Romans 8:37 on a card or set it as your phone wallpaper.","Say it so many times that it is blasting through your brain.","Ask God to ignite your heart with confidence in who he says you are."],read:"Matthew 12"},
+{t:"Growing in Strength",v:"The child grew and became strong in spirit.",r:"Luke 1:80",teach:"Both John the Baptist and Jesus had to grow in strength. Even Jesus, the Son of God, grew. Strength is not something you just pray for and get right away — you grow in it by getting God's Word planted deep in your heart. Make a commitment that strength is a character trait you will work on for the rest of your life.",act:["List some areas in which you would like to grow in strength.","Pray over those areas and ask God for specific verses on each one.","Pray: Lord, I want the strength I have today not to be the limit of my strength."],read:"Matthew 13"},
+{t:"God Makes You Strong in Your Weakness",v:"When I am weak, then I am strong.",r:"2 Corinthians 12:10",teach:"Paul gloried in his weaknesses because those were the very areas God made strong in him. An area you have been weak in for a long time is NOT an area you have to stay weak in. God wants to face the devil in a big way in your life by making you strong in areas of weakness.",act:["List some areas in which you have felt weak.","Write out 2 Corinthians 12:10 on a card or your phone wallpaper.","Quote it every time you feel weak today. Start saying: I am strong!"],read:"Matthew 14"}
+]},
+{title:"Friendships That Matter",theme:"accountability, friendship, community",id:"I am building friendships that make me better. I lock arms with others who are on fire for God.",days:[
+{t:"A New Level of Friendship",v:"A friend loves at all times, and a brother is born for adversity.",r:"Proverbs 17:17",teach:"An accountability friend loves you at all times — in the good times and the rocky times. Christianity is about locking hearts with people and saying we love each other too much to let each other backslide. If you isolate yourself, you become far more vulnerable to attack from the Enemy.",act:["Think of someone who could be an accountability friend for you.","Commit to reaching out to that person this week.","Ask yourself: who knows the real me — including my struggles?"],read:"Matthew 15"},
+{t:"The Value of an Accountability Friend",v:"When Peter came to Antioch, I told him face to face that he was wrong.",r:"Galatians 2:11",teach:"An accountability partner keeps you from doing things that are harmful in the long run. Some things might seem right in your eyes but according to Scripture they are not. If your friend cannot give an accounting for their actions or attitude, they should admit they are wrong. This is not about judgment — it is about loving each other enough to speak the truth.",act:["Describe a time someone got honest with you and helped you make a better decision.","Are you the kind of friend who tells the truth in love?","Pray for God to send you an accountability friend if you do not have one."],read:"Matthew 16"},
+{t:"Your Closest Friends: On Fire for God",v:"Do not be unequally yoked together with unbelievers.",r:"2 Corinthians 6:14",teach:"As you get serious about following Jesus, you will need to be intentional about who you spend the most time with. Your inner circle should be people who are on fire for God and who will pull you up, not pull you down. The most important reason to spend time with non-believers is to show them what Jesus is like.",act:["Look at your closest friendships — do they pull you closer to or further from God?","Make a plan to deepen friendships with people who love Jesus.","Commit to being an example to friends who do not know Jesus."],read:"Matthew 17"},
+{t:"Paul's Friends",v:"Paul and Barnabas spent considerable time there, speaking boldly for the Lord.",r:"Acts 14:3",teach:"Paul and Barnabas had a deep partnership in ministry. They challenged each other, encouraged each other, and went into difficult situations together. You need people like that in your life. This accountability friendship idea is not just a casual suggestion — it is essential for growing in your faith.",act:["Who in your life speaks boldly for the Lord?","How can you be a Barnabas — an encourager — to someone this week?","Make a commitment to invest in at least one deep faith friendship."],read:"Matthew 18"},
+{t:"In-Your-Face Friendships",v:"You can trust a friend who corrects you.",r:"Proverbs 27:6",teach:"Accountability friendship is about being willing to get into each other's business. It is not simply saying I will pray for you. It is loving each other enough to say I see something in your life that does not look like Jesus, and I love you enough to tell you. That is not comfortable — but it is essential for growth.",act:["Are you currently living what you profess, or is there a gap?","Is there someone in your life who loves you enough to tell you when you are off track?","Commit to being that kind of friend to someone this week."],read:"Matthew 19"},
+{t:"What to Talk About with an Accountability Friend",v:"\"I have called you friends, for all things that I heard from My Father I have made known to you.\"",r:"John 15:15",teach:"Jesus defined friendship as sharing the deepest things. That is the standard for accountability friendship: real, deep, honest sharing. Not surface conversation. But genuine sharing of what God is doing in your life, where you are struggling, and what commitments you are keeping.",act:["What is one area of your life you have not shared with anyone?","Practice being vulnerable — share something real with a trusted friend today.","Talk to your accountability friend about what God has been speaking to you this week."],read:"Matthew 20"},
+{t:"How to Make Friends",v:"A man who has friends must himself be friendly, but there is a friend who sticks closer than a brother.",r:"Proverbs 18:24",teach:"If you are going to have friends, you have to be friendly. You find accountability friendship not by staying in isolation but by getting out there and being the kind of person others want to be around. The ultimate friend who sticks closer than a brother is Jesus himself.",act:["Take a step today to reach out to someone you want to build a deeper friendship with.","Ask yourself: am I the kind of friend I want to have?","Review all the verses you memorized this week."],read:"Matthew 21"}
+]},
+{title:"Integrity: The First Step toward Becoming Like Jesus",theme:"integrity, keeping your word, character",id:"I am a person of integrity. My yes means yes and my no means no. I live the same in public as I do in private.",days:[
+{t:"What Is Integrity?",v:"A good name is more desirable than great riches; to be esteemed is better than silver or gold.",r:"Proverbs 22:1",teach:"Integrity means being the same person in private as you are in public. Your inner world matches your outer world. A good name — a reputation for being trustworthy and honest — is worth more than all the money in the world. People of integrity are rare, and they stand out.",act:["Write out what you think Proverbs 22:1 means.","Think of someone in your life who has a great reputation for integrity. What do they do differently?","What is your reputation? What do people say about you when you are not in the room?"],read:"Matthew 22"},
+{t:"Keeping Your Word",v:"All you need to say is simply Yes or No; anything beyond this comes from the evil one.",r:"Matthew 5:37",teach:"Being a person of integrity means meaning what you say and saying what you mean. If you say yes, you do it. If you say no, you do not. Our culture has normalized breaking promises and saying whatever is convenient. God calls his people to be different.",act:["Think of a commitment you made recently. Did you keep it?","Is there someone you need to follow through on something for?","Commit today: when you say something, you will mean it."],read:"Matthew 23"},
+{t:"God Is Our Example",v:"My mouth has uttered in all integrity a word that will not be revoked.",r:"Isaiah 45:23",teach:"God is the ultimate example of integrity. When God says something, it is done. His word does not return void. He does not make promises he does not keep. We are called to imitate him. When you walk with integrity, you reflect the character of God to the people around you.",act:["List areas in your life where you have not been living with full integrity.","Ask God to forgive you and help you commit to his standard.","Choose one specific area to bring into integrity today."],read:"Matthew 24"},
+{t:"Integrity of Heart",v:"Walk before me faithfully with integrity of heart and uprightness.",r:"1 Kings 9:4",teach:"God is interested in why you do what you do. Walking with integrity of heart means your motives are pure, your intentions are honest, and your inner life matches your outward life. God promised David's son that if he walked with integrity of heart, he would establish his throne.",act:["Ask God to reveal any area where your motives are not pure.","Write a prayer asking God to give you an undivided, upright heart.","How can you show integrity in your family today?"],read:"Matthew 25"},
+{t:"God Judges Our Hearts",v:"Judge me, O Lord, according to my righteousness, and according to my integrity within me.",r:"Psalm 7:8",teach:"David was bold enough to ask God to judge him by his integrity. Could you say that prayer today? God does not just see what we show others — he sees the hidden corners of our hearts. He is interested in who we are when no one is watching. That is the real test of integrity.",act:["Write out what Psalm 7:8 means to you.","Ask God: Is there anything in me that does not reflect integrity?","Commit to living so that you could say this prayer with confidence."],read:"Matthew 26"},
+{t:"Integrity Is Our Standard",v:"The integrity of the upright guides them, but the unfaithful are destroyed by their duplicity.",r:"Proverbs 11:3",teach:"When you say something, people should be able to rely on it. As a follower of Jesus, you are called to a higher standard. Integrity actually guides you — it becomes a compass that keeps you on track even when no one is watching. Where do you act one way in public and another in private?",act:["Where do you act one way in public and another in private?","What would change if you lived the same in all areas of your life?","Commit to letting integrity be your guide today."],read:"Matthew 27"},
+{t:"Integrity Brings Security",v:"Whoever walks in integrity walks securely, but whoever takes crooked paths will be found out.",r:"Proverbs 10:9",teach:"One of the most incredible advantages of walking with integrity is security. When you live honestly, you have nothing to hide. You do not have to keep track of lies. You do not have to worry about being found out. Integrity gives you a freedom and security that nothing else can provide.",act:["Write out what this verse means for you today.","Is there anything in your life right now you would be embarrassed for others to find out?","Take care of it today — bring it into the light."],read:"Matthew 28"}
+]},
+{title:"Whom Do You Belong To?",theme:"church, community, belonging, authority",id:"I belong to God and to his family. I am planted in a church and I submit to godly authority.",days:[
+{t:"Meet Together Regularly",v:"We should not give up the habit of meeting together, but encourage one another.",r:"Hebrews 10:25",teach:"Paul specifically called out the habit of skipping church. Meeting together is not optional for a follower of Jesus — it is essential. You were not designed to do this alone. When you gather with other believers, you are encouraged, strengthened, and held accountable. The church is God's plan for your growth.",act:["Are you consistently attending church? If not, what is getting in the way?","Commit to attending your church consistently for the next 12 weeks.","Encourage someone else to come to church with you this week."],read:"Mark 1"},
+{t:"Spur One Another On",v:"Let us consider how we may spur one another on toward love and good deeds.",r:"Hebrews 10:24",teach:"We need people in our lives who provoke us — in a good way — toward love and good deeds. A spur is something that provokes forward motion. Who is spurring you on? Who are you spurring on? This is why we gather — not just to be inspired but to inspire others.",act:["Write out in your own words what it means to spur one another on.","Name someone who needs to be spurred on toward God right now.","Send them an encouraging message today."],read:"Mark 2"},
+{t:"Where Do You Belong?",v:"You were bought at a price. Therefore honor God with your bodies.",r:"1 Corinthians 6:20",teach:"Jesus paid for you with his blood. If you have given your heart to him, you do not belong to yourself anymore — you belong to God. And God has placed you in a family: the church. You belong to that family. You have a place. You have a role. Your life is meant to be lived in community, not isolation.",act:["Are you actively involved in a local church? What is your role?","Ask God: Where do you want me to serve in your family?","Take one step toward deeper involvement in your church this week."],read:"Mark 3"},
+{t:"Take Up the Vision",v:"Whatever you do, do it heartily, as to the Lord and not to men.",r:"Colossians 3:23",teach:"God knows that all people long to find something they can throw their hearts and minds into. As a follower of Jesus, you have the greatest vision ever: to change the world for God. Whatever you do — at school, at home, in your church — do it as if you are doing it directly for God. That changes everything.",act:["What is something you have been doing halfheartedly that you could give fully to God?","What would it look like to do your daily activities as to the Lord?","Commit to going all-in for God in one specific area this week."],read:"Mark 4"},
+{t:"Submit to Your Church Leader",v:"Give respect and honor to those who are in authority.",r:"Romans 13:7",teach:"Our culture teaches us to do whatever we want and ignore authority. But God calls us to honor those he has placed over us. Your connect group leader, youth pastor, and church leadership are placed there by God. Submitting to them is not weakness — it is wisdom. It is one of the ways God protects and guides you.",act:["How do you talk about your church leaders? Is it with respect?","Write a thank-you note or message to a leader who has impacted you.","Ask God to give you a heart that honors those in authority over you."],read:"Mark 5"},
+{t:"Submit to Your Senior Pastor",v:"Everyone must submit himself to the governing authorities, for there is no authority except that which God has established.",r:"Romans 13:1",teach:"A follower of Christ respects the senior pastor and the leadership of the church. This does not mean leaders are perfect — it means God has placed them there and we honor God by honoring them. When you submit to godly authority, you place yourself under God's protection and blessing.",act:["Is there any leader you have had a critical attitude toward? Repent of that today.","Pray for your senior pastor by name right now.","Commit to speaking well of your church leaders to others."],read:"Mark 6"},
+{t:"Young and Radical Examples",v:"Do not let anyone look down on you because you are young, but set an example in speech, in conduct, in love, in faith and in purity.",r:"1 Timothy 4:12",teach:"Paul told Timothy — who was young — not to let anyone look down on him because of his age. Your youth is not a limitation; it is an opportunity. You can be an example right now. You do not have to wait until you are older to make a difference. Set the standard with your words, your actions, your love, your faith, and your purity.",act:["In what areas are you setting a good example? In what areas do you need to grow?","Who in your peer group could you be a godly example to this week?","Commit to one specific way you will be an example for others today."],read:"Mark 7"}
+]},
+{title:"Faith When You Don't Feel Anything",theme:"faith, feelings, the Word of God",id:"I live by faith, not by feelings. I choose to trust God's Word even when I do not feel him near.",days:[
+{t:"Warm Fuzzies Come and Go",v:"Everyone who hears these words of mine and puts them into practice is like a wise man who built his house on the rock.",r:"Matthew 7:24",teach:"When people give their lives to the Lord, some have a dramatic emotional experience. But those feelings come and go. The rock you build your life on is not feelings — it is the Word of God. Feelings are real, but they are not reliable foundations. Faith is not a feeling; it is a choice to trust God's Word regardless of how you feel.",act:["Have you been basing your faith on feelings or on God's Word?","What is one truth from Scripture you can stand on today, regardless of feelings?","Commit to reading your Bible even on days when you do not feel like it."],read:"Mark 8"},
+{t:"Guided by the Word or Emotions?",v:"If you declare with your mouth Jesus is Lord, and believe in your heart that God raised him from the dead, you will be saved.",r:"Romans 10:9",teach:"Salvation is not based on a feeling — it is based on what you declare and believe. If you believed when you gave your heart to Jesus, that was real. Your emotions that day were just the response. You are saved because you believed and confessed — not because of how you felt. Let the Word guide you, not your emotions.",act:["Write out Romans 10:9 in your own words.","Remind yourself: I am saved because I believed and confessed — not because of how I feel right now.","Let this truth anchor you on hard days."],read:"Mark 9"},
+{t:"Draw Near to God",v:"Come near to God and he will come near to you.",r:"James 4:8",teach:"What if you do not feel anything? What should you do? You need to live a life of obedience because you love Jesus — even if you do not feel anything. Draw near to God. That means spending time with him in his Word and prayer, even when it feels dry. The promise is: when you draw near to him, he draws near to you.",act:["Memorize and meditate on James 4:8.","Make a decision today to draw near to God regardless of your feelings.","Spend an extra 5 minutes in prayer or Scripture today — even if you do not feel like it."],read:"Mark 10"},
+{t:"What Happens When You Worship?",v:"He was filled with joy because he had come to believe in God — he and his whole household.",r:"Acts 16:34",teach:"Paul and Silas worshiped God while in prison — in chains, in the dark. And God moved. Worship is not a response to good circumstances; it is a choice made in any circumstances. When you choose to worship, something shifts. Joy comes. Chains loosen. Worship before you feel like it and watch what God does.",act:["Read Acts 16:16-40 today.","The next time you do not feel God, choose to worship anyway.","Write down what happens when you worship before you feel like it."],read:"Mark 11"},
+{t:"Set Your Mind on Truth",v:"Whatever is true, whatever is noble, whatever is right, whatever is pure, whatever is lovely, whatever is admirable — think about such things.",r:"Philippians 4:8",teach:"Your feelings follow your thoughts. If you think on discouraging, negative things, you will feel discouraged and negative. God's prescription: deliberately set your mind on what is true, noble, right, pure, lovely, and admirable. This is not denial — it is choosing the higher truth of God's Word over the lower reality of your circumstances.",act:["Memorize Philippians 4:8.","What have you been thinking about most? Does it match this verse?","Write out five things that are true, noble, pure, lovely, or admirable in your life right now."],read:"Mark 12"},
+{t:"Faith That's Bigger Than Sight",v:"We live by faith, not by sight.",r:"2 Corinthians 5:7",teach:"There will definitely be times when you do not feel much. The key is choosing to live by faith — by what God has said — rather than by what you can see or feel. Faith is not blind; it is grounded in the proven Word of God. Every time you choose God's Word over your feelings, your faith muscle gets stronger.",act:["Meditate on 2 Corinthians 5:7. What does it mean to you?","Describe one area where you need to choose faith over what you can currently see.","Declare: I live by faith, not by sight over that area right now."],read:"Mark 13"},
+{t:"Build Your Life on the Word",v:"Do not let your heart be troubled; believe in God, believe also in Me.",r:"John 14:1",teach:"Being committed to Christ means loving God and living for him even when you do not feel anything. The wise man built his house on the rock and the storms could not destroy it. Your daily time in the Word is building that foundation. Every day you show up is a brick being laid.",act:["Review the verses you have memorized this week.","Commit to a specific daily Bible reading plan going forward.","Pray: Lord, even when I do not feel you, I choose to trust you."],read:"Mark 14"}
+]},
+{title:"Taking Control of Your Life",theme:"self-control, purity, overcoming sin",id:"I am not a slave to my impulses. I have self-control through Christ. I am free.",days:[
+{t:"Baby Christian",v:"Like a city whose walls are broken through is a person who lacks self-control.",r:"Proverbs 25:28",teach:"A newborn baby has no self-control — and that is appropriate for a baby. But there are people who have known Jesus for years who are still baby Christians in this area. Without self-control, you are like a city with no walls: wide open to any attack. Growing up in Christ means growing in self-control.",act:["Where do you most lack self-control?","What is the cost of that lack of self-control in your life?","Commit to addressing one specific area of self-control this week."],read:"Mark 15"},
+{t:"How to Have Self-Control",v:"Make every effort to add to your faith goodness; and to goodness, knowledge; and to knowledge, self-control.",r:"2 Peter 1:5-6",teach:"Peter gave us the progression of growing up spiritually — and self-control is right in the middle of it. It does not appear by accident; you add it intentionally. Self-control grows as you grow in faith, goodness, and knowledge. It is a fruit that develops through intentional pursuit of God.",act:["Write out 2 Peter 1:5-6 and think about each step in the progression.","What is one practical way to build self-control in your daily life?","Ask a trusted friend to help hold you accountable in an area of self-control."],read:"Mark 16"},
+{t:"The Fruit of Self-Control",v:"The fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness, gentleness and self-control.",r:"Galatians 5:22-23",teach:"Self-control is a fruit of the Spirit — which means it is grown, not manufactured. You cannot white-knuckle your way to self-control. But as you walk in the Spirit, stay in the Word, and surrender to God daily, self-control grows naturally as a fruit of that relationship.",act:["Which fruits of the Spirit are strongest in your life? Which need the most growth?","Pray specifically for the fruit of self-control.","In what specific situation today will you need to exercise self-control?"],read:"Luke 1"},
+{t:"Take Control of Your Mouth",v:"You must also rid yourselves of all such things as these: anger, rage, malice, slander, and filthy language from your lips.",r:"Colossians 3:8",teach:"As a follower of Jesus, your words should be different — not just avoiding certain words, but speaking words that build up rather than tear down. Your mouth reveals your heart. When you take control of your mouth, you take control of a great deal of your life.",act:["What kinds of words come out of your mouth most often?","Is there a specific pattern of speech you need to repent of?","Commit to only speaking words that build others up for the rest of today."],read:"Luke 2"},
+{t:"Flee from Sexual Immorality",v:"Among you there must not be even a hint of sexual immorality, or of any kind of impurity.",r:"Ephesians 5:3",teach:"God's standard for sexual purity is high: not even a hint. The world has normalized sexual immorality, but God's people are called to a different standard. Flee — do not flirt with the line, do not test the boundaries. Get out of situations that lead to compromise. Your purity is worth protecting.",act:["Are there situations, relationships, or content you need to flee from?","Make a practical plan to avoid situations that lead to compromise.","Pray for the strength to honor God with your body."],read:"Luke 3"},
+{t:"Freedom from Drugs and Alcohol",v:"Do not get drunk on wine, which leads to debauchery. Instead, be filled with the Spirit.",r:"Ephesians 5:18",teach:"God's alternative to substances that alter your mind is being filled with the Holy Spirit — which is better than any high. Drugs and alcohol promise freedom but deliver chains. The Spirit of God offers real freedom, real peace, real joy. If you are struggling in this area, there is no shame in getting help.",act:["Write Ephesians 5:18 in your own words.","Is there any substance you use to cope that you need to bring before God?","Ask God to fill you with his Spirit as an alternative."],read:"Luke 4"},
+{t:"Deal With Your Own Sin",v:"The word of God is alive and active.",r:"Hebrews 4:12",teach:"The Word of God is alive and able to deal with every area of sin in your life. There is no sin so deep that God's Word cannot reach it. For every sin pattern you have struggled with, there is a scripture that speaks life. Find it. Memorize it. Use it as a weapon against the Enemy.",act:["Is there an area of sin you have been avoiding dealing with?","Find a scripture that speaks directly to that area.","Bring it before God today and ask for his grace to overcome it."],read:"Luke 5"}
+]},
+{title:"Why Music Matters",theme:"music, worship, what you feed your mind",id:"I am intentional about what I feed my mind. I choose music that lifts up Jesus and builds me up.",days:[
+{t:"What's behind the Music?",v:"I will make music to the Lord.",r:"Judges 5:3",teach:"Music was created for worship. When Jesus changes your heart, his ways should affect every area of your life — including the music you listen to. Music bypasses logic and goes straight to the heart. What is the music you listen to putting in your heart?",act:["Why was music created, according to the Bible?","Look at your current playlist. What is it putting in your heart?","What would it look like to use music as worship to God?"],read:"Luke 6"},
+{t:"Are You Being Tricked?",v:"Do not follow the crowd in doing wrong.",r:"Exodus 23:2",teach:"Music has become a subculture — it defines groups and identities. The music of this world often glorifies things that are directly opposed to God's values. You can be tricked into agreeing with an anti-God worldview through music you absorb passively. Do not follow the crowd. Be intentional.",act:["What messages is the music you listen to most sending you?","Are you following the crowd in your music choices?","Make one intentional change to what you listen to this week."],read:"Luke 7"},
+{t:"What's a Spiritual Song?",v:"Speak to one another in psalms and hymns and spiritual songs.",r:"Ephesians 5:19",teach:"Spiritual songs do not just mean old hymns — they mean music that speaks truth, glorifies God, and builds up your spirit. The test is: does this music draw me closer to God or away from him? Does it build me up or tear me down?",act:["What does a spiritual song look like to you?","Find one song this week that you could call a spiritual song and make it part of your regular listening.","How can you use music to encourage someone else?"],read:"Luke 8"},
+{t:"Does Your Music Lift Jesus Up?",v:"Hate what is evil; cling to what is good.",r:"Romans 12:9",teach:"You can meditate on the Word of God and then listen to music that undoes that work by pulling you away. Your music is either lifting Jesus up or pulling you away from him. Cling to what is good — ruthlessly. Hate what is evil — seriously. The music test: does it lift Jesus up?",act:["Apply the test: does your music lift Jesus up?","What music do you need to cling to? What do you need to walk away from?","Create a worship playlist you can listen to throughout the day."],read:"Luke 9"},
+{t:"Finding Jesus Bands",v:"By their fruit you will recognize them.",r:"Matthew 7:20",teach:"You can tell whether a band or artist is genuinely Christian by their fruit — not just by what they claim. Do their lyrics point to Jesus? Does their lifestyle reflect their message? Does their music draw you closer to God? By their fruit you will recognize them.",act:["Research one Christian artist or band you have never listened to and give them a try.","What fruit are you seeing in the artists you currently listen to most?","Share a song that has genuinely encouraged your faith with someone."],read:"Luke 10"},
+{t:"The Soundtrack of Your Life",v:"Whether you eat or drink or whatever you do, do it all for the glory of God.",r:"1 Corinthians 10:31",teach:"Everything — including your music — should be done for the glory of God. When you ask does this glorify God before you hit play, you start to build a soundtrack that builds you up rather than tears you down. Your playlist shapes your day and your mind.",act:["Audit your current playlists this week.","Delete or replace anything that does not pass the glory of God test.","Build a new playlist that you are proud to say you listen to."],read:"Luke 11"},
+{t:"God's Idea of Fun",v:"Set your hearts on things above, where Christ is, not on earthly things.",r:"Colossians 3:1-2",teach:"Following Jesus does not mean giving up fun — it means upgrading your idea of fun. As you pursue things above, the world's idea of fun starts to lose its appeal. You discover a whole new way of enjoying life that is richer, deeper, and more satisfying than anything the world offers.",act:["What is God's idea of fun in your life right now?","What earthly entertainment has had too much of your heart?","Set your heart on things above — what would that look like practically today?"],read:"Luke 12"}
+]},
+{title:"How to Have a Pure Heart",theme:"purity, motives, forgiveness, the heart",id:"I pursue a pure heart. I am motivated by love, not by appearance. My heart belongs to God.",days:[
+{t:"What Is a Pure Heart?",v:"Blessed are the pure in heart, for they will see God.",r:"Matthew 5:8",teach:"Jesus made this promise during the Sermon on the Mount: those who dare to have a pure heart will see God. A pure heart is not a sinless heart — it is a heart that is directed toward God, that confesses quickly, that is not mixed with hidden agendas. Purity of heart is about direction, not perfection.",act:["What does a pure heart mean to you?","Is your heart directed toward God or toward other things?","Ask God to purify your heart today — to remove anything mixed in it."],read:"Luke 13"},
+{t:"A Clean Heart",v:"Who may ascend the mountain of the Lord? The one who has clean hands and a pure heart.",r:"Psalm 24:3-4",teach:"Clean hands and a pure heart — both our actions and our inner life matter to God. You cannot separate what you do from what you are inside. If you want to stand in God's presence and experience his closeness, the path is purity in both your actions and your motivations.",act:["Write out what Psalm 24:3-4 says to you personally.","Are there actions in your life that do not reflect a clean heart?","Ask God to clean both your hands and your heart today."],read:"Luke 14"},
+{t:"Hearing from God",v:"Those who live in accordance with the Spirit have their minds set on what the Spirit desires.",r:"Romans 8:5",teach:"Having a pure heart is not about being perfect — it is about having pure motives and keeping your mind set on what the Spirit desires. A pure heart creates clear spiritual hearing. The more mixed our heart is with other things, the harder it is to hear God's voice.",act:["Is your mind currently set on what the Spirit desires?","What is competing for your mind's attention?","Spend 10 quiet minutes just listening to God today."],read:"Luke 15"},
+{t:"Purity in Your Relationships",v:"Flee the evil desires of youth and pursue righteousness, faith, love and peace, along with those who call on the Lord out of a pure heart.",r:"2 Timothy 2:22",teach:"Flee evil desires — do not manage them, do not negotiate with them, flee them. And pursue — actively, aggressively — righteousness, faith, love, and peace. Your relationships either help you pursue these things or pull you away from them.",act:["Memorize 2 Timothy 2:22.","What evil desires in relationships do you need to flee from?","What would it look like to pursue righteousness, faith, love, and peace in your relationships?"],read:"Luke 16"},
+{t:"Forgiven",v:"Create in me a pure heart, O God, and renew a steadfast spirit within me.",r:"Psalm 51:10",teach:"David prayed this prayer after he had really blown it. He did not try to cover it up — he brought it to God. And God forgave him and created a pure heart in him. No matter what you have done, this prayer is available to you. God can create a pure heart in you — not just clean up the old one, but create something new.",act:["Rewrite Psalm 51:10 in your own words.","Is there something you need to bring to God for forgiveness today?","Receive God's forgiveness and let him create a pure heart in you."],read:"Luke 17"},
+{t:"The Motives of Your Heart",v:"The Lord searches every heart and understands every desire and every thought.",r:"1 Chronicles 28:9",teach:"Having a pure heart starts with motives. God searches your heart and understands every desire and thought. You can do the right things with the wrong motives — you can serve to be seen, give to be praised, pray to look spiritual. God is not impressed. He wants your heart, not your performance.",act:["Why do you do the things you do for God? Check your motives honestly.","Ask God to purify your motives — to do things purely out of love for him.","Choose one thing today to do for God privately, with no one watching."],read:"Luke 18"},
+{t:"A Heart Refined by God",v:"The goal of this command is love, which comes from a pure heart and a good conscience and a sincere faith.",r:"1 Timothy 1:5",teach:"The goal of everything God is doing in your life is love — love that flows from a pure heart, a good conscience, and sincere faith. God is refining you. The process is not always comfortable, but the goal is beautiful: a heart so pure that it overflows naturally with love for God and others.",act:["Write down what you think the main point of 1 Timothy 1:5 is.","In what ways is God currently refining your heart?","Thank him for the process, even if it is uncomfortable."],read:"Luke 19"}
+]},
+{title:"Relationships with the Opposite Sex",theme:"purity, relationships, God's design for sexuality",id:"I honor God with my body. I wait for God's best. I treat others with respect and purity.",days:[
+{t:"Submit Your Passion to God",v:"This is the will of God, your sanctification: that you abstain from sexual immorality; that each one of you know how to control his own body in holiness and honor.",r:"1 Thessalonians 4:3-5",teach:"God's will for your life includes how you handle your sexuality. Sanctification — being set apart — includes setting apart your sexual passion for marriage. Control your body in holiness and honor. This is not about being anti-sex; it is about honoring what God designed.",act:["Submit your passions and desires to God in prayer right now.","What does it look like to control your body in holiness and honor?","Ask God to help you see relationships the way he sees them."],read:"Luke 20"},
+{t:"Put It to Death",v:"Put to death therefore what is earthly in you: sexual immorality, impurity, passion, evil desire.",r:"Colossians 3:5",teach:"Put to death — not manage, not limit, not reduce. Paul used strong language because the stakes are high. Sexual immorality does not just have spiritual consequences; it has emotional, relational, and physical consequences. The world has normalized it, but God's people are called to put it to death.",act:["Are there any areas of sexual immorality you have been managing instead of putting to death?","What specific step will you take today to put that thing to death?","Ask an accountability friend to help keep you on track in this area."],read:"Luke 21"},
+{t:"Avoid the Cycle",v:"Treat younger women as sisters, with absolute purity.",r:"1 Timothy 5:2",teach:"Treat the opposite sex as you would a brother or sister — with absolute purity. The cycle of dating then hurting people damages them and leaves scars. You could be dating someone who will become the future spouse of someone you know. Treat every person with the dignity they deserve as a child of God.",act:["How do you treat the opposite sex — with dignity or as a means to an end?","What would it look like to treat every person of the opposite sex as a brother or sister?","Ask God to change the way you see and treat others."],read:"Luke 22"},
+{t:"Wrong Place, Wrong Time",v:"The man and his wife were both naked, but they felt no shame.",r:"Genesis 2:25",teach:"God designed sex for marriage — a covenant of commitment and security. Outside of marriage, sexual intimacy can never deliver the security and love it promises. Many young people look for love in the wrong places at the wrong time. Avoid situations that put you in compromise.",act:["Are there situations you regularly put yourself in that lead to compromise?","Make a specific plan to avoid those situations.","Pray for wisdom about where to be and when."],read:"Luke 23"},
+{t:"A Matter of Life and Death",v:"Do not be conformed to this world, but be transformed by the renewing of your mind.",r:"Romans 12:2",teach:"Do not be conformed — do not let the world squeeze you into its mold. The world's sexual standards lead to heartbreak, broken relationships, and lives derailed. God's standard is not a restriction; it is a protection. Let your mind be renewed by God's Word.",act:["In what ways has the world been trying to conform your thinking about relationships?","Write out what God's Word says about relationships and purity.","Renew your mind with truth today."],read:"Luke 24"},
+{t:"Worth the Wait",v:"The two will become one flesh. So they are no longer two, but one flesh.",r:"Mark 10:8",teach:"God designed the union of marriage to be a one-flesh experience — a unique, deep, irreversible bond. It is worth waiting for. What God has designed for marriage is so much more than the world offers. When you wait, you protect that gift and you honor the person you will someday marry.",act:["What does it mean to you that God's design for marriage is worth waiting for?","Write a letter to your future spouse about the commitment you are making today.","Thank God for the gift he is protecting for you."],read:"John 1"},
+{t:"Because God Said So",v:"Do you not know that your bodies are temples of the Holy Spirit, who is in you?",r:"1 Corinthians 6:19",teach:"You have read six common-sense reasons to wait. But the seventh and ultimate reason is: because God said so. Your body is a temple of the Holy Spirit. That changes everything about how you treat it and how you allow others to treat it. You are sacred. Act like it.",act:["How does knowing your body is a temple change how you think about purity?","Review the commitments you have made this week regarding relationships.","Commit to honoring God with your body because he lives in you."],read:"John 2"}
+]},
+{title:"Family Survival",theme:"family, honor, obedience, parents",id:"I honor my parents and family. I speak with respect and show responsibility. I am trustworthy.",days:[
+{t:"What's Your Family Like?",v:"Fathers, do not exasperate your children; instead, bring them up in the training and instruction of the Lord.",r:"Ephesians 6:4",teach:"If you come from a stable, loving family, you are in the minority. The reality is that many families are broken or difficult. But no matter what your family looks like, God has something to say about how you live within it. You cannot control what your parents do, but you can control who you are.",act:["What is your family like? Be honest with yourself.","What are the strengths of your family? What are the challenges?","Ask God: What is my role in bringing peace and godliness to my family?"],read:"John 3"},
+{t:"Honor Equals Freedom",v:"Honor your father and mother — so that it may go well with you and that you may enjoy long life on the earth.",r:"Ephesians 6:2-3",teach:"Honoring your parents is the first commandment with a promise attached: things will go well for you, and you will enjoy life. Honor is not about feelings — it is about treating your parents with respect regardless of how you feel about them. And here is the surprise: honor is the path to more freedom, not less.",act:["Are you the type of person who wishes for more freedom at home?","How might honoring your parents lead to more freedom?","Choose one specific way to honor your parents today."],read:"John 4"},
+{t:"Advantages of Honoring Your Parents",v:"Honor your father and mother — so that it may go well with you.",r:"Ephesians 6:2",teach:"Beyond the promise of a long and good life, honoring your parents has practical advantages: you learn from their experience, you gain their trust, and you build the character God will use throughout your life. Honoring is not agreeing with everything — it is choosing to treat them with dignity regardless.",act:["List three advantages you can see from honoring your parents.","Choose to honor your parents even in one difficult area today.","Pray specifically for your parents by name right now."],read:"John 5"},
+{t:"How Do You Speak to Your Parents?",v:"Do not let any unwholesome talk come out of your mouths, but only what is helpful for building others up according to their needs.",r:"Ephesians 4:29",teach:"Another way to honor your parents is in how you speak to them. The tone, the words, the eye rolls, the sighs — these all communicate honor or dishonor. God's standard: only say things that are helpful for building others up. That applies to how you talk to your parents too.",act:["How do you typically speak to your parents? Is it honoring?","Commit for one full week to speak only words that build your parents up.","Ask your parents forgiveness if you have spoken dishonorably."],read:"John 6"},
+{t:"Honor Equals Obedience",v:"Children, obey your parents in the Lord, for this is right.",r:"Ephesians 6:1",teach:"Obedience sounds like torture — but God says it is right. And what is right is always best. Obedience from the heart is not slavery — it is trust. You trust that God has put your parents there for a reason.",act:["Is there an area where you have been disobeying your parents?","Commit to obedience — even when it is hard — because it is right.","Ask God to give you a heart that trusts his placement of authority in your life."],read:"John 7"},
+{t:"Honoring When It's Hard",v:"Children, obey your parents in everything, for this pleases the Lord.",r:"Colossians 3:20",teach:"Honoring can be different from obeying. There are situations where honoring your parents is genuinely difficult — when they are absent, hurtful, or unfair. But you can still choose to treat them with dignity. Honoring in hard situations is one of the greatest witnesses to the power of God in your life.",act:["Are you in a situation where honoring your parents is genuinely difficult?","Ask God how you can honor them even in that difficulty.","Pray for your parents by name right now — even if it is hard."],read:"John 8"},
+{t:"Honor Equals Showing Responsibility",v:"Well done, good and faithful servant! You have been faithful with a few things; I will put you in charge of many things.",r:"Matthew 25:21",teach:"Many young people want more freedom but have not shown they are responsible enough for it. In the parable of the talents, the servant was given more when he was faithful with little. Honor your parents by showing you are responsible with what you have been given. Faithfulness in small things is the path to greater trust.",act:["In what areas are you faithful and responsible at home?","In what areas do you need to grow in responsibility?","Commit to being faithful with one specific small thing this week."],read:"John 9"}
+]},
+{title:"Forgiveness and Family",theme:"forgiveness, family challenges, reconciliation",id:"I am a forgiver. I choose to release bitterness and walk in freedom. God has forgiven me, so I forgive others.",days:[
+{t:"God Cares",v:"I hate divorce, says the Lord God of Israel.",r:"Malachi 2:16",teach:"God hates divorce because he sees the devastation it brings to families. If your family has been affected by divorce, God cares deeply. He is not distant from your pain. The fact that he hates the thing that hurt you means he is on your side. You are not forgotten.",act:["How has your family situation affected you?","Bring those feelings honestly to God today.","Ask God to heal any wounds from family pain in your life."],read:"John 10"},
+{t:"The Single Parent Family",v:"In you the fatherless find compassion.",r:"Hosea 14:3",teach:"When a family separates, the emotions are similar to grief. Whether you are in a single parent home by divorce, death, or abandonment — God is your Father. He has compassion for the fatherless. He steps in where parents are absent. You are not without a father; you have the best Father of all.",act:["If you are in a single-parent home, how has that affected you?","Ask God to be your Father in any areas where an earthly parent is absent.","Thank your single parent for everything they do for you today."],read:"John 11"},
+{t:"Stepfamily Harmony",v:"As far as it depends on you, live at peace with everyone.",r:"Romans 12:18",teach:"Blended families come with unique challenges. You may not have chosen your stepparent or stepsibling, but God is asking you to choose harmony. As far as it depends on you, live at peace with everyone. You cannot control how others act, but you can control your response.",act:["What is one source of conflict you can begin to let go of?","How can you choose harmony even if others around you do not?","Pray for each member of your family by name today."],read:"John 12"},
+{t:"Forgiveness Starts with You",v:"If you forgive other people when they sin against you, your heavenly Father will also forgive you.",r:"Matthew 6:14",teach:"Many complex issues in families come back to unforgiveness. Jesus is clear: if you want to receive forgiveness from God, you must forgive others. Forgiveness is not saying what happened was okay. It is releasing the debt and freeing yourself from the prison of bitterness.",act:["Is there anyone in your family you need to forgive?","Write their name down and make a declaration of forgiveness — even if they have not apologized.","Ask God to help you truly let it go."],read:"John 13"},
+{t:"My Personal Battle",v:"When you stand praying, if you hold anything against anyone, forgive them.",r:"Mark 11:25",teach:"Unforgiveness blocks your prayer life. Jesus said: when you stand praying, if you hold anything against anyone — forgive. Not after you feel like it. Not when they deserve it. Right now, while you are praying. Forgiveness is a choice, not a feeling. It may take repeated choices before the feeling follows.",act:["Is there anyone you hold something against? Name them honestly before God.","Make the choice — right now — to forgive them.","Pray for them by name and ask God to bless them."],read:"John 14"},
+{t:"Decide to Forgive",v:"In your anger do not sin. Do not let the sun go down while you are still angry, and do not give the devil a foothold.",r:"Ephesians 4:26-27",teach:"Forgiveness is not a feeling — you will never wake up feeling like forgiving. It is a decision. Do not let the sun go down on anger — the longer you hold it, the more of a foothold you give the devil. Decide today, with your will, regardless of feelings, to forgive.",act:["Is there anger you have been holding onto?","Make the decision — not based on feelings — to forgive.","Do not let the sun go down today while still holding unforgiveness."],read:"John 15"},
+{t:"Fight the Battle in Your Mind",v:"Anyone who loves God must also love their brother and sister.",r:"1 John 4:21",teach:"After you decide to forgive, the battle continues in your mind. Thoughts of bitterness and hurt will try to come back. Every time they do, you make the choice again: I have chosen to forgive, and I stand by that choice. You fight the battle in your mind by renewing it with truth.",act:["Review your forgiveness decisions this week. Are you standing by them?","When bitter thoughts return, say aloud: I have chosen to forgive.","Ask God to fill the space where bitterness was with his love."],read:"John 16"}
+]}
+];
+
+
+// ── HELPERS ──
+function getDay(i) {
+  const w = Math.floor(i/7), d = i%7;
+  return { w, d, week: W[w], day: W[w].days[d] };
+}
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmt12(t) {
+  const [h,m] = t.split(':'); const hr=parseInt(h);
+  return (hr>12?hr-12:(hr||12))+':'+m+' '+(hr>=12?'PM':'AM');
+}
+function makeCode() {
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length:6},()=>c[Math.floor(Math.random()*c.length)]).join('');
+}
+function toast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// ── NAVIGATION ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  if(name==='today')    { renderToday(); var ntEl=document.getElementById('ntfyTopic'); if(ntEl && S.ntfyTopic) ntEl.value=S.ntfyTopic; }
+  if(name==='verse')    renderVerse();
+  if(name==='commit')   renderCommit();
+  if(name==='share')    renderShare();
+  if(name==='progress') renderProgress();
+  if(name==='chat')     renderChat();
+}
+
+// ── TODAY ──
+function renderToday() {
+  renderGameBar();
+  const {w,d,week,day} = getDay(S.day);
+  document.getElementById('hdrDay').textContent = 'Day '+(S.day+1);
+  document.getElementById('todayWeek').textContent = 'Week '+(w+1)+': '+week.title;
+  document.getElementById('todayTitle').textContent = day.t;
+  document.getElementById('verseText').textContent = day.v;
+  document.getElementById('verseRef').textContent = day.r;
+  document.getElementById('teachingText').textContent = day.teach;
+  document.getElementById('actionSteps').innerHTML = day.act.map(a=>
+    '<div class="action-item"><div class="action-dot"></div><div class="action-text">'+esc(a)+'</div></div>'
+  ).join('');
+  document.getElementById('bibleReading').textContent = 'Read '+day.read+' today. What is God speaking to you from that passage?';
+
+  const cb = document.getElementById('completeBtn');
+  const done = S.done.includes(S.day);
+  cb.textContent = done ? '✓ Completed!' : 'Mark Complete ✓';
+  cb.style.background = done ? 'var(--green)' : '';
+
+  // Appointment card
+  const wrap = document.getElementById('apptCardWrap');
+  if (S.profile && S.profile.apptTime) {
+    wrap.innerHTML = '<div class="appt-card"><div class="appt-time">'+fmt12(S.profile.apptTime)+'</div><div class="appt-info"><div class="appt-label">Daily Appointment with Jesus</div><div class="appt-place">'+(S.profile.apptPlace?'📍 '+esc(S.profile.apptPlace):'Meeting with Jesus')+'</div><div class="appt-hint">Tap ⚙️ to update</div></div></div>';
+  } else {
+    wrap.innerHTML = '';
+  }
+
+  if (S.remActive) {
+    document.getElementById('reminderStatus').textContent = '✅ Reminders are active! Banners will appear at: '+S.remTimes.join(', ');
+  }
+  // Pending assessment tap-banner
+  var pa = document.getElementById('pendingAssessBanner');
+  if (pa) {
+    var hasPending = S.pendingAssess && !S.assessments['w'+S.pendingAssess];
+    pa.style.display = hasPending ? 'block' : 'none';
+    if (hasPending) {
+      var wkLabel = S.pendingAssess;
+      pa.innerHTML = '<div onclick="showAssessment(\''+wkLabel+'\')" style="cursor:pointer;background:linear-gradient(135deg,#e8c87a,#d4a843);color:#3a2800;border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;">'
+        +'<div style="font-size:24px;">📋</div>'
+        +'<div><div style="font-weight:800;font-size:14px;">Week '+wkLabel+' Assessment Ready</div>'
+        +'<div style="font-size:12px;margin-top:2px;opacity:.8;">Tap here — takes 2 minutes</div></div>'
+        +'<div style="margin-left:auto;font-size:20px;">›</div></div>';
+    }
+  }
+}
+
+function changeDay(d) {
+  const n = S.day + d;
+  if (n>=0 && n<84) { S.day=n; save(); renderToday(); }
+}
+
+function markComplete() {
+  if (!S.done.includes(S.day)) {
+    S.done.push(S.day);
+    S.streak = (S.streak||0) + 1;
+    if(S.streak>(S.longestStreak||0)) S.longestStreak=S.streak;
+    const today = new Date().toDateString();
+    if (S.lastDone !== today) S.lastDone = today;
+    checkStreakMilestones(S.streak);
+    save();
+    awardXP(50);
+    checkBadges();
+    checkStreakShield();
+    toast('Day '+(S.day+1)+' complete! +50 XP 🎉');
+    ptfWriteProgress('ptf1');
+    checkAssessmentTrigger(S.day);
+  }
+  if (S.day<83) setTimeout(()=>changeDay(1), 700);
+  else renderToday();
+}
+
+// ── VERSE / FLASHCARD ──
+let vIdx=0, vFlipped=false;
+function renderVerse() {
+  vIdx = S.day;
+  const {w,week} = getDay(S.day);
+  document.getElementById('verseWeekTitle').textContent = 'Week '+(w+1)+': '+week.title;
+  document.getElementById('verseWeekTheme').textContent = week.theme;
+  loadFlashcard(vIdx);
+  const start=w*7;
+  document.getElementById('allVerses').innerHTML = Array.from({length:7},(_,i)=>{
+    const dd=W[w].days[i];
+    return '<div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Day '+(i+1)+':</strong> '+esc(dd.v.substring(0,65))+'… <em>'+esc(dd.r)+'</em></div></div>';
+  }).join('');
+}
+function loadFlashcard(i) {
+  vFlipped=false;
+  const {day}=getDay(i);
+  document.getElementById('fcHint').style.display='block';
+  document.getElementById('fcText').style.display='none';
+  document.getElementById('fcRef').style.display='none';
+  document.getElementById('fcText').textContent=day.v;
+  document.getElementById('fcRef').textContent=day.r;
+  document.getElementById('flashcard').style.background='linear-gradient(145deg,#00c8da,var(--teal-dark))';
+}
+function flipCard() {
+  vFlipped=!vFlipped;
+  document.getElementById('fcHint').style.display=vFlipped?'none':'block';
+  document.getElementById('fcText').style.display=vFlipped?'block':'none';
+  document.getElementById('fcRef').style.display=vFlipped?'block':'none';
+  document.getElementById('flashcard').style.background=vFlipped?'linear-gradient(145deg,#1a5c3a,#0d3322)':'linear-gradient(145deg,#00c8da,var(--teal-dark))';
+}
+function prevVerse() { if(vIdx>0){vIdx--;loadFlashcard(vIdx);} }
+function nextVerse() { if(vIdx<83){vIdx++;loadFlashcard(vIdx);} }
+function shuffleVerse() { vIdx=Math.floor(Math.random()*84);loadFlashcard(vIdx); }
+
+// ── COMMITMENTS ──
+function renderCommit() {
+  const {day}=getDay(S.day);
+  document.getElementById('commitPrompt').textContent='"'+day.act[0]+'" — What specific commitment will you make?';
+  renderCommitList();
+  renderChips();
+}
+function renderCommitList() {
+  const el=document.getElementById('commitList');
+  const none=document.getElementById('noCommits');
+  if(!S.commits.length){el.innerHTML='';none.style.display='block';return;}
+  none.style.display='none';
+  el.innerHTML=S.commits.map((c,i)=>
+    '<div class="commit-row">'
+    +'<div class="commit-check '+(c.done?'done':'')+'" onclick="toggleCommit('+i+')">'
+    +(c.done?'<svg viewBox="0 0 24 24" width="14" height="14" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>':'')
+    +'</div>'
+    +'<div class="commit-text">'+esc(c.text)+'</div>'
+    +'<div class="commit-time">'+esc(c.time||'')+'</div>'
+    +'<button class="del-btn" onclick="deleteCommit('+i+')">×</button>'
+    +'</div>'
+  ).join('');
+}
+function addCommitment() {
+  const text=document.getElementById('newCommit').value.trim();
+  const time=document.getElementById('commitTime').value;
+  if(!text)return;
+  S.commits.push({text,time,done:false,id:Date.now()});
+  document.getElementById('newCommit').value='';
+  save(); renderCommitList();
+  toast('Commitment added! Reminder set for '+time);
+}
+function toggleCommit(i){S.commits[i].done=!S.commits[i].done;save();renderCommitList();}
+function deleteCommit(i){S.commits.splice(i,1);save();renderCommitList();}
+function renderChips() {
+  document.getElementById('reminderChips').innerHTML=S.remTimes.map((t,i)=>
+    '<div class="chip">🕐 '+t+'<button onclick="removeReminder('+i+')">×</button></div>'
+  ).join('');
+}
+function addReminderTime() {
+  const t=document.getElementById('newReminderTime').value;
+  if(!t||S.remTimes.includes(t))return;
+  S.remTimes.push(t); S.remTimes.sort(); save(); renderChips();
+  toast('Reminder added for '+t);
+}
+function removeReminder(i){S.remTimes.splice(i,1);save();renderChips();}
+
+// ── IN-APP NOTIFICATIONS ──
+function getPhone() {
+  return S.profile&&S.profile.phone ? S.profile.phone.replace(/\D/g,'') : '';
+}
+function smsVerse() {
+  var res=getDay(S.day); var day=res.day;
+  var txt='📖 Pathway to Freedom - Day '+(S.day+1)+'\n\n"'+day.v+'"\n— '+day.r+'\n\nToday: '+day.t;
+  var ph=getPhone();
+  window.open('sms:'+(ph?ph:'')+'?body='+encodeURIComponent(txt),'_blank');
+}
+function smsCommitments() {
+  var open=S.commits.filter(function(c){return !c.done;});
+  if(!open.length){toast('No open commitments yet!');return;}
+  var txt='🎯 My commitments today:\n\n'+open.map(function(c){return '• '+c.text;}).join('\n')+'\n\nPathway to Freedom - Day '+(S.day+1);
+  var ph=getPhone();
+  window.open('sms:'+(ph?ph:'')+'?body='+encodeURIComponent(txt),'_blank');
+}
+function smsWhatsApp() {
+  var res=getDay(S.day); var day=res.day;
+  var txt='📖 *Pathway to Freedom* - Day '+(S.day+1)+'\n\n_"'+day.v+'"_\n— '+day.r+'\n\n*Today:* '+day.t+'\n\n'+day.act[0];
+  var ph=getPhone();
+  var url=ph ? 'https://wa.me/'+ph+'?text='+encodeURIComponent(txt) : 'https://wa.me/?text='+encodeURIComponent(txt);
+  window.open(url,'_blank');
+}
+function activateReminders() {
+  S.remActive = true; save();
+  startReminderLoop();
+  document.getElementById('reminderStatus').textContent = "Reminders active at: " + S.remTimes.join(', ') + ". Allow notifications when asked!";
+  toast("Reminders activated! Set up ntfy for push when the app is closed.");
+  if ("Notification" in window) {
+    Notification.requestPermission().then(function(p) {
+      var el = document.getElementById("notifPermStatus");
+      if (p === "granted") {
+        if (el) el.textContent = "✅ Notifications enabled! You will get alerts when the app is open.";
+        if (!window.matchMedia("(display-mode: standalone)").matches) {
+          toast("Tip: Add this app to your Home Screen for the best experience!");
+        }
+      } else if (p === "denied") {
+        if (el) el.textContent = "❌ Notifications blocked. Go to your browser Settings > Notifications to allow this site.";
+      } else {
+        if (el) el.textContent = "⏳ Tap Allow in the pop-up to enable notifications.";
+      }
+    });
+  } else {
+    var el = document.getElementById("notifPermStatus");
+    if (el) el.textContent = "Notifications not supported in this browser. Try Chrome or Safari.";
+  }
+}
+function saveNtfyTopic() {
+  var topicEl = document.getElementById("ntfyTopic");
+  var topic = topicEl ? topicEl.value.trim() : "";
+  if (!topic) { toast("Enter a topic name first"); return; }
+  S.ntfyTopic = topic; save();
+  var statusEl = document.getElementById("ntfyStatus");
+  if (statusEl) statusEl.textContent = "Saved! Sending a test push to: " + topic;
+  sendNtfy("Welcome to Pathway to Freedom", "Your reminders are set up! You will receive daily nudges here.", topic);
+  setTimeout(function() {
+    if (statusEl) statusEl.textContent = "Topic saved: " + topic + ". If you got the test, you are all set!";
+  }, 2000);
+}
+function sendNtfy(title, body, topic) {
+  var t = topic || S.ntfyTopic;
+  if (!t) return;
+  fetch("https://ntfy.sh/" + encodeURIComponent(t), {
+    method: "POST",
+    headers: {"Title": title, "Priority": "default", "Tags": "dove"},
+    body: body
+  }).catch(function(){});
+}
+function startReminderLoop() {
+  if(window._remLoop) clearInterval(window._remLoop);
+  window._remLoop = setInterval(checkTime, 30000);
+}
+function checkTime() {
+  if(!S.remActive) return;
+  const now=new Date();
+  const ts=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  const {day}=getDay(S.day);
+  const name=S.profile?.name?', '+S.profile.name:'';
+
+  // Check reminder times
+  if(S.remTimes.includes(ts)) {
+    const msgs=[
+      {icon:'📖',title:'Verse Reminder'+name,text:'"'+day.v.substring(0,90)+'…" — '+day.r},
+      {icon:'🎯',title:'Commitment Check'+name,text:S.commits.filter(c=>!c.done).map(c=>c.text).join(' · ')||'How are your commitments going?'},
+      {icon:'🕊️',title:'Pathway to Freedom',text:'Day '+(S.day+1)+': "'+day.t+'" — '+day.act[0].substring(0,80)}
+    ];
+    const m=msgs[Math.floor(Math.random()*msgs.length)];
+    showBanner(m.icon,m.title,m.text);
+    if(Notification.permission==='granted') new Notification(m.title,{body:m.text});
+    sendNtfy(m.title, m.text);
+  }
+
+  // Appointment reminder
+  if(S.profile?.apptTime===ts) {
+    const place=S.profile.apptPlace?' at '+S.profile.apptPlace:'';
+    showBanner('☀️','Time with Jesus'+name,'Your daily appointment'+place+' is now. Open your devotional!');
+  }
+
+  // Commitment reminders
+  S.commits.forEach(c=>{
+    if(c.time===ts&&!c.done) showBanner('⏰','Commitment Reminder',c.text);
+  });
+}
+let bannerTimer=null;
+function showBanner(icon,title,text) {
+  document.getElementById('notifIcon').textContent=icon;
+  document.getElementById('notifTitle').textContent=title;
+  document.getElementById('notifText').textContent=text;
+  const b=document.getElementById('notifBanner');
+  b.classList.add('show');
+  if(bannerTimer) clearTimeout(bannerTimer);
+  bannerTimer=setTimeout(()=>b.classList.remove('show'),6000);
+}
+function closeNotif(){document.getElementById('notifBanner').classList.remove('show');}
+
+// ── COMMUNITY / SHARE ──
+function renderShare() {
+  const {w,day,week}=getDay(S.day);
+  const post=['📖 Day '+(S.day+1)+' — Pathway to Freedom','','"'+day.v.substring(0,110)+'..."','— '+day.r,'','This week: '+week.theme,'',week.id,'','#PathwayToFreedom #Faith'].join('\n');
+  document.getElementById('sharePostText').textContent=post;
+  document.getElementById('identityText').textContent=week.id;
+  document.getElementById('communityVTag').textContent='📖 Day '+(S.day+1)+': "'+day.t+'" — '+day.r;
+  document.getElementById('groupCodeDisplay').textContent=S.profile?.groupCode||'——';
+  renderFeed();
+}
+function postReflection() {
+  const text=document.getElementById('communityText').value.trim();
+  if(!text){toast('Write your reflection first!');return;}
+  const {day}=getDay(S.day);
+  const post={
+    id:Date.now(), name:S.profile?.name||'Me',
+    dayNum:S.day+1, dayTitle:day.t, verseRef:day.r,
+    text, date:new Date().toLocaleDateString(),
+    time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),
+    mine:true
+  };
+  S.posts.unshift(post); save();
+  document.getElementById('communityText').value='';
+  renderFeed();
+  toast('Posted! Copying share link... 🎉');
+  setTimeout(()=>{
+    const enc=btoa(unescape(encodeURIComponent(JSON.stringify(post))));
+    const url=location.href.split('#')[0]+'#post='+enc;
+    navigator.clipboard.writeText(url).catch(()=>{});
+    toast('Share link copied — send to your group! 🔗');
+  },800);
+}
+function renderFeed() {
+  const el=document.getElementById('groupFeed');
+  if(!S.posts.length){
+    el.innerHTML='<div style="text-align:center;padding:22px 0;color:var(--muted);font-size:13px;">No posts yet. Be the first to share!<br><br><em>When group members share their link, their reflection appears here.</em></div>';
+    return;
+  }
+  el.innerHTML=S.posts.map(p=>{
+    const init=(p.name||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    return '<div class="post-card">'
+      +'<div class="post-meta">'
+        +'<div class="post-avatar">'+esc(init)+'</div>'
+        +'<div><div class="post-name">'+esc(p.name)+(p.mine?' <span style="font-size:10px;font-weight:400;color:var(--muted);">(you)</span>':'')+'</div>'
+        +'<div class="post-day">Day '+p.dayNum+' · '+esc(p.date)+'</div></div>'
+        +'<div class="post-ref">'+esc(p.verseRef)+'</div>'
+      +'</div>'
+      +'<div class="post-text">"'+esc(p.text)+'"</div>'
+      +'<div style="display:flex;justify-content:space-between;">'
+        +'<div style="font-size:11px;color:var(--muted);font-style:italic;">'+esc(p.dayTitle)+'</div>'
+        +'<div class="post-time">'+esc(p.time||'')+'</div>'
+      +'</div></div>';
+  }).join('');
+}
+function copyGroupCode(){const c=S.profile?.groupCode||'';if(!c){toast('Set up your profile first!');return;}navigator.clipboard.writeText(c).then(()=>toast('Code copied!'));}
+function copyPost(){navigator.clipboard.writeText(document.getElementById('sharePostText').textContent).then(()=>toast('Post copied!'));}
+function shareToX(){window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(document.getElementById('sharePostText').textContent.substring(0,280)),'_blank');}
+function shareToFB(){copyPost();toast('Post copied — paste on Facebook!');}
+function shareToIG(){copyPost();toast('Caption copied — paste on Instagram!');}
+function shareViaSMS(){window.open('sms:?body='+encodeURIComponent(document.getElementById('sharePostText').textContent),'_blank');}
+
+// ── IMPORT SHARED POST ──
+function checkImport() {
+  const h=location.hash;
+  if(!h.startsWith('#post='))return;
+  try {
+    const post=JSON.parse(decodeURIComponent(escape(atob(h.replace('#post=','')))));
+    post.mine=false;
+    document.getElementById('importName').textContent=post.name+' shared a reflection!';
+    document.getElementById('importDay').textContent='Day '+post.dayNum+': "'+post.dayTitle+'" — '+post.verseRef;
+    document.getElementById('importText').textContent=post.text;
+    window._imp=post;
+    document.getElementById('importModal').classList.remove('hidden');
+    history.replaceState(null,'',location.pathname);
+  } catch(e){}
+}
+function confirmImport() {
+  const p=window._imp; if(!p)return;
+  if(!S.posts.find(x=>x.id===p.id)){S.posts.unshift(p);save();toast(p.name+"'s reflection added to your feed!");}
+  closeImport(); showPage('share');
+}
+function closeImport(){document.getElementById('importModal').classList.add('hidden');window._imp=null;}
+
+// ── PROGRESS ──
+function renderProgress() {
+  renderBadges();
+  const done=S.done.length, pct=Math.round(done/84*100);
+  document.getElementById('statDone').textContent=done;
+  document.getElementById('statStreak').textContent=S.streak||0;
+  document.getElementById('statPct').textContent=pct+'%';
+  document.getElementById('mainProg').style.width=pct+'%';
+  document.getElementById('weekCards').innerHTML=W.map((w,wi)=>{
+    const s=wi*7,wd=Array.from({length:7},(_,i)=>S.done.includes(s+i)).filter(Boolean).length;
+    const p=Math.round(wd/7*100);
+    return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;">'
+      +'<div><div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal-dark);">Week '+(wi+1)+'</div>'
+      +'<div style="font-size:13px;">'+esc(w.title)+'</div></div>'
+      +'<div style="font-size:18px;font-weight:900;color:'+(wd===7?'var(--green)':'var(--teal-dark)')+';">'+wd+'/7</div>'
+      +'</div><div class="prog-wrap"><div class="prog-bar" style="width:'+p+'%;background:'+(wd===7?'var(--green)':'')+'"></div></div></div>';
+  }).join('');
+  const cw=Math.floor(S.day/7);
+  document.getElementById('weekTabs').innerHTML=W.map((_,i)=>'<button class="week-tab '+(i===cw?'active':'')+'" onclick="jumpWeek('+i+')">'+(i+1)+'</button>').join('');
+  renderDayGrid(cw);
+}
+function renderDayGrid(wi) {
+  const s=wi*7;
+  document.getElementById('dayGrid').innerHTML=Array.from({length:7},(_,i)=>{
+    const di=s+i, dn=S.done.includes(di), td=di===S.day;
+    return '<div class="day-dot '+(dn?'done':'')+(td?' today':'')+'" onclick="jumpDay('+di+')" title="Day '+(di+1)+'">'+(i+1)+'</div>';
+  }).join('');
+}
+function jumpWeek(wi){document.querySelectorAll('.week-tab').forEach((t,i)=>t.classList.toggle('active',i===wi));renderDayGrid(wi);}
+function jumpDay(i){S.day=i;save();showPage('today');}
+function resetAll(){if(confirm('Reset all progress? Cannot be undone.')){S.done=[];S.streak=0;S.day=0;save();renderProgress();toast('Progress reset.');}}
+
+// ── CHAT ──
+const CHAT_RESPONSES = {
+  greet:["Great to connect. How are you doing with today's devotional?","Hey! I am here to walk with you through Pathway to Freedom. What is on your heart?"],
+  encourage:["You are doing great. Keep going — God is working in you even when you cannot see it.","Every day you show up matters. God sees your faithfulness."],
+  verse:["Have you had a chance to memorize it yet? Try saying it out loud a few times!","That verse was written for you, for this moment. Let it sink in."],
+  struggle:["It is okay to struggle — that is where growth happens. What specific area is hardest for you right now?","God's strength is made perfect in weakness. Bring your struggle to him and watch what he does."],
+  prayer:["Here is a prayer for you: Lord, fill me with your Spirit today. Help me live what I am learning. Make me more like Jesus. Amen.","Take a moment to pray right now. Tell God exactly what you are feeling — he can handle it."],
+  commit:["Your commitments matter. The person you are becoming is shaped by the choices you make when no one is watching.","What commitment did you make today? I can help you stay accountable to it."]
+};
+function getAI(msg) {
+  var lo=msg.toLowerCase();
+  var res=getDay(S.day); var day=res.day; var week=res.week; var w=res.w;
+  var name=S.profile&&S.profile.name?', '+S.profile.name:'';
+  if(/hi|hello|hey/.test(lo)) return "Hey"+name+"! "+CHAT_RESPONSES.greet[1];
+  if(/verse|scripture|memorize/.test(lo)) return "Today's verse: "+day.v.substring(0,80)+"... ("+day.r+"). "+CHAT_RESPONSES.verse[0];
+  if(/struggle|hard|difficult/.test(lo)) return CHAT_RESPONSES.struggle[Math.floor(Math.random()*2)];
+  if(/pray|prayer/.test(lo)) return CHAT_RESPONSES.prayer[Math.floor(Math.random()*2)];
+  if(/commit|promise/.test(lo)) return CHAT_RESPONSES.commit[Math.floor(Math.random()*2)];
+  if(/encourage|help|motivat/.test(lo)) return CHAT_RESPONSES.encourage[Math.floor(Math.random()*2)];
+  if(/appoint|morning|time|quiet/.test(lo)) {
+    var a=S.profile&&S.profile.apptTime?fmt12(S.profile.apptTime):'not set';
+    var pl=S.profile&&S.profile.apptPlace?' at '+S.profile.apptPlace:'';
+    return "Your appointment with Jesus is at "+a+pl+". That daily time is the foundation of everything!";
+  }
+  if(/today|devotional|lesson/.test(lo)) return "Today in Week "+(w+1)+': you are on "'+day.t+'". Key insight: '+day.teach.substring(0,120)+'... What part is speaking to you most?';
+  if(/identity|who am i/.test(lo)) return "Here is what God says about you"+name+': "'+week.id+'" Say that out loud. Do you believe it?';
+  if(/action|step|do/.test(lo)) return "Today's action steps: "+day.act.join(' and ')+". Which feels most challenging?";
+  if(/group|community|share/.test(lo)) return "Head to the Group tab to post your reflection for your small group!";
+  return "That is worth sitting with"+name+'. Key insight: "'+day.teach.substring(0,100)+'..." What does that mean for your life?';
+}
+
+function renderChat() {
+  if(!S.chat.length) {
+    var res=getDay(S.day); var day=res.day;
+    var name=S.profile&&S.profile.name?', '+S.profile.name:'';
+    var place=S.profile&&S.profile.apptPlace?' I hope your time at '+S.profile.apptPlace+' was rich.':'';
+    var msg="Hey"+name+"! Your Pathway to Freedom companion here."+place+" Today is Day "+(S.day+1)+'. What is resonating with you from the devotional?';
+    S.chat.push({r:'ai',t:msg});
+    save();
+  }
+  document.getElementById('chatWrap').innerHTML=S.chat.map(function(m){return '<div class="chat-msg '+m.r+'">'+esc(m.t)+'</div>';}).join('');
+  var cw=document.getElementById('chatWrap'); cw.scrollTop=cw.scrollHeight;
+  var prompts=["Tell me the verse","I am struggling today","Give me a prayer","Who am I becoming","Encourage me","Action steps for today"];
+  document.getElementById('promptChips').innerHTML=prompts.map(function(p){
+    return '<button class="prompt-chip" onclick="quickChat(this.dataset.p)" data-p="'+p.replace(/"/g,'&quot;')+'">'+p+'</button>';
+  }).join('');
+}
+
+function quickChat(t){document.getElementById('chatInput').value=t||'';sendChat();}
+function sendChat() {
+  const inp=document.getElementById('chatInput'),msg=inp.value.trim();
+  if(!msg)return;
+  S.chat.push({r:'user',t:msg}); inp.value=''; save(); renderChat();
+  setTimeout(()=>{S.chat.push({r:'ai',t:getAI(msg)});save();renderChat();},450);
+}
+
+// ── PROFILE ──
+function openProfile() {
+  const p=S.profile||{};
+  document.getElementById('pName').value=p.name||'';
+  document.getElementById('pAge').value=p.age||'';
+  document.getElementById('pStart').value=p.startDate||new Date().toISOString().split('T')[0];
+  document.getElementById('pTime').value=p.apptTime||'07:00';
+  document.getElementById('pPlace').value=p.apptPlace||'';
+  document.getElementById('pGroup').value=p.groupName||'';
+  document.getElementById('pPhone').value=p.phone||'';
+  document.getElementById('pEmail').value=p.email||'';
+  document.getElementById('pCode').value=p.groupCode||'';
+  document.getElementById('pLeaderName').value=p.leaderName||'';
+  document.getElementById('pLeaderEmail').value=p.leaderEmail||'';
+  document.getElementById('pPastorName').value=p.pastorName||'';
+  document.getElementById('pPastorEmail').value=p.pastorEmail||'';
+  var w1=(S.assessments&&S.assessments.w1)||{};
+  var el;
+  el=document.getElementById('p1_growth'); if(el) el.value=w1.growth||'';
+  el=document.getElementById('p1_hope'); if(el) el.value=w1.hope||'';
+  el=document.getElementById('p1_likely'); if(el){el.value=w1.likely||'8';document.getElementById('p1_likelyVal').textContent=w1.likely||'8';}
+  el=document.getElementById('p1_prayer'); if(el) el.value=w1.prayer||'';
+  document.getElementById('profileModal').classList.remove('hidden');
+}
+function clickGenCode() { document.getElementById('pCode').value=makeCode(); }
+function saveProfile() {
+  const name=document.getElementById('pName').value.trim();
+  if(!name){toast('Please enter your name!');return;}
+  const code=document.getElementById('pCode').value.trim().toUpperCase()||makeCode();
+  var leaderName=document.getElementById('pLeaderName').value.trim();
+  var leaderEmail=document.getElementById('pLeaderEmail').value.trim();
+  var pastorName=document.getElementById('pPastorName').value.trim();
+  var pastorEmail=document.getElementById('pPastorEmail').value.trim();
+  S.profile={name,age:document.getElementById('pAge').value,startDate:document.getElementById('pStart').value,
+    apptTime:document.getElementById('pTime').value,apptPlace:document.getElementById('pPlace').value.trim(),
+    groupName:document.getElementById('pGroup').value.trim(),groupCode:code,phone:document.getElementById('pPhone').value.trim(),
+    email:document.getElementById('pEmail').value.trim(),leaderName,leaderEmail,pastorName,pastorEmail,done:true};
+  // Save Week 1 check-in from profile
+  var p1g=document.getElementById('p1_growth'), p1h=document.getElementById('p1_hope');
+  var p1l=document.getElementById('p1_likely'), p1p=document.getElementById('p1_prayer');
+  if(p1g||p1h) {
+    var w1data={week:"1",name:name,age:document.getElementById('pAge').value,
+      group:document.getElementById('pGroup').value.trim(),date:new Date().toLocaleDateString(),
+      email:document.getElementById('pEmail').value.trim(),
+      leaderName,leaderEmail,pastorName,pastorEmail,
+      daysCompleted:S.done||[], xp:S.xp||0, streak:S.streak||0, longestStreak:S.longestStreak||0, level:getLevelData(S.xp||0).name, badges:(S.badges||[]).length,
+      growth:p1g?p1g.value:'',hope:p1h?p1h.value:'',
+      likely:p1l?p1l.value:'',prayer:p1p?p1p.value:''};
+    if(!S.assessments) S.assessments={};
+    S.assessments.w1=w1data;
+    window._w1ShareData=w1data;
+    // Write Week 1 assessment to Firestore immediately
+    ptfWriteCheckin(w1data);
+    ptfWriteProgress('ptf1');
+  }
+  const t=S.profile.apptTime;
+  if(t&&!S.remTimes.includes(t)){S.remTimes.unshift(t);S.remTimes=[...new Set(S.remTimes)].sort();}
+  S.chat=[];
+  save();
+  document.getElementById('profileModal').classList.add('hidden');
+  const b=document.getElementById('setupBanner');
+  if(b) b.style.display='none';
+  toast('Welcome, '+name+'! Your journey begins. 🕊️');
+  if(window._w1ShareData) {
+    setTimeout(function(){ autoForward(window._w1ShareData, "1"); }, 600);
+    window._w1ShareData = null;
+  }
+  renderToday();
+}
+
+
+// ── ASSESSMENTS ──
+var ASSESS_MAP = {"4":27,"8":55,"12":83}; // Week 1 check-in is in profile
+var ASSESS_LABELS = {
+  "1":"Week 1 — How It Started",
+  "4":"Week 4 — One Month In",
+  "8":"Week 8 — Halfway There",
+  "12":"Week 12 — You Made It!"
+};
+
+function checkAssessmentTrigger(dayIdx) {
+  var keys = Object.keys(ASSESS_MAP);
+  for (var i = 0; i < keys.length; i++) {
+    var wk = keys[i];
+    if (ASSESS_MAP[wk] === dayIdx && !S.assessments["w"+wk]) {
+      S.pendingAssess = wk; save();
+      (function(w){ setTimeout(function(){ showAssessment(w); }, 1200); })(wk);
+      return;
+    }
+  }
+}
+
+function showAssessment(week) {
+  week = String(week);
+  window._assessWeek = week;
+  document.getElementById("assessTitle").textContent = ASSESS_LABELS[week] || ("Week "+week+" Check-In");
+  document.querySelectorAll(".assess-section").forEach(function(s){ s.style.display="none"; });
+  var sec = document.getElementById("assess-w"+week);
+  if (sec) sec.style.display = "block";
+  // Reset submit button
+  var btn = document.getElementById("assessSubmitBtn");
+  btn.textContent = "Send to My Leader →";
+  btn.disabled = false;
+  document.getElementById("assessModal").classList.remove("hidden");
+}
+
+function closeAssessment() {
+  document.getElementById("assessModal").classList.add("hidden");
+}
+
+function g(id){ var el=document.getElementById(id); return el?el.value:""; }
+
+function collectAssessmentData(week) {
+  var prof = S.profile || {};
+  var d = { week:week, name:prof.name||"Unknown", age:prof.age||"",
+    group:prof.groupName||"", date:new Date().toLocaleDateString(),
+    email:prof.email||"",
+    leaderName:prof.leaderName||"", leaderEmail:prof.leaderEmail||"",
+    pastorName:prof.pastorName||"", pastorEmail:prof.pastorEmail||"",
+    daysCompleted:S.done||[], program:"ptf1" };
+  if (week==="1") {
+    d.growth=g("a1_growth"); d.hope=g("a1_hope");
+    d.likely=g("a1_likely"); d.prayer=g("a1_prayer");
+  } else if (week==="4") {
+    d.qt=g("a4_qt"); d.hear=g("a4_hear"); d.grow=g("a4_grow");
+    d.group_close=g("a4_group"); d.trust=g("a4_trust");
+    d.ldr_qualities=g("a4_ldrq"); d.ldr_connect=g("a4_ldrc");
+    d.likely=g("a4_likely"); d.issue=g("a4_issue"); d.prayer=g("a4_prayer");
+  } else if (week==="8") {
+    d.group_close=g("a8_group"); d.trust=g("a8_trust");
+    d.ldr_qualities=g("a8_ldrq"); d.ldr_connect=g("a8_ldrc");
+    d.issue=g("a8_issue"); d.tri2=g("a8_tri2");
+  } else if (week==="12") {
+    d.group_close=g("a12_group"); d.trust=g("a12_trust");
+    d.ldr_qualities=g("a12_ldrq"); d.issue=g("a12_issue");
+    d.growth_now=g("a12_growth"); d.tri2=g("a12_tri2");
+  }
+  return d;
+}
+
+function submitAssessment() {
+  var week = String(window._assessWeek || "1");
+  var data = collectAssessmentData(week);
+  ptfWriteCheckin(data);
+  data.groupCode = (S.profile && S.profile.groupCode) ? S.profile.groupCode.trim() : "";
+  S.assessments["w"+week] = data;
+  S.pendingAssess = null;
+  save();
+  closeAssessment();
+  renderToday();
+  // Auto-forward to both leader and youth pastor
+  autoForward(data, week);
+}
+
+function buildShareUrl(data) {
+  try {
+    var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+    var base = window.location.href.replace(/[^/\\]*$/, "ptf-leader-hub.html");
+    return base + "?ptf=" + b64;
+  } catch(e) { return ""; }
+}
+
+function autoForward(data, week) {
+  var el = document.getElementById("autoFwdOverlay");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "autoFwdOverlay";
+    el.style.cssText = "position:fixed;inset:0;background:rgba(0,50,60,.85);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;";
+    document.body.appendChild(el);
+  }
+  el.innerHTML = "<div style='background:white;border-radius:22px;padding:32px 24px;max-width:360px;width:100%;text-align:center;'>"
+    + "<div style='font-size:56px;margin-bottom:12px;'>✅</div>"
+    + "<div style='font-size:22px;font-weight:900;font-family:Georgia,serif;color:#005f6e;margin-bottom:8px;'>Week " + week + " Complete!</div>"
+    + "<div style='font-size:14px;color:#5a8a92;line-height:1.6;'>Your check-in has been sent to your leaders automatically.</div>"
+    + "</div>";
+  el.style.display = "flex";
+  setTimeout(function(){ closeAutoFwd(); }, 2500);
+}
+
+function closeAutoFwd() {
+  var el = document.getElementById("autoFwdOverlay");
+  if (el) el.style.display = "none";
+}
+
+// Keep these for backwards compat
+function closeSharePrompt() { closeAutoFwd(); }
+
+// Retry unsent assessments (called on load)
+function retryPendingSubmissions() {
+  var isCentralReady = CENTRAL_URL && CENTRAL_URL !== "YOUR_GAS_URL_HERE";
+  if (!isCentralReady) return;
+  var groupCode = (S.profile && S.profile.groupCode) ? S.profile.groupCode.trim() : "";
+  if (!groupCode) return;
+  Object.keys(S.assessments).forEach(function(key){
+    var d = S.assessments[key];
+    if (!d || d._sent) return;
+    d.groupCode = groupCode;
+    fetch(CENTRAL_URL, {
+      method: "POST",
+      headers: {"Content-Type": "application/json", "Accept": "application/json"},
+      body: JSON.stringify(d)
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(res){ if (res.success) { d._sent = true; save(); } })
+    .catch(function(){});
+  });
+}
+
+// ── INIT ──
+
+
+
+// ══════════════════════════════════════════
+// GAMIFICATION ENGINE  (English)
+// ══════════════════════════════════════════
+const LEVELS = [
+  {min:0,   name:"Seeker",    icon:"🌱", next:200},
+  {min:200, name:"Apprentice",icon:"⚔️",  next:500},
+  {min:500, name:"Warrior",   icon:"🛡️",  next:1000},
+  {min:1000,name:"Champion",  icon:"🏆",  next:2000},
+  {min:2000,name:"Liberator", icon:"🕊️",  next:null}
+];
+const ALL_BADGES = [
+  {id:"first", icon:"⭐", name:"First Step",    xp:50,  check:()=>S.done.length>=1},
+  {id:"week1", icon:"🔥", name:"Week 1 Done",   xp:100, check:()=>S.done.length>=7},
+  {id:"s3",    icon:"💪", name:"3-Day Streak",  xp:75,  check:()=>(S.streak||0)>=3},
+  {id:"s7",    icon:"🔥", name:"7-Day Streak",  xp:150, check:()=>(S.streak||0)>=7},
+  {id:"s14",   icon:"⚡", name:"2-Week Streak", xp:250, check:()=>(S.streak||0)>=14},
+  {id:"s21",   icon:"🦅", name:"3-Week Streak", xp:400, check:()=>(S.streak||0)>=21},
+  {id:"half",  icon:"🎯", name:"Halfway",       xp:300, check:()=>S.done.length>=42},
+  {id:"m1",    icon:"📖", name:"Month 1",       xp:200, check:()=>S.done.length>=28},
+  {id:"m2",    icon:"📗", name:"Month 2",       xp:300, check:()=>S.done.length>=56},
+  {id:"done",  icon:"🏆", name:"Completed!",    xp:500, check:()=>S.done.length>=84},
+  {id:"social",icon:"🤝", name:"Community",     xp:100, check:()=>(S.posts||[]).length>=1}
+];
+
+function getLevelData(xp){
+  for(let i=LEVELS.length-1;i>=0;i--) if(xp>=LEVELS[i].min) return {...LEVELS[i],idx:i};
+  return {...LEVELS[0],idx:0};
+}
+function awardXP(pts){
+  const before=getLevelData(S.xp||0);
+  S.xp=(S.xp||0)+pts;
+  const after=getLevelData(S.xp);
+  if(after.idx>before.idx){
+    showMilestone('🎉','Level Up!',`You are now a ${after.name}!`,'+Level');
+  }
+  save();
+  renderGameBar();
+}
+function checkBadges(){
+  let newBadges=[];
+  ALL_BADGES.forEach(b=>{
+    if(!S.badges.includes(b.id) && b.check()){
+      S.badges.push(b.id);
+      newBadges.push(b);
+    }
+  });
+  if(newBadges.length){
+    save();
+    newBadges.forEach((b,i)=>setTimeout(()=>{
+      showMilestone(b.icon,'Badge Unlocked!',b.name,'+'+b.xp+' XP');
+      S.xp=(S.xp||0)+b.xp; save();
+    },i*2200));
+  }
+}
+function checkStreakMilestones(s){
+  var milestones={
+    7: ["🔥","1-Week Streak!","One week strong! Keep going!","+150 XP"],
+    14:["⚡","2-Week Streak!","Incredible consistency!","+250 XP"],
+    21:["🦅","3-Week Streak!","You are a habit champion!","+400 XP"],
+    30:["👑","30-Day Streak!","30 days strong!","+500 XP"],
+    42:["🕊️","Halfway Mark!","42 days — halfway to freedom!","+300 XP"],
+    84:["🏆","Journey Complete!","All 84 days finished! Freedom!","+1000 XP"]
+  };
+  if(milestones[s]){
+    var e=milestones[s][0],t=milestones[s][1],sub=milestones[s][2],x=milestones[s][3];
+    showMilestone(e,t,sub,x);
+    var pts=parseInt(x);
+    if(!isNaN(pts)){S.xp=(S.xp||0)+pts;save();}
+  }
+}
+function checkStreakShield(){
+  if((S.streak||0)>0 && (S.streak%7===0)){
+    S.streakShield=(S.streakShield||0)+1;
+    save();
+    toast('🛡️ Streak Shield earned!');
+  }
+}
+function renderGameBar(){
+  var el=document.getElementById('gameBarWrap');
+  if(!el) return;
+  var xp=S.xp||0;
+  var streak=S.streak||0;
+  var shields=S.streakShield||0;
+  var lvIdx=0;
+  for(var i=LEVELS.length-1;i>=0;i--){if(xp>=LEVELS[i].min){lvIdx=i;break;}}
+  var lv=LEVELS[lvIdx];
+  var nextLv=LEVELS[Math.min(lvIdx+1,LEVELS.length-1)];
+  var pct=lvIdx===LEVELS.length-1?100:Math.round(((xp-lv.min)/(nextLv.min-lv.min))*100);
+  var fire=streak===0?'😴':streak<7?'🔥':streak<14?'🔥🔥':'🔥🔥🔥';
+  var msg=streak===0?"Start your streak today!":streak===1?"Come back tomorrow!":streak<7?"Going strong! "+streak+" days!":streak+" days! Unstoppable!";
+  var isDone=S.done.includes(S.day);
+  var encourage=isDone?'':'<div style="background:rgba(255,255,255,.15);border-radius:10px;padding:8px 12px;margin-top:8px;font-size:12px;text-align:center;">✨ Tap <b>Verse · Commit · Group · Chat</b> below to engage with today! 👇</div>';
+  var earnedBadgeIcons='';
+  if(S.badges&&S.badges.length){var eb=ALL_BADGES.filter(function(b){return S.badges.includes(b.id);});earnedBadgeIcons='<div style="margin-top:8px;font-size:11px;opacity:.8;">Badges: '+eb.map(function(b){return b.icon;}).join(' ')+'</div>';}
+  el.innerHTML='<div class="game-bar">'
+    +'<div class="game-bar-top">'
+    +'<div class="streak-display"><div class="streak-fire">'+fire+'</div>'
+    +'<div><div class="streak-num">'+streak+'</div><div class="streak-label">Day Streak</div></div></div>'
+    +'<div style="text-align:center;">'
+    +'<div class="level-badge"><div class="level-icon">'+lv.icon+'</div><div class="level-name">'+lv.name+'</div></div>'
+    +(shields>0?'<div class="shield-pill" style="margin-top:4px;">🛡️ x'+shields+'</div>':'')
+    +'</div></div>'
+    +'<div style="font-size:11px;opacity:.75;margin:6px 0;font-style:italic;">'+msg+'</div>'
+    +'<div class="xp-bar-wrap"><div class="xp-bar-label"><span>⚡ '+xp+' XP</span><span>'+(lvIdx<LEVELS.length-1?'Next: '+nextLv.name:'Max Level!')+'</span></div>'
+    +'<div class="xp-bar-track"><div class="xp-bar-fill" style="width:'+pct+'%"></div></div></div>'
+    +earnedBadgeIcons
+    +encourage
+    +'</div>';
+}
+function renderBadges(){
+  var el=document.getElementById('badgesGridWrap');
+  if(!el) return;
+  if(!S.badges) S.badges=[];
+  el.innerHTML='<div class="card-label" style="margin-bottom:8px;">🏅 Your Badges</div>'
+    +'<div class="badges-grid">'
+    +ALL_BADGES.map(function(b){
+      var earned=S.badges.includes(b.id);
+      return '<div class="badge-item '+(earned?'earned':'locked')+'">'
+        +'<div class="badge-icon">'+b.icon+'</div>'
+        +'<div class="badge-name">'+b.name+'</div>'
+        +(b.xp?'<div class="badge-xp">+'+(earned?'Earned':b.xp+' XP')+'</div>':'')
+        +'</div>';
+    }).join('')
+    +'</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;">'
+    +S.badges.length+' of '+ALL_BADGES.length+' badges unlocked</div>';
+}
+function showMilestone(emoji,title,sub,xpLabel){
+  document.getElementById('milestoneEmoji').textContent=emoji;
+  document.getElementById('milestoneTitle').textContent=title;
+  document.getElementById('milestoneSub').textContent=sub;
+  document.getElementById('milestoneXp').textContent=xpLabel;
+  document.getElementById('milestoneOverlay').classList.add('show');
+  launchConfetti();
+}
+function closeMilestone(){
+  document.getElementById('milestoneOverlay').classList.remove('show');
+}
+function launchConfetti(){
+  const wrap=document.getElementById('confettiWrap');
+  wrap.innerHTML='';
+  const colors=['#E8C87A','#005f6e','#ff6b6b','#4ecdc4','#ffe66d','#a8e6cf'];
+  for(let i=0;i<60;i++){
+    const d=document.createElement('div');
+    const size=Math.random()*10+6;
+    d.style.cssText=`position:absolute;width:${size}px;height:${size}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      left:${Math.random()*100}%;top:-20px;
+      border-radius:${Math.random()>.5?'50%':'2px'};
+      animation:confettiFall ${Math.random()*2+2}s linear ${Math.random()*1.5}s forwards;
+      transform:rotate(${Math.random()*360}deg);`;
+    wrap.appendChild(d);
+  }
+}
+// confetti CSS added at boot
+function checkDailyLogin(){
+  const today=new Date().toDateString();
+  if(S.lastLogin!==today){
+    S.lastLogin=today;
+    const streak=S.streak||0;
+    if(streak>0) awardXP(10);
+    save();
+  }
+
+  // Send daily verse email on first open each day
+  if(S.profile && S.profile.email && S.profile.email.includes('@')) {
+    var lastEmailDate = S.lastDailyEmail || '';
+    if(lastEmailDate !== today) {
+      S.lastDailyEmail = today;
+      save();
+      setTimeout(function() {
+        var dd = getDay(S.day);
+        var dayObj = dd.day;
+        var subject = 'PTF Trimester 1 Day '+(S.day+1)+': "'+dayObj.t+'" — Your verse for today';
+        var body = 'Good morning'+(S.profile.name?', '+S.profile.name:'')+',\n\n'
+          +'Today is Day '+(S.day+1)+' of Pathway to Freedom Trimester 1.\n\n'
+          +'\ud83d\udcd6 Verse: "'+dayObj.v+'"\n— '+dayObj.r+'\n\n'
+          +(S.commits && S.commits.length ? '\u2705 Your commitments today:\n'+S.commits.filter(function(c){return !c.done;}).map(function(c){return '\u2022 '+c.text;}).join('\n')+'\n\n' : '')
+          +'Have a great day with Jesus!\n— Pathway to Freedom';
+        fetch('https://formsubmit.co/'+encodeURIComponent(S.profile.email), {
+          method: 'POST',
+          headers: {'Content-Type':'application/json','Accept':'application/json'},
+          body: JSON.stringify({_subject:subject, message:body, _captcha:'false', _template:'box'})
+        }).catch(function(){});
+      }, 4000);
+    }
+  }
+}
+// ══════════════════════════════════════════
+
+
+window.addEventListener('load',()=>{
+  // Clear stale old-version data
+  ['ptfState','ptf_state','ptfv2'].forEach(k=>localStorage.removeItem(k));
+  checkImport();
+  // Always show profile setup if name or appointment not set
+  if(!S.profile?.name || !S.profile?.apptTime) {
+    document.getElementById('pStart').value=new Date().toISOString().split('T')[0];
+    if(!S.profile?.groupCode) document.getElementById('pCode').value=makeCode();
+    document.getElementById('profileModal').classList.remove('hidden');
+  }
+  // Add confetti animation CSS
+  var cs=document.createElement('style');
+  cs.textContent='@keyframes confettiFall{to{top:110vh;transform:rotate(720deg);opacity:0;}}';
+  document.head.appendChild(cs);
+  checkDailyLogin();
+  renderToday();
+  if(S.remActive) startReminderLoop();
+  setTimeout(retryPendingSubmissions, 3000);
+  const h=new Date().getHours();
+  if(S.remActive&&h>=6&&h<=9){
+    const {day}=getDay(S.day);
+    const n=S.profile?.name?', '+S.profile.name:'';
+    showBanner('🌅','Good Morning'+n+'!','Day '+(S.day+1)+': "'+day.t+'" — Time with Jesus.');
+  }
+});
+
+
+
+</script>
+
+<div class="milestone-overlay" id="milestoneOverlay" onclick="closeMilestone()">
+  <div class="milestone-card" onclick="event.stopPropagation()">
+    <div class="milestone-emoji" id="mil

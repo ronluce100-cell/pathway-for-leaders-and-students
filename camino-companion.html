@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Camino a la Libertad">
+<title>Camino a la Libertad</title>
+<style>
+:root {
+  --teal: #00B5C5;
+  --teal-dark: #007d8c;
+  --teal-deeper: #005f6e;
+  --cream: #FDF6E3;
+  --gold: #E8C87A;
+  --white: #ffffff;
+  --text: #1a2e33;
+  --muted: #5a8a92;
+  --border: #b8e4ea;
+  --bg: #e4f6f9;
+  --green: #2e7d6a;
+  --card-bg: #ffffff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 72px; }
+
+/* ── HEADER ── */
+.app-header {
+  background: linear-gradient(160deg, #00c8da 0%, #00a0b0 55%, var(--teal-dark) 100%);
+  color: white; padding: 14px 52px 16px; position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 3px 14px rgba(0,100,120,0.35); text-align: center;
+}
+.hdr-pre { font-size: 9px; letter-spacing: 5px; text-transform: uppercase; opacity: .75; margin-bottom: 4px; }
+.hdr-bird { height: 38px; margin: 2px auto; display: block; }
+.hdr-rule { border: none; border-top: 1px solid rgba(255,255,255,0.35); margin: 5px auto; width: 70%; }
+.hdr-title { font-size: 22px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; font-family: Georgia, serif; line-height: 1; }
+.hdr-sub { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; opacity: .65; margin-top: 4px; }
+.hdr-day { position: absolute; top: 14px; right: 12px; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.4); padding: 4px 11px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.hdr-profile { position: absolute; top: 14px; left: 12px; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.4); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; border-top: 1px solid #ddd; z-index: 200; padding-bottom: env(safe-area-inset-bottom,0); }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 8px 2px 5px; border: none; background: none; cursor: pointer; font-size: 9px; color: #999; gap: 2px; }
+.nav-btn svg { width: 20px; height: 20px; }
+.nav-btn.active { color: var(--teal-dark); }
+
+/* ── IN-APP NOTIFICATION BANNER ── */
+.notif-banner {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+  background: linear-gradient(135deg, var(--teal-dark), var(--teal-deeper));
+  color: white; padding: 14px 16px 14px 16px;
+  display: flex; align-items: flex-start; gap: 12px;
+  transform: translateY(-100%); transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 4px 20px rgba(0,80,95,.4);
+}
+.notif-banner.show { transform: translateY(0); }
+.notif-icon { font-size: 24px; flex-shrink: 0; }
+.notif-body { flex: 1; }
+.notif-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.notif-text { font-size: 12px; opacity: .85; line-height: 1.4; }
+.notif-close { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0 0 0 8px; opacity: .7; align-self: flex-start; }
+
+/* ── PAGES ── */
+.page { display: none; padding: 14px; }
+.page.active { display: block; }
+
+/* ── CARDS ── */
+.card { background: var(--card-bg); border-radius: 16px; padding: 16px 18px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--teal-dark); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+/* ── VERSE BLOCK ── */
+.verse-block {
+  background: linear-gradient(145deg, #00c8da 0%, var(--teal-dark) 100%);
+  color: white; border-radius: 18px; padding: 18px 18px 14px;
+  margin-bottom: 12px; box-shadow: 0 4px 16px rgba(0,140,160,.3);
+}
+.vb-bird { text-align: center; margin-bottom: 8px; }
+.vb-rule { border: none; border-top: 1px solid rgba(255,255,255,.3); margin: 8px 0; }
+.vb-text { font-size: 16px; line-height: 1.65; font-style: italic; font-family: Georgia, serif; margin-bottom: 8px; }
+.vb-ref { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; text-align: right; opacity: .85; }
+
+/* ── DAY HEADER ── */
+.day-hero {
+  background: linear-gradient(145deg, #00c8da, var(--teal-dark));
+  border-radius: 16px; padding: 16px 20px 14px; text-align: center;
+  margin-bottom: 12px; box-shadow: 0 4px 14px rgba(0,140,160,.25);
+}
+.dh-pre { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: rgba(255,255,255,.7); margin-bottom: 6px; }
+.dh-bird { height: 30px; margin: 0 auto 4px; display: block; }
+.dh-rule { border: none; border-top: 1px solid rgba(255,255,255,.3); margin: 6px auto; width: 60%; }
+.dh-week { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,.75); margin-bottom: 4px; }
+.dh-title { font-size: 19px; font-weight: 900; color: white; font-family: Georgia, serif; line-height: 1.25; }
+.dh-credit { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.5); margin-top: 8px; }
+
+/* ── SECTION TITLE ── */
+.section-title { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.section-title::before, .section-title::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+/* ── ACTION ITEMS ── */
+.action-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.action-item:last-child { border-bottom: none; }
+.action-dot { width: 7px; height: 7px; background: var(--teal); border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+.action-text { font-size: 14px; line-height: 1.55; }
+
+/* ── BUTTONS ── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 12px 18px; border-radius: 12px; border: none; cursor: pointer; font-size: 14px; font-weight: 600; transition: all .15s; width: 100%; margin-bottom: 8px; }
+.btn:active { opacity: .85; transform: scale(.98); }
+.btn-primary { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; }
+.btn-outline { background: transparent; border: 2px solid var(--teal-dark); color: var(--teal-dark); }
+.btn-green { background: var(--green); color: white; }
+.btn-gold { background: var(--gold); color: var(--teal-deeper); font-weight: 700; }
+.btn-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.btn-row .btn { margin-bottom: 0; }
+.btn-sm { padding: 9px 14px; font-size: 13px; border-radius: 10px; }
+.btn-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.btn-2col .btn { margin-bottom: 0; }
+
+/* ── PROGRESS ── */
+.prog-wrap { background: var(--border); border-radius: 10px; height: 7px; margin: 8px 0; }
+.prog-bar { background: linear-gradient(90deg, var(--teal), var(--teal-dark)); height: 100%; border-radius: 10px; transition: width .5s; }
+.day-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; margin-top: 8px; }
+.day-dot { aspect-ratio: 1; border-radius: 6px; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 9px; color: #999; cursor: pointer; }
+.day-dot.done { background: var(--green); color: white; }
+.day-dot.today { background: var(--teal); color: white; font-weight: 700; }
+.week-tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; }
+.week-tab { padding: 5px 13px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.week-tab.active { background: var(--teal-dark); color: white; border-color: var(--teal-dark); }
+
+/* ── COMMIT ── */
+.commit-row { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.commit-row:last-child { border-bottom: none; }
+.commit-check { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--border); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.commit-check.done { background: var(--teal-dark); border-color: var(--teal-dark); }
+.commit-text { flex: 1; font-size: 14px; line-height: 1.4; }
+.commit-time { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.del-btn { background: none; border: none; color: #e53935; cursor: pointer; font-size: 20px; padding: 0 2px; line-height: 1; }
+.chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip { background: var(--teal-dark); color: white; padding: 4px 11px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+.chip button { background: none; border: none; color: white; cursor: pointer; font-size: 15px; line-height: 1; }
+
+/* ── FORM INPUTS ── */
+input[type=text], input[type=number], input[type=time], input[type=date], textarea, select {
+  width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 14px; background: white; margin-bottom: 10px; font-family: inherit; color: var(--text);
+}
+textarea { resize: vertical; min-height: 80px; }
+.form-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--teal-dark); display: block; margin-bottom: 5px; margin-top: 12px; }
+.form-label:first-child { margin-top: 0; }
+
+/* ── FLASHCARD ── */
+.flashcard {
+  background: linear-gradient(145deg, #00c8da, var(--teal-dark));
+  color: white; border-radius: 20px; padding: 28px 22px;
+  text-align: center; min-height: 190px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; cursor: pointer;
+  margin-bottom: 12px; box-shadow: 0 6px 20px rgba(0,140,160,.3); position: relative;
+}
+.fc-hint { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; opacity: .65; margin-bottom: 10px; }
+.fc-text { font-size: 16px; line-height: 1.65; font-style: italic; font-family: Georgia, serif; display: none; }
+.fc-ref { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; opacity: .85; margin-top: 12px; display: none; }
+.fc-flip { position: absolute; bottom: 12px; right: 14px; opacity: .45; font-size: 18px; }
+
+/* ── COMMUNITY / CHAT ── */
+.post-card { background: white; border-radius: 14px; padding: 14px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); border-left: 4px solid var(--teal); }
+.post-meta { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
+.post-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: Georgia, serif; }
+.post-name { font-size: 13px; font-weight: 700; color: var(--teal-dark); }
+.post-day { font-size: 11px; color: var(--muted); }
+.post-ref { font-size: 10px; background: var(--bg); border: 1px solid var(--border); color: var(--teal-dark); padding: 2px 7px; border-radius: 20px; margin-left: auto; white-space: nowrap; }
+.post-text { font-size: 14px; line-height: 1.6; font-style: italic; font-family: Georgia, serif; margin-bottom: 6px; }
+.post-time { font-size: 11px; color: var(--muted); text-align: right; }
+.share-box { background: #e8f9fb; border: 1.5px solid var(--border); border-radius: 12px; padding: 14px; font-size: 14px; line-height: 1.6; margin-bottom: 10px; white-space: pre-line; font-family: Georgia, serif; }
+.group-banner { background: linear-gradient(135deg, var(--teal-dark), var(--teal-deeper)); color: white; border-radius: 14px; padding: 14px 16px; text-align: center; margin-bottom: 12px; }
+.group-code { font-size: 26px; font-weight: 900; letter-spacing: 8px; font-family: Georgia, serif; margin: 5px 0 3px; }
+.chat-wrap { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; max-height: 52vh; overflow-y: auto; }
+.chat-msg { max-width: 86%; padding: 11px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; }
+.chat-msg.ai { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; border-bottom-left-radius: 4px; align-self: flex-start; }
+.chat-msg.user { background: var(--teal-deeper); color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+.chat-row { display: flex; gap: 8px; }
+.chat-row input { flex: 1; margin-bottom: 0; }
+.prompt-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.prompt-chip { padding: 6px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-size: 12px; font-weight: 500; cursor: pointer; }
+
+/* ── APPT CARD ── */
+.appt-card { background: linear-gradient(135deg, var(--teal-dark), var(--teal-deeper)); color: white; border-radius: 16px; padding: 16px 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; }
+.appt-time { font-size: 28px; font-weight: 900; font-family: Georgia, serif; line-height: 1; }
+.appt-info { flex: 1; }
+.appt-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; opacity: .7; margin-bottom: 3px; }
+.appt-place { font-size: 13px; font-weight: 600; }
+.appt-hint { font-size: 10px; opacity: .6; margin-top: 2px; }
+
+/* ── MODAL ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,70,85,.65); z-index: 400; display: flex; align-items: flex-end; }
+.modal-overlay.hidden { display: none; }
+.modal-sheet { background: white; border-radius: 22px 22px 0 0; padding: 24px 18px 36px; width: 100%; max-height: 92vh; overflow-y: auto; animation: slideUp .3s ease; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-head { text-align: center; margin-bottom: 20px; }
+.modal-pre { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 6px; }
+.modal-title { font-size: 20px; font-weight: 800; color: var(--teal-deeper); font-family: Georgia, serif; }
+.modal-desc { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+.appt-setup { background: linear-gradient(135deg, #d4f5f9, #eafcff); border: 1.5px solid var(--border); border-radius: 14px; padding: 14px; margin: 12px 0; }
+
+/* ── REMINDER NOTE ── */
+.reminder-note { background: linear-gradient(135deg, #d4f5f9, #eafcff); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
+.reminder-status { font-size: 13px; color: var(--teal-deeper); line-height: 1.5; }
+
+/* ── IDENTITY CARD ── */
+.identity-card { background: linear-gradient(145deg, #00c8da, var(--teal-dark)); color: white; border-radius: 16px; padding: 18px; margin-bottom: 12px; font-size: 15px; line-height: 1.7; font-style: italic; font-family: Georgia, serif; text-align: center; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 82px; left: 50%; transform: translateX(-50%) translateY(10px); background: #1a2e33; color: white; padding: 9px 20px; border-radius: 22px; font-size: 13px; opacity: 0; transition: all .3s; z-index: 999; white-space: nowrap; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── ASSESSMENT ── */
+.assess-section { display: none; }
+.assess-section.active { display: block; }
+.range-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.range-row input[type=range] { flex: 1; margin-bottom: 0; accent-color: var(--teal-dark); }
+.range-num { font-size: 22px; font-weight: 900; color: var(--teal-dark); min-width: 32px; text-align: center; font-family: Georgia, serif; }
+.assess-pill { display: inline-block; background: var(--teal-dark); color: white; border-radius: 20px; padding: 3px 12px; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+.assess-alert { background: linear-gradient(135deg, #e8f9e9, #d4f5d4); border: 1.5px solid #7ec87e; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; font-size: 13px; color: #1a4a1a; line-height: 1.5; }
+
+/* GAMIFICATION */
+.game-bar{background:linear-gradient(135deg,#005f6e,#007d8c);border-radius:16px;padding:14px 16px;margin-bottom:12px;color:white;}
+.game-bar-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.streak-display{display:flex;align-items:center;gap:8px;}
+.streak-fire{font-size:28px;line-height:1;animation:pulse-fire 1.5s ease-in-out infinite;}
+@keyframes pulse-fire{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.streak-num{font-size:30px;font-weight:900;font-family:Georgia,serif;line-height:1;}
+.streak-label{font-size:10px;opacity:.75;letter-spacing:1px;text-transform:uppercase;}
+.level-badge{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);border-radius:20px;padding:5px 12px;text-align:center;}
+.level-icon{font-size:18px;}
+.level-name{font-size:9px;letter-spacing:1px;text-transform:uppercase;opacity:.85;margin-top:1px;}
+.xp-bar-wrap{margin-top:4px;}
+.xp-bar-label{display:flex;justify-content:space-between;font-size:10px;opacity:.75;margin-bottom:4px;}
+.xp-bar-track{background:rgba(255,255,255,.2);border-radius:99px;height:8px;overflow:hidden;}
+.xp-bar-fill{background:linear-gradient(90deg,#E8C87A,#f0d890);border-radius:99px;height:100%;transition:width .6s ease;}
+.shield-pill{background:rgba(255,255,255,.12);border-radius:10px;padding:4px 8px;font-size:11px;display:flex;align-items:center;gap:4px;}
+.badges-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.badge-item{background:white;border:2px solid var(--border);border-radius:12px;padding:8px 10px;text-align:center;min-width:68px;flex:0 0 auto;}
+.badge-item.earned{border-color:#E8C87A;background:linear-gradient(135deg,#fffbee,#fff8d6);}
+.badge-item.locked{opacity:.3;filter:grayscale(1);}
+.badge-icon{font-size:22px;}
+.badge-name{font-size:9px;font-weight:700;color:var(--teal-dark);margin-top:2px;letter-spacing:.3px;line-height:1.2;}
+.badge-xp{font-size:9px;color:var(--muted);}
+.milestone-overlay{position:fixed;inset:0;background:rgba(0,60,70,.85);z-index:999;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .4s;pointer-events:none;}
+.milestone-overlay.show{opacity:1;pointer-events:all;}
+.milestone-card{background:white;border-radius:24px;padding:36px 28px;text-align:center;max-width:320px;width:90%;animation:bounceIn .5s cubic-bezier(.36,.07,.19,.97);}
+@keyframes bounceIn{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.milestone-emoji{font-size:64px;margin-bottom:8px;}
+.milestone-title{font-size:22px;font-weight:900;color:var(--teal-dark);margin-bottom:6px;}
+.milestone-sub{font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.5;}
+.milestone-xp{font-size:28px;font-weight:900;color:#E8C87A;margin-bottom:18px;}
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:998;overflow:hidden;}
+</style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<!-- IN-APP NOTIFICATION BANNER -->
+<div class="notif-banner" id="notifBanner">
+  <div class="notif-icon" id="notifIcon">🕊️</div>
+  <div class="notif-body">
+    <div class="notif-title" id="notifTitle">Camino a la Libertad</div>
+    <div class="notif-text" id="notifText"></div>
+  </div>
+  <button class="notif-close" onclick="closeNotif()">×</button>
+</div>
+
+<!-- APP HEADER -->
+<div class="app-header">
+<a href="ptf-portal.html" style="position:absolute;left:12px;top:12px;background:rgba(255,255,255,.1);border-radius:10px;padding:5px 10px;font-size:10px;letter-spacing:1px;color:#fff;text-decoration:none;opacity:.7;">← Portal</a>
+  <span class="hdr-day" id="hdrDia">Día 1</span>
+  <button class="hdr-profile" onclick="openPerfil()" title="Mi Perfil" style="width:auto;padding:4px 10px;border-radius:16px;font-size:9px;letter-spacing:1px;flex-direction:column;gap:1px;">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="white"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+    <span style="font-size:8px;letter-spacing:1px;opacity:.85;">PERFIL</span>
+  </button>
+  <div class="hdr-pre">Camino a la</div>
+  <img class="hdr-bird" src="data:image/png;base64,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" alt="bird" />
+  <hr class="hdr-rule"/>
+  <div class="hdr-title">Freedom</div>
+  <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:.85;margin-top:3px;font-family:Georgia,serif;">Companion</div>
+  <hr class="hdr-rule"/>
+  <div class="hdr-sub" id="hdrSub">Libertad</div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay hidden" id="profileModal">
+  <div class="modal-sheet">
+    <div class="modal-head">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAABBCAYAAAB4ko6YAAAR+UlEQVR42u2deXRcV33Hv79773uzz2i1lmxOICy2k8OJTWLjLPaBnhBOUzi0Ek0pOQ2H2gUaSGJILCllNCGWzBrowsFpKFuTQ2VOT2jAhEKRSU28RCZpcVJjyOY4GknWOsubN2+5v/4xGltO7NiOHcuS3+ccyfIs79259/t+73t/dxkgICAgICAgICAgICAgICAgICAgICAgIOB1wQDxwCajvz+tgto4MdLptGBOi6AmzhYRH6MxmJmC2jm+mINamG0B97VJ7k8r7k+rPX1pEwD6+9OKOS0O7Fxf7+/b8MUD2zo+Xn1tUGNHZ2BgjQEA//fwp986+Pj69wJA33R9MTMxp0U1KMz8+2xj3kSt7FPrYkmR3D9u2WsvWN77QwDggTXGKC94SglqNjyx+IUXMb74aXiUyeiz5oLsTysksgQsRfcjg35mFsrW19cm29s3+/seu7WxuXHBXitXeqD5qp679uxJm4vtLNOy+91D5R1YY8z8fyDo0xiZfx9vVsm6xPpkInztVM42wqa6RhlCW5ZzC7t6G5niXlOpm2IxA8MHi7dfcM3Gr/GetElLMk46nRaZWRQ2c1oIymg+yuNEZ6Zc3Ncm0dYGonZ/ZGdXTyoV/miZkXUmSn9cv8IYJsp4ADC0vaOp6e3nJUafPWg1Ls0M8ou9lwwNFSPNV16+F2jXROBA0KchogzuWv/O5trErmLJA4GRK5RZSkEhU8L3NZSSsEqOFpJ02DT8ku1+qHl5z4+yT62LtbzjK8UzKZ5jiXZoR8fakKHOi4ZN7B8pfu/S1Rv/UL3oTs+5+uTu3b8QALB0aYtPlNHMTNjaLWl1RbAjT9z9j40X1X9y/KWxvc/vHblm2YfvHwUAfjkdHdrv3qUkfSIcDcVzueJX6pIxwzTkncOj+bWtKzfez5xW2J0l5Fu4erzZZG73/llw0XJ1wSp7IJJCkNSauVR2GUzkuD4TkdA+k+P6IhEPPbz/sfU3iLLgoR13R4gyD3N/v6LVq89YQwwMrDGIMu6L/71uaSIa7VNKXBKNmJBSoCFl3DL4666raUnmxVO92DidFlj8DBG1+wD8mQInIh+A9/KvO6+Px80fEnMsl829r37pvT8FgML/ZG7IlZzFxTG6va4m0povlpHPWeWQYdwiJbUOjuY2nN9as294e8cHiTL/fjZJYn6ks4gkAbLyJ6j6G6Dp30Su68MC/Pq6yE8KBecGDb1g/2Of/QBdu/ph7k8rrIKuCuiNitzTx3Wf37p+RV0qvIWAmrxV9oqWwwB0PBo6PxrBY6MDXZuJMp+pvAd0srf0meUf2dV5WyhkXB0xlDk+af2AqP0h3vv5i0emSvck46EboeQ/T42VtoD0b7M7Ox8SQEs4LFeRMGE7HgpFx2WwklKETFO2jk5agxHTuB5CdIHoq5NPpgupZOgTwwfznqPtNResuG8CYBARB4I+WR0LiHjMFMWS42Ja0MdCCCLX80XJBjH0I8T4t1Qy8pEDv+5aSSszj1etTFvbIibKaE6nxensPFZFNryr611hQ/7UdXXSdlxfEKmq8csXy6iriV4YSobXZbd3NNq2uXbz5mdcYLN/ItXBfW0C72hWRJny/q13XdbUlPgr1/XuCJkKruuXIXmnu/feDbmy+9naVMSYzNlj5bL7O8OQDxhKXRSLGvB9xsHxogcCgSGIyCAQmIFC0WHDkK2pRLh1ODv1JDO/KWTIn03lbIamP73gwIopIElENGt9k7nbKRxYY4zkW0Iy5nYlE9H1Y1OWT8cRNQBoZpaCKBYxUXZ8OK5n1SQjz41P2v963sqeLwzvScdDjt6+v+hee9nVoSkAoto5OtXy0rL73ezOzq82N8Rvz44UyoIQOnyTITCzy+AniKimqTm1KDc00ZC6auPYa0Vp7muTaFxEM/3r0PaOy5UhH6tNRlIjYwVPSkGe60+RoHJTY6Jl6GAeRPAECdVYF8Vkzobj+gDYq5yL5LEvTDCz5pBpCCEItuPp2mTEmZiyP9GyYsO3uT+tZtNLz9kIPZ06cpm5c2hHZ00yHv6bXKHsEx0nUhORZnDBcrRmlkqKaNn1ljQ3xjaO7Owc0wUnkTqvbkmrnrqTKNMBQPf3p9WqrdDdAE4lM8LMNLyr03YdnwkQMx5n05DkuP5Ey/LelfzUl2KT4/n2Gnlxbto48cxIf/iIi6seGQMDa4yLdOOfpxLha8emSjeGDJkaHs07QgjT9xmGqeqEIAyN5DwhhAKgtGYeGS16DKhpq6aIjufuQIAgZkYkbEJrbTuuNyFY76vkprtnNSU65yI0c1p0dwMff6+zpCYZ/RPLdu50XL8kBC3QmvlkPxMzGAQtBUgKKUCA77NbkwgZjut/I19wvtvyrp5dMyNtxR+ceK9+2m7wyM70pVL6v3U9bbyqnAy3rjaiRidKva0rerqAygDRqkSWdgNYeoxzDj/esbK+PvrmgxPWung0dFk4pKoRl5U40sgyMxMRnVr9g01DwvN1Vmv9UPPCt3dTy83FIG13ClmCZcvudwe3d3y85c1N3xh+dsSfzm6c4oUyLatKh4a0Zr+hNioLllNyXG9LU23k70Ym/YmmqzJDR3t/Op0W3d2HI+YrIzMR8fDOdLNpcNYuu68SFjN7tamoKhTL34fvdDYs/+KBo53n4EDH2wATvud8sCYRed9k3r6iqTERGZ+0UHY8BuATIE9VuK8laEMJaM1jntY/95g/J1gviEfC35zU3vULl/VkZzPHP6fz0C9v77yrpSG2MV90ULAcluL0NqLW7CslZDikoKTAVN7OMvj78XBIWrY32LR8w32YdgPVXn1VvMyH63br1rRctSrjD+/s6oiE1QbLdjSBxFGEr6NhQ1i2N8HgBwRAGmAhAK0BgjCUxG2mWXGKSgoULAe+r10iqDdKxEepF4RDCrUtKdgTFpQUmJi0tivl31D73HMFtPXp2cpyzN1OIbdJos3+yM6uv45HzY85nn9lyXY1EYnTex7mSsBmMg0pUvEwhCCUbBd5q5wFQ9ckwmIib/9EMm+LxsK9xZKrGVrMsBMEAodN1eJ6Gq91N9HMbEhBNanIUQoDjE5aDJ6+nxAYTKKapDwz9Y5pv+9N1qYiP5vMlf+3aWHjt6j5tpFKdZ18mjEQNID+/uvUqoOf5OyFT34slYoMuLZ3PwHvsGwXp1vUR4gb5DEYIBIhQ8qqXQmZEkpJFEvOMSu17Hgn5GGZwQR4x2gxY3YDCetwyGDX8dcuWL7hO5g5aFNJ/M/qMPicnS646uACpvZ2n5jKXtnb5Xn6CtvxxRsl5mlbQSAYldwsZNnxuOx47Lge5y3Hn8hZnjP92NF+TtQSEIFAMI76M5tiBiClEJGwIZUhHig/c483tKPrJmam/v7r1GyLeU5H6Jns+6/PvCkZNz4XDhk3lUqOJBLBvN43QM9CwPc8toSgR2vioeay638nZ+tt5y+XzwIZPhsmKc35oe9Nm9YYb3n3l5/dO3DHukuj8ZvLZR96Zo8s4HT4ZhBB16aiyrKcpK957A/P6I8sab/HOdvKSnO/spnQ3U3Z9zv1hivu9VnfPD2YQGeyszTPxczhkCKr5H67oTaiJ/L2b6yi8S8LE1kfSzd5s5XRmLeWo/pBGMDwjs6bFzQkvpsdmdJVy/pG+up5LGWPmVhKSCWlcBxvoHlF7zvngg7mR/Wn0+KFVTCNaDkWN0OPCMIVDIS0Zli2owURAYQgah87gwMCVwIDcSoelkIQBAFjOetTLVf1/gPvSZuwWxnP/UJT+wlNmAoEfYq3RyICb/n6raEb2i9MDb8wflskYtxkGmqhZbvQvobraRaCAlHPQLP2TKWUUgLMgKEE8pbzH3XJcHkib/+y+aqeb57tS6/mpaCrnnqmp3vhV50tNQn1E0/rlOfppnBIxSzb9avTpY83Q08QQTPPp4ueAdbTXgwAU1NdXAyPFXIADibjYZUv2j9oXt67/vB7ZmdlzzmZ5XjVFTpj2Hnr1rRceF0mC+AKABh5vPMKJcSWVDzcRARoZhQKlQnsR8sRMzNrwCFCaD5omplZSUGxaEgCBGaGVXLg+v7XlMamxpW9ew+9tq9N4pJagecmNFHGnzPtP++9YTotxD0ZrXXFjuzbcmtjfWPqo7G4+e7JSdusq41cVyg6KJc9tzJmy4qIoJQgz9VjRHg0EjE+XLQcPVc7l1wZKncNJU3X9wvQtD0SVqJU9oZBdHfL8g3Pz7Rscykin3OCPrJhX91Qwzs6/kwDPc1NqUsd20W+UIbjetUMCUkpyPe1Py12qkwqYg2c3eKeFjFrZoRMJVKJCFzXw1Te/lHLit4PHPnaPonup/ls2t4hEPRJeGxsbhdoXERbAaxenfEO7Oq6oC5i3DlZdHzB+IuaVLjRLnsQlcQIqm7E8zTKjuuFTEOVyq4nQBUnQkwEImboavqw+i/A4rVWgBy3vIcOMz1RgpkB8iv2igkgdfillU+oNXxDCSMUUgibBsZz1vP1qcgjI5NWf2vJ/PHvS+Py0kidvxXAqq3Q80HI56ygXyWYVywZemnHnecvqI3XT4wVtVZmmHz3PiFlmH3WAJpSifCFU3l7f0Nd7MLK1DLA9xll10M0fORUCyEIZcfHZK6E1zOzk2ZcTARAMxAOKcQilfO4nsbElKWJSEshFKOSoaitjWJoOJerSUZ+53n6wSKVf9B8ee/wudCeQfqqGrV3r1XAoaVdR+WFX3W2REL6PcwUTibCi3O58h4ICAAtAK4E8CPNLIUQHmmtfGbLZ748GQvfYZVejwdnDZALQIOho1FDFC3nCSJ6EABI4C21ieg6EDA+WXQiYcMv2e5vGxpi35oYLj/ZuPLzTxw60sAmA0sH/bnqjc/ZLMfrzYwAcKudSHTPeHLzM7QZQBsAuq4nC+D7/PjtEVrSWzrecZ/v/3RNfV3tbZ7nn5SIGOzVJaNqbKr4wxZj4V8OqX21hh23ExdEKPF15GdahNGBz72Uqgsv00BvMhF9+SVVKjW/+W7nUKaibRF3dwO0bK17TrRlIOeTjOTTOw4xp8Xu3VkJAEufm9DUvtnngTXGC/kWefHqjP3s1tsvS8Wij0UjZs1k3tbiJKIzM7NhSB0JGWOjk6UPX3TNxl/MfH5gYI2xNN/CM/cSOeL9A2sMTO+SdM4Fp0Cmp0vsoOoGK+MDd1+mDPUomFsLluNLQfJk09iamcOmItOQbq7kvmfTFrWt+8asfKUlYu6T2D0huh8Z9Lu7M4xKP5bP1XYIBH26xLx7jQKWYgIHvmOY8v2O48fKrudLOnkxHxK1ZreuJmLkC/aPG6/sufFw9D27ZrgFgp5nHFq0u63je60tiY8MjRTAzKc8Z4QAeJr9+lRUThZK34LmruYV50a2IhD0LIq5rW2zHnmia0U0ZGwpu17U9XxJp3fgxY9FTZkv2IWamugX8+Plh5qu3vDsK+etBMzhNYVnC42Ni4gIrH3/rZGwkfI8zadZzGBmyhdsp7EuHjelvMeXfHvwFRuBoN8QVq/OeH19bbJlxcZvD48WbquviZpas1OZ13TKQta+Zj9sGqKpIWGWHe8bQ6O5K1pX9Pwt0B1E56MQ5KFPA08/vYi5P60GQ3iwaDmfbqiLXWzbLiz79aV+GewRE0cjphEJGyjZzjMTOevBhmUbeipCn7uThwIPPWcyHRU/+3z/HW+rr02uLdvuI5D4uedrBsAEUsx8zNHC6RUjPhiioTYmtGaM5e3r4iHVnh3N9b71Pfe9zNwngac5EHMg6DMk6sO7Bu37za2NTVQ7IqWAUgKTuZIXCZnKsl0GVQ0wMcCsGUJJIVLxMFxfwyo5X3B9f/C8FRv//tCxZ3mb2sBynIvRgcDTm6bT8A5HlIX3os/8EkAjNYnIB6dy9h7DEEuUFKSZYSgJKSqbieeL5UnN+pelkvPLBVdu+CegugEkAHQzEQViDiL07FDdffPgts+2Nl79pUEAGNre8UdC8ItCqEd9X3M8FlK5gv2fDHq0Nhn+6lTe/lDz8p4dwNE3MQ8IOGuCRfVLLY/HwMAaI/hy0ICz11On06K6vrHy7bZH3hErz/fJauYiqLGAgICAgICAgICAgICAgICAgICAeQidaNI/ICAgIOBMR+js9s5PBdUQMG8EzdmvBKseAuYNamT/2C1BNQTMF/4fzAVqFtUAzTAAAAAASUVORK5CYII=" alt="bird" style="height:34px;margin:0 auto 10px;display:block;"/>
+      <div class="modal-pre">Camino a la Libertad</div>
+      <div class="modal-title">Set Up Tu Jornada</div>
+      <div class="modal-desc">Personalize your experience and set your daily appointment with Jesus.</div>
+    </div>
+    <label class="form-label">Tu Nombre</label>
+    <input type="text" id="pName" placeholder="Tu nombre"/>
+    <label class="form-label">Age</label>
+    <input type="number" id="pAge" placeholder="Tu edad" min="10" max="99"/>
+    <label class="form-label">Start Date</label>
+    <input type="date" id="pStart"/>
+    <div class="appt-setup">
+      <div class="form-label" style="margin-top:0;">☀️ My Cita Diaria with Jesus</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;">"Start your day with at least fifteen minutes alone with Jesus." — Camino a la Libertad</p>
+      <label class="form-label">What time will I meet with Jesus?</label>
+      <input type="time" id="pTime" value="07:00"/>
+      <label class="form-label">Where will I sit with Jesus?</label>
+      <input type="text" id="pPlace" placeholder="ej. mi cuarto, el porche de casa..."/>
+    </div>
+    <label class="form-label">📱 Your Phone Number</label>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:6px;">Para enviarte recordatorios del versículo diario por mensaje de texto.</p>
+    <input type="tel" id="pPhone" placeholder="ej. 555-867-5309"/>
+    <label class="form-label">📧 Your Email</label>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:6px;">Receives a copy of your assessments.</p>
+    <input type="email" id="pEmail" placeholder="tu@correo.com"/>
+    <label class="form-label">Small Nombre del Grupo (optional)</label>
+    <input type="text" id="pGroup" placeholder="ej. Escuadra de Fuego, Martes por la Noche..."/>
+    <label class="form-label">Código del Grupo</label>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:6px;">Ingresa el código que te dio tu líder — esto conecta tus evaluaciones a su panel automáticamente.</p>
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="pCode" placeholder="Código" style="text-transform:uppercase;letter-spacing:3px;font-weight:700;flex:1;margin-bottom:0;"/>
+      <button class="btn btn-outline btn-sm" style="width:auto;margin-bottom:0;" onclick="clickGenCode()">Generar</button>
+    </div>
+    <div style="border-top:1px solid #e8f4f5;margin-top:18px;padding-top:18px;">
+      <div style="font-size:15px;font-weight:900;color:#005f6e;margin-bottom:4px;">👥 Tu Líder de Grupo de Conexión</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Your leader receives your weekly check-ins and prays for you.</p>
+      <label class="form-label">Nombre del Líder de Grupo de Conexión</label>
+      <input type="text" id="pLeaderName" placeholder="Nombre y apellido del líder"/>
+      <label class="form-label">Correo del Líder de Grupo de Conexión</label>
+      <input type="email" id="pLeaderEmail" placeholder="lider@correo.com"/>
+    </div>
+    <div style="border-top:1px solid #e8f4f5;margin-top:14px;padding-top:14px;">
+      <div style="font-size:15px;font-weight:900;color:#005f6e;margin-bottom:4px;">🏛️ Tu Pastor de Jóvenes</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Tu pastor de jóvenes supervisa todo el programa Camino a la Libertad.</p>
+      <label class="form-label">Nombre del Pastor de Jóvenes</label>
+      <input type="text" id="pPastorName" placeholder="Nombre y apellido del pastor"/>
+      <label class="form-label">Correo del Pastor de Jóvenes</label>
+      <input type="email" id="pPastorEmail" placeholder="pastor@correo.com"/>
+    </div>
+    <div style="border-top:1px solid #e8f4f5;margin-top:18px;padding-top:18px;">
+      <div style="font-size:15px;font-weight:900;color:#005f6e;margin-bottom:6px;">📋 Semana 1 Check-In</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Responde unas preguntas rápidas para que tu líder pueda cuidarte bien desde el principio.</p>
+      <label class="form-label">Where are you on the growth scale right now?</label>
+      <select id="p1_growth" style="margin-bottom:12px;">
+        <option value="">Choose one...</option>
+        <option>Newborn</option><option>Infant</option><option>Toddler</option>
+        <option>Child</option><option>Preteen</option><option>Teen</option>
+        <option>Young Adult</option><option>Adult</option>
+      </select>
+      <label class="form-label">What do you hope will happen in these 12 weeks?</label>
+      <textarea id="p1_hope" placeholder="Comparte tus esperanzas..." style="min-height:70px;"></textarea>
+      <label class="form-label">Likelihood to finish all 12 weeks &nbsp;<span id="p1_likelyVal" style="font-weight:900;color:#005f6e;">8</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="p1_likely" min="1" max="10" value="8" oninput="document.getElementById('p1_likelyVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">How can we pray for you?</label>
+      <textarea id="p1_prayer" placeholder="Petición de oración..." style="min-height:70px;"></textarea>
+    </div>
+    <button class="btn btn-primary" style="margin-top:18px;padding:15px;" onclick="savePerfil()">Comenzar Mi Jornada →</button>
+  </div>
+</div>
+
+<!-- ASSESSMENT MODAL -->
+<div class="modal-overlay hidden" id="assessModal">
+  <div class="modal-sheet">
+    <div class="modal-head">
+      <div class="modal-pre">Camino a la Libertad</div>
+      <div class="modal-title" id="assessTitle">Semana 1 Check-In</div>
+      <div class="modal-desc">Ayuda a tu líder a ver tu crecimiento — solo toma 2 minutos.</div>
+    </div>
+
+    <!-- WEEK 1 -->
+    <div class="assess-section" id="assess-w1">
+      <div class="assess-alert">¡Acabas de terminar la Semana 1! Responde unas preguntas para que tu líder pueda cuidarte bien.</div>
+      <label class="form-label">Where are you on the growth scale right now?</label>
+      <select id="a1_growth" style="margin-bottom:12px;">
+        <option value="">Choose one...</option>
+        <option>Newborn</option><option>Infant</option><option>Toddler</option>
+        <option>Child</option><option>Preteen</option><option>Teen</option>
+        <option>Young Adult</option><option>Adult</option>
+      </select>
+      <label class="form-label">What do you hope will happen in these 12 weeks?</label>
+      <textarea id="a1_hope" placeholder="Comparte tus esperanzas..."></textarea>
+      <label class="form-label">Likelihood to finish all 12 weeks &nbsp;<span id="a1_likelyVal" class="range-num" style="font-size:16px;">8</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a1_likely" min="1" max="10" value="8" oninput="document.getElementById('a1_likelyVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">How can we pray for you?</label>
+      <textarea id="a1_prayer" placeholder="Petición de oración..."></textarea>
+    </div>
+
+    <!-- WEEK 4 -->
+    <div class="assess-section" id="assess-w4">
+      <div class="assess-alert">¡Cuatro semanas — ¡increíble! Comparte cómo va tu jornada para que tu líder pueda apoyarte.</div>
+      <label class="form-label">Enjoy your daily Quiet Tiempo con Jesús &nbsp;<span id="a4_qtVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_qt" min="1" max="10" value="7" oninput="document.getElementById('a4_qtVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Can hear Jesus speaking to you &nbsp;<span id="a4_hearVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_hear" min="1" max="10" value="7" oninput="document.getElementById('a4_hearVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Growing closer to Jesus &nbsp;<span id="a4_growVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_grow" min="1" max="10" value="7" oninput="document.getElementById('a4_growVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Cerrar to tu pequeño grupo &nbsp;<span id="a4_groupVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_group" min="1" max="10" value="7" oninput="document.getElementById('a4_groupVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Can trust tu grupo with deep thoughts &nbsp;<span id="a4_trustVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_trust" min="1" max="10" value="7" oninput="document.getElementById('a4_trustVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Your leader has qualities you admire &nbsp;<span id="a4_ldrqVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_ldrq" min="1" max="10" value="7" oninput="document.getElementById('a4_ldrqVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Your leader connects well with the group &nbsp;<span id="a4_ldrcVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_ldrc" min="1" max="10" value="7" oninput="document.getElementById('a4_ldrcVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Likely to finish all 12 weeks &nbsp;<span id="a4_likelyVal" class="range-num" style="font-size:16px;">8</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a4_likely" min="1" max="10" value="8" oninput="document.getElementById('a4_likelyVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Biggest issue Jesus has helped you with so far</label>
+      <textarea id="a4_issue" placeholder="Describe cómo te ha ayudado Dios..."></textarea>
+      <label class="form-label">How can we pray for you this week?</label>
+      <textarea id="a4_prayer" placeholder="Petición de oración..."></textarea>
+    </div>
+
+    <!-- WEEK 8 -->
+    <div class="assess-section" id="assess-w8">
+      <div class="assess-alert">¡Ocho semanas fuerte! Sigue adelante — ya pasaste la mitad. Comparte cómo estás.</div>
+      <label class="form-label">Cerrar to tu pequeño grupo &nbsp;<span id="a8_groupVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a8_group" min="1" max="10" value="7" oninput="document.getElementById('a8_groupVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Trust tu grupo with deep thoughts &nbsp;<span id="a8_trustVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a8_trust" min="1" max="10" value="7" oninput="document.getElementById('a8_trustVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Leader has qualities you admire &nbsp;<span id="a8_ldrqVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a8_ldrq" min="1" max="10" value="7" oninput="document.getElementById('a8_ldrqVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Leader connects well with the group &nbsp;<span id="a8_ldrcVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a8_ldrc" min="1" max="10" value="7" oninput="document.getElementById('a8_ldrcVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Biggest issue Jesus has helped you with</label>
+      <textarea id="a8_issue" placeholder="Describe cómo te ha ayudado Dios..."></textarea>
+      <label class="form-label">Are you signing up for Trimester 2?</label>
+      <select id="a8_tri2" style="margin-bottom:12px;">
+        <option value="">Choose...</option>
+        <option value="Yes">Sí — ¡quiero inscribirme!</option>
+        <option value="No">Todavía no</option>
+        <option value="Maybe">Maybe</option>
+      </select>
+    </div>
+
+    <!-- WEEK 12 -->
+    <div class="assess-section" id="assess-w12">
+      <div class="assess-alert">¡Completaste 12 semanas! Esto es ENORME. Tómate un momento para reflexionar sobre tu jornada.</div>
+      <label class="form-label">Cerrar to tu pequeño grupo &nbsp;<span id="a12_groupVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a12_group" min="1" max="10" value="7" oninput="document.getElementById('a12_groupVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Trust tu grupo with deep thoughts &nbsp;<span id="a12_trustVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a12_trust" min="1" max="10" value="7" oninput="document.getElementById('a12_trustVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Leader has qualities you admire &nbsp;<span id="a12_ldrqVal" class="range-num" style="font-size:16px;">7</span>/10</label>
+      <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="a12_ldrq" min="1" max="10" value="7" oninput="document.getElementById('a12_ldrqVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
+      <label class="form-label">Biggest thing Jesus helped you with over 12 weeks</label>
+      <textarea id="a12_issue" placeholder="Reflexiona sobre tu jornada..."></textarea>
+      <label class="form-label">Where are you NOW on the growth scale?</label>
+      <select id="a12_growth" style="margin-bottom:12px;">
+        <option value="">Choose one...</option>
+        <option>Newborn</option><option>Infant</option><option>Toddler</option>
+        <option>Child</option><option>Preteen</option><option>Teen</option>
+        <option>Young Adult</option><option>Adult</option>
+      </select>
+      <label class="form-label">Have you signed up for Trimester 2?</label>
+      <select id="a12_tri2" style="margin-bottom:12px;">
+        <option value="">Choose...</option>
+        <option value="Yes">Yes!</option>
+        <option value="No">Todavía no</option>
+        <option value="Maybe">Thinking about it</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary" style="margin-top:16px;font-size:15px;padding:15px;" id="assessEnviarBtn" onclick="submitAssessment()">Enviar a Mi Líder →</button>
+    <button class="btn btn-outline btn-sm" onclick="closeAssessment()">Hacer Esto Después</button>
+  </div>
+</div>
+
+<!-- IMPORT POST MODAL -->
+<div class="modal-overlay hidden" id="importModal">
+  <div class="modal-sheet" style="border-radius:20px;padding:22px 18px 32px;">
+    <div style="text-align:center;margin-bottom:14px;">
+      <div style="font-size:26px;margin-bottom:6px;">🤝</div>
+      <div style="font-size:16px;font-weight:800;color:var(--teal-dark);" id="importName">¡Un miembro del grupo compartió!</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px;" id="importDia"></div>
+    </div>
+    <div class="share-box" id="importText"></div>
+    <button class="btn btn-primary" onclick="confirmImport()">Añadir a Mi Grupo ✓</button>
+    <button class="btn btn-outline" onclick="closeImport()">Descartar</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  checkDailyLogin();
+  <button class="nav-btn active" id="nav-today" onclick="showPage('today')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>Hoy
+  </button>
+  <button class="nav-btn" id="nav-verse" onclick="showPage('verse')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 14H8v-2h8v2zm0-4H8v-2h8v2zm0-4H8V6h8v2z"/></svg>Versículo
+  </button>
+  <button class="nav-btn" id="nav-commit" onclick="showPage('commit')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM12 3c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>Compromisos
+  </button>
+  <button class="nav-btn" id="nav-share" onclick="showPage('share')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Grupo
+  </button>
+  <button class="nav-btn" id="nav-progress" onclick="showPage('progress')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>Progreso
+  </button>
+  <button class="nav-btn" id="nav-chat" onclick="showPage('chat')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Chat
+  </button>
+</nav>
+
+<!-- TODAY PAGE -->
+<div id="page-today" class="page active">
+  <div id="pendingAssessBanner" style="display:none;"></div>
+  <div id="gameBarWrap"></div>
+  <div id="setupBanner" style="display:none;background:linear-gradient(135deg,#007d8c,#005f6e);color:white;border-radius:14px;padding:14px 16px;margin-bottom:12px;cursor:pointer;" onclick="openPerfil()">
+    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:.75;margin-bottom:4px;">Bienvenido(a) a Camino a la Libertad</div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:4px;">👆 Toca aquí para configurar tu perfil</div>
+    <div style="font-size:12px;opacity:.8;">Configura tu nombre, tu cita diaria con Jesús y el código de grupo para comenzar.</div>
+  </div>
+  <div class="day-hero">
+    <div class="dh-pre">Camino a la</div>
+    <img class="dh-bird" src="data:image/png;base64,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" alt="bird"/>
+    <div class="dh-rule"></div>
+    <div class="dh-week" id="todaySemana">Semana 1</div>
+    <div class="dh-title" id="todayTitle">El Gran Mandamiento</div>
+    <div class="dh-credit">Ron &amp; Katie Luce</div>
+  </div>
+  <div class="verse-block">
+    <div class="vb-bird"><img src="data:image/png;base64,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" alt="" style="height:26px;opacity:.75;"/></div>
+    <div class="vb-rule"></div>
+    <div class="vb-text" id="verseText"></div>
+    <div class="vb-rule"></div>
+    <div class="vb-ref" id="verseRef"></div>
+  </div>
+  <div class="card">
+    <div class="card-label">📖 Enseñanza de Hoy</div>
+    <div style="font-size:15px;line-height:1.7;" id="teachingText"></div>
+  </div>
+  <div class="card">
+    <div class="card-label">✅ Pasos de Acción</div>
+    <div id="actionPasos"></div>
+  </div>
+  <div class="card">
+    <div class="card-label">📚 Lectura Bíblica del Día</div>
+    <div style="font-size:14px;color:var(--text);" id="bibleReading"></div>
+  </div>
+  <div id="apptCardWrap"></div>
+  <div class="btn-row">
+    <button class="btn btn-outline" onclick="changeDia(-1)">← Anterior</button>
+    <button class="btn btn-primary" id="completeBtn" onclick="markComplete()">Marcar como Completo ✓</button>
+    <button class="btn btn-outline" onclick="changeDia(1)">Siguiente →</button>
+  </div>
+  <div class="reminder-note">
+    <div class="card-label">🔔 Recordatorios Diarios</div>
+    <div class="reminder-status" id="reminderStatus">Toca abajo para activar recordatorios diarios — aparecerán como notificaciones en la app a la hora que elijas.</div>
+    <button class="btn btn-primary" style="margin-top:10px;" onclick="activateReminders()">Activar Recordatorios</button>
+    <div id="smsReminderWrap" style="display:none;margin-top:10px;">
+      <div style="font-size:11px;color:var(--teal-dark);margin-bottom:6px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">📱 Text to My Phone</div>
+      <div class="btn-row" style="gap:6px;">
+        <button class="btn btn-sm btn-outline" style="font-size:12px;" onclick="smsVersiculo()">Enviar Versículo de Hoy</button>
+        <button class="btn btn-sm btn-outline" style="font-size:12px;" onclick="smsCommitments()">Enviar Compromisos</button>
+      </div>
+      <button class="btn btn-sm" style="background:#25D366;color:white;font-size:12px;margin-bottom:0;" onclick="smsWhatsApp()">Recordatorio WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<!-- VERSE PAGE -->
+<div id="page-verse" class="page">
+  <div class="section-title">Memory Versículo</div>
+  <div class="card" style="background:linear-gradient(135deg,#d4f5f9,#eafcff);border:1.5px solid var(--border);">
+    <div class="card-label" id="verseSemanaTitle">El Tema de Esta Semana</div>
+    <div style="font-size:13px;color:var(--muted);font-style:italic;" id="verseSemanaTema"></div>
+  </div>
+  <div class="flashcard" onclick="flipCard()" id="flashcard">
+    <img src="data:image/png;base64,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" alt="" style="height:24px;margin-bottom:10px;opacity:.35;"/>
+    <div class="fc-hint" id="fcHint">Toca para revelar el versículo</div>
+    <div class="fc-text" id="fcText"></div>
+    <div class="fc-ref" id="fcRef"></div>
+    <div class="fc-flip">↻</div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-outline" onclick="prevVersiculo()">← Anterior</button>
+    <button class="btn btn-primary" onclick="shuffleVersiculo()">Aleatorio ✦</button>
+    <button class="btn btn-outline" onclick="nextVersiculo()">Siguiente →</button>
+  </div>
+  <div class="card">
+    <div class="card-label">All 7 Versículos This Semana</div>
+    <div id="allVersiculos"></div>
+  </div>
+</div>
+
+<!-- COMMIT PAGE -->
+<div id="page-commit" class="page">
+  <div class="section-title">My Commitments</div>
+  <div class="card" style="background:linear-gradient(135deg,#d4f5f9,#eafcff);border:1.5px solid var(--border);">
+    <div class="card-label">Hoy's Prompt</div>
+    <div style="font-size:14px;line-height:1.6;" id="commitPrompt"></div>
+  </div>
+  <div class="card">
+    <div class="card-label">Add a Commitment</div>
+    <input type="text" id="newCommit" placeholder="Me comprometo a..."/>
+    <div class="btn-row">
+      <input type="time" id="commitTime" value="12:00" style="margin-bottom:0;flex:1;"/>
+      <button class="btn btn-primary btn-sm" style="width:auto;margin-bottom:0;" onclick="addCommitment()">Añadir + Recordar</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-label">Active Commitments</div>
+    <div id="commitList"></div>
+    <div id="noCommits" style="text-align:center;color:var(--muted);font-size:13px;padding:14px 0;">No commitments yet — add one above!</div>
+  </div>
+  <div class="card">
+    <div class="card-label">🕐 Reminder Times</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Times to receive daily verse and commitment reminders:</p>
+    <div class="chip-wrap" id="reminderChips"></div>
+    <div class="btn-row">
+      <input type="time" id="newReminderTime" style="flex:1;margin-bottom:0;"/>
+      <button class="btn btn-primary btn-sm" style="width:auto;margin-bottom:0;" onclick="addReminderTime()">Agregar Hora</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMMUNITY PAGE -->
+<div id="page-share" class="page">
+  <div class="section-title">Group</div>
+  <div class="card">
+    <div class="card-label">What Jesus Spoke to Me Hoy</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;" id="communityVTag"></div>
+    <textarea id="communityText" placeholder="Comparte lo que Dios te mostró en el devocional de hoy..."></textarea>
+    <button class="btn btn-primary" onclick="postReflection()">Publicar en el Grupo</button>
+  </div>
+  <div class="group-banner" id="groupBanner">
+    <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;opacity:.75;">Tu Código del Grupo</div>
+    <div class="group-code" id="groupCodeDisplay">——</div>
+    <div style="font-size:10px;opacity:.7;margin-bottom:10px;">Comparte este código con tu pequeño grupo</div>
+    <button class="btn btn-sm" style="background:rgba(255,255,255,.2);color:white;width:auto;margin:0 auto;display:block;" onclick="copyGroupCode()">Copiar Código</button>
+  </div>
+  <div class="section-title">Group Grupo</div>
+  <div id="groupGrupo"></div>
+  <div class="section-title" style="margin-top:4px;">Share Broadly</div>
+  <div class="card">
+    <div class="card-label">Hoy's Post</div>
+    <div class="share-box" id="sharePostText"></div>
+    <div class="btn-2col">
+      <button class="btn btn-primary btn-sm" onclick="shareToX()">𝕏 Publicar en X</button>
+      <button class="btn btn-sm" style="background:#1877f2;color:white;" onclick="shareToFB()">Facebook</button>
+      <button class="btn btn-gold btn-sm" onclick="shareToIG()">📸 Instagram</button>
+      <button class="btn btn-green btn-sm" onclick="shareViaSMS()">💬 Texto/SMS</button>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="copyPost()">📋 Copiar Publicación</button>
+  </div>
+  <div class="identity-card" id="identityText"></div>
+</div>
+
+<!-- PROGRESS PAGE -->
+<div id="page-progress" class="page">
+  <div class="section-title">Tu Jornada</div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div><div style="font-size:26px;font-weight:900;color:var(--teal-dark);" id="statListo">0</div><div style="font-size:11px;color:var(--muted);">días completados</div></div>
+      <div style="text-align:center;"><div style="font-size:26px;font-weight:900;color:var(--teal);" id="statRacha">0</div><div style="font-size:11px;color:var(--muted);">racha 🔥</div></div>
+      <div style="text-align:right;"><div style="font-size:26px;font-weight:900;color:var(--green);" id="statPct">0%</div><div style="font-size:11px;color:var(--muted);">complete</div></div>
+    </div>
+    <div class="prog-wrap"><div class="prog-bar" id="mainProg" style="width:0%"></div></div>
+  </div>
+  <div id="weekCards"></div>
+  <div class="card">
+    <div class="card-label">Jump to Any Día</div>
+    <div class="week-tabs" id="weekTabs"></div>
+    <div class="day-grid" id="dayGrid"></div>
+  </div>
+
+  <div class="card" style="margin-top:12px;">
+    <div id="badgesGridWrap"></div>
+  </div>
+  <button class="btn btn-outline" onclick="resetAll()" style="margin-top:4px;">Reiniciar Progreso</button>
+</div>
+
+<!-- CHAT PAGE -->
+<div id="page-chat" class="page">
+  <div class="section-title">Compañero IA</div>
+  <div style="background:linear-gradient(135deg,#d4f5f9,#eafcff);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px;font-size:13px;color:var(--teal-deeper);line-height:1.5;">
+    <strong>Tu compañero está aquí.</strong> Pregunta sobre la enseñanza de hoy, recibe ánimo, habla de tus compromisos, o pide una oración.
+  </div>
+  <div class="chat-wrap" id="chatWrap"></div>
+  <div class="chat-row">
+    <input type="text" id="chatInput" placeholder="Pregunta o reflexiona..." onkeydown="if(event.key==='Enter')sendChat()"/>
+    <button class="btn btn-primary btn-sm" style="width:auto;margin-bottom:0;" onclick="sendChat()">Enviar</button>
+  </div>
+  <div class="prompt-chips" id="promptChips"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+// ── Firebase real-time sync ──
+if (!firebase.apps.length) firebase.initializeApp({
+  apiKey: "AIzaSyA4u3QQgC39uxTAIXuzexTg0Pz889YovoI",
+  authDomain: "pathway-to-freedom.firebaseapp.com",
+  projectId: "pathway-to-freedom",
+  storageBucket: "pathway-to-freedom.firebasestorage.app",
+  messagingSenderId: "542778457653",
+  appId: "1:542778457653:web:9b937f54c4bbe850adbb7c"
+});
+var _db = firebase.firestore();
+function ptfSanitize(s){return (s||'').toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,40);}
+function ptfWriteCheckin(data){
+  try {
+    var lid = ptfSanitize(data.leaderEmail||data.groupCode||'anon');
+    var nid = ptfSanitize(data.name||'unknown');
+    var prog = data.program||'ptf1';
+    var docId = lid+'_'+nid+'_'+prog+'_w'+(data.week||'0');
+    _db.collection('ptf_checkins').doc(docId).set(data);
+  } catch(e){ console.warn('FB write err',e); }
+}
+function ptfWriteProgress(prog){
+  try {
+    var prof = (typeof S!=='undefined'?S.profile:null)||{};
+    var lid = ptfSanitize(prof.leaderEmail||prof.groupCode||'anon');
+    var nid = ptfSanitize(prof.name||'unknown');
+    var done = typeof S!=='undefined'?(S.done||S.completedDays||[]):[];
+    var data = {
+      name:prof.name||'', program:prog, week:'0',
+      leaderEmail:prof.leaderEmail||'', pastorEmail:prof.pastorEmail||'',
+      groupCode:prof.groupCode||'', group:prof.groupName||prof.groupCode||'',
+      age:prof.age||'',
+      daysCompleted:Array.isArray(done)?done:[],
+      streak:(typeof S!=='undefined'?S.streak:0)||0,
+      xp:(typeof S!=='undefined'?S.xp:0)||0,
+      date:new Date().toLocaleDateString(),
+      lastUpdated:new Date().toISOString()
+    };
+    _db.collection('ptf_checkins').doc(lid+'_'+nid+'_'+prog+'_prog').set(data);
+  } catch(e){ console.warn('FB progress err',e); }
+}
+
+// ── BIRD IMAGE (for dynamic use) ──
+const BIRD_SRC = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAABBCAYAAAB4ko6YAAAR+UlEQVR42u2deXRcV33Hv79773uzz2i1lmxOICy2k8OJTWLjLPaBnhBOUzi0Ek0pOQ2H2gUaSGJILCllNCGWzBrowsFpKFuTQ2VOT2jAhEKRSU28RCZpcVJjyOY4GknWOsubN2+5v/4xGltO7NiOHcuS3+ccyfIs79259/t+73t/dxkgICAgICAgICAgICAgICAgICAgICAgIOB1wQDxwCajvz+tgto4MdLptGBOi6AmzhYRH6MxmJmC2jm+mINamG0B97VJ7k8r7k+rPX1pEwD6+9OKOS0O7Fxf7+/b8MUD2zo+Xn1tUGNHZ2BgjQEA//fwp986+Pj69wJA33R9MTMxp0U1KMz8+2xj3kSt7FPrYkmR3D9u2WsvWN77QwDggTXGKC94SglqNjyx+IUXMb74aXiUyeiz5oLsTysksgQsRfcjg35mFsrW19cm29s3+/seu7WxuXHBXitXeqD5qp679uxJm4vtLNOy+91D5R1YY8z8fyDo0xiZfx9vVsm6xPpkInztVM42wqa6RhlCW5ZzC7t6G5niXlOpm2IxA8MHi7dfcM3Gr/GetElLMk46nRaZWRQ2c1oIymg+yuNEZ6Zc3Ncm0dYGonZ/ZGdXTyoV/miZkXUmSn9cv8IYJsp4ADC0vaOp6e3nJUafPWg1Ls0M8ou9lwwNFSPNV16+F2jXROBA0KchogzuWv/O5trErmLJA4GRK5RZSkEhU8L3NZSSsEqOFpJ02DT8ku1+qHl5z4+yT62LtbzjK8UzKZ5jiXZoR8fakKHOi4ZN7B8pfu/S1Rv/UL3oTs+5+uTu3b8QALB0aYtPlNHMTNjaLWl1RbAjT9z9j40X1X9y/KWxvc/vHblm2YfvHwUAfjkdHdrv3qUkfSIcDcVzueJX6pIxwzTkncOj+bWtKzfez5xW2J0l5Fu4erzZZG73/llw0XJ1wSp7IJJCkNSauVR2GUzkuD4TkdA+k+P6IhEPPbz/sfU3iLLgoR13R4gyD3N/v6LVq89YQwwMrDGIMu6L/71uaSIa7VNKXBKNmJBSoCFl3DL4666raUnmxVO92DidFlj8DBG1+wD8mQInIh+A9/KvO6+Px80fEnMsl829r37pvT8FgML/ZG7IlZzFxTG6va4m0povlpHPWeWQYdwiJbUOjuY2nN9as294e8cHiTL/fjZJYn6ks4gkAbLyJ6j6G6Dp30Su68MC/Pq6yE8KBecGDb1g/2Of/QBdu/ph7k8rrIKuCuiNitzTx3Wf37p+RV0qvIWAmrxV9oqWwwB0PBo6PxrBY6MDXZuJMp+pvAd0srf0meUf2dV5WyhkXB0xlDk+af2AqP0h3vv5i0emSvck46EboeQ/T42VtoD0b7M7Ox8SQEs4LFeRMGE7HgpFx2WwklKETFO2jk5agxHTuB5CdIHoq5NPpgupZOgTwwfznqPtNResuG8CYBARB4I+WR0LiHjMFMWS42Ja0MdCCCLX80XJBjH0I8T4t1Qy8pEDv+5aSSszj1etTFvbIibKaE6nxensPFZFNryr611hQ/7UdXXSdlxfEKmq8csXy6iriV4YSobXZbd3NNq2uXbz5mdcYLN/ItXBfW0C72hWRJny/q13XdbUlPgr1/XuCJkKruuXIXmnu/feDbmy+9naVMSYzNlj5bL7O8OQDxhKXRSLGvB9xsHxogcCgSGIyCAQmIFC0WHDkK2pRLh1ODv1JDO/KWTIn03lbIamP73gwIopIElENGt9k7nbKRxYY4zkW0Iy5nYlE9H1Y1OWT8cRNQBoZpaCKBYxUXZ8OK5n1SQjz41P2v963sqeLwzvScdDjt6+v+hee9nVoSkAoto5OtXy0rL73ezOzq82N8Rvz44UyoIQOnyTITCzy+AniKimqTm1KDc00ZC6auPYa0Vp7muTaFxEM/3r0PaOy5UhH6tNRlIjYwVPSkGe60+RoHJTY6Jl6GAeRPAECdVYF8Vkzobj+gDYq5yL5LEvTDCz5pBpCCEItuPp2mTEmZiyP9GyYsO3uT+tZtNLz9kIPZ06cpm5c2hHZ00yHv6bXKHsEx0nUhORZnDBcrRmlkqKaNn1ljQ3xjaO7Owc0wUnkTqvbkmrnrqTKNMBQPf3p9WqrdDdAE4lM8LMNLyr03YdnwkQMx5n05DkuP5Ey/LelfzUl2KT4/n2Gnlxbto48cxIf/iIi6seGQMDa4yLdOOfpxLha8emSjeGDJkaHs07QgjT9xmGqeqEIAyN5DwhhAKgtGYeGS16DKhpq6aIjufuQIAgZkYkbEJrbTuuNyFY76vkprtnNSU65yI0c1p0dwMff6+zpCYZ/RPLdu50XL8kBC3QmvlkPxMzGAQtBUgKKUCA77NbkwgZjut/I19wvtvyrp5dMyNtxR+ceK9+2m7wyM70pVL6v3U9bbyqnAy3rjaiRidKva0rerqAygDRqkSWdgNYeoxzDj/esbK+PvrmgxPWung0dFk4pKoRl5U40sgyMxMRnVr9g01DwvN1Vmv9UPPCt3dTy83FIG13ClmCZcvudwe3d3y85c1N3xh+dsSfzm6c4oUyLatKh4a0Zr+hNioLllNyXG9LU23k70Ym/YmmqzJDR3t/Op0W3d2HI+YrIzMR8fDOdLNpcNYuu68SFjN7tamoKhTL34fvdDYs/+KBo53n4EDH2wATvud8sCYRed9k3r6iqTERGZ+0UHY8BuATIE9VuK8laEMJaM1jntY/95g/J1gviEfC35zU3vULl/VkZzPHP6fz0C9v77yrpSG2MV90ULAcluL0NqLW7CslZDikoKTAVN7OMvj78XBIWrY32LR8w32YdgPVXn1VvMyH63br1rRctSrjD+/s6oiE1QbLdjSBxFGEr6NhQ1i2N8HgBwRAGmAhAK0BgjCUxG2mWXGKSgoULAe+r10iqDdKxEepF4RDCrUtKdgTFpQUmJi0tivl31D73HMFtPXp2cpyzN1OIbdJos3+yM6uv45HzY85nn9lyXY1EYnTex7mSsBmMg0pUvEwhCCUbBd5q5wFQ9ckwmIib/9EMm+LxsK9xZKrGVrMsBMEAodN1eJ6Gq91N9HMbEhBNanIUQoDjE5aDJ6+nxAYTKKapDwz9Y5pv+9N1qYiP5vMlf+3aWHjt6j5tpFKdZ18mjEQNID+/uvUqoOf5OyFT34slYoMuLZ3PwHvsGwXp1vUR4gb5DEYIBIhQ8qqXQmZEkpJFEvOMSu17Hgn5GGZwQR4x2gxY3YDCetwyGDX8dcuWL7hO5g5aFNJ/M/qMPicnS646uACpvZ2n5jKXtnb5Xn6CtvxxRsl5mlbQSAYldwsZNnxuOx47Lge5y3Hn8hZnjP92NF+TtQSEIFAMI76M5tiBiClEJGwIZUhHig/c483tKPrJmam/v7r1GyLeU5H6Jns+6/PvCkZNz4XDhk3lUqOJBLBvN43QM9CwPc8toSgR2vioeay638nZ+tt5y+XzwIZPhsmKc35oe9Nm9YYb3n3l5/dO3DHukuj8ZvLZR96Zo8s4HT4ZhBB16aiyrKcpK957A/P6I8sab/HOdvKSnO/spnQ3U3Z9zv1hivu9VnfPD2YQGeyszTPxczhkCKr5H67oTaiJ/L2b6yi8S8LE1kfSzd5s5XRmLeWo/pBGMDwjs6bFzQkvpsdmdJVy/pG+up5LGWPmVhKSCWlcBxvoHlF7zvngg7mR/Wn0+KFVTCNaDkWN0OPCMIVDIS0Zli2owURAYQgah87gwMCVwIDcSoelkIQBAFjOetTLVf1/gPvSZuwWxnP/UJT+wlNmAoEfYq3RyICb/n6raEb2i9MDb8wflskYtxkGmqhZbvQvobraRaCAlHPQLP2TKWUUgLMgKEE8pbzH3XJcHkib/+y+aqeb57tS6/mpaCrnnqmp3vhV50tNQn1E0/rlOfppnBIxSzb9avTpY83Q08QQTPPp4ueAdbTXgwAU1NdXAyPFXIADibjYZUv2j9oXt67/vB7ZmdlzzmZ5XjVFTpj2Hnr1rRceF0mC+AKABh5vPMKJcSWVDzcRARoZhQKlQnsR8sRMzNrwCFCaD5omplZSUGxaEgCBGaGVXLg+v7XlMamxpW9ew+9tq9N4pJagecmNFHGnzPtP++9YTotxD0ZrXXFjuzbcmtjfWPqo7G4+e7JSdusq41cVyg6KJc9tzJmy4qIoJQgz9VjRHg0EjE+XLQcPVc7l1wZKncNJU3X9wvQtD0SVqJU9oZBdHfL8g3Pz7Rscykin3OCPrJhX91Qwzs6/kwDPc1NqUsd20W+UIbjetUMCUkpyPe1Py12qkwqYg2c3eKeFjFrZoRMJVKJCFzXw1Te/lHLit4PHPnaPonup/ls2t4hEPRJeGxsbhdoXERbAaxenfEO7Oq6oC5i3DlZdHzB+IuaVLjRLnsQlcQIqm7E8zTKjuuFTEOVyq4nQBUnQkwEImboavqw+i/A4rVWgBy3vIcOMz1RgpkB8iv2igkgdfillU+oNXxDCSMUUgibBsZz1vP1qcgjI5NWf2vJ/PHvS+Py0kidvxXAqq3Q80HI56ygXyWYVywZemnHnecvqI3XT4wVtVZmmHz3PiFlmH3WAJpSifCFU3l7f0Nd7MLK1DLA9xll10M0fORUCyEIZcfHZK6E1zOzk2ZcTARAMxAOKcQilfO4nsbElKWJSEshFKOSoaitjWJoOJerSUZ+53n6wSKVf9B8ee/wudCeQfqqGrV3r1XAoaVdR+WFX3W2REL6PcwUTibCi3O58h4ICAAtAK4E8CPNLIUQHmmtfGbLZ748GQvfYZVejwdnDZALQIOho1FDFC3nCSJ6EABI4C21ieg6EDA+WXQiYcMv2e5vGxpi35oYLj/ZuPLzTxw60sAmA0sH/bnqjc/ZLMfrzYwAcKudSHTPeHLzM7QZQBsAuq4nC+D7/PjtEVrSWzrecZ/v/3RNfV3tbZ7nn5SIGOzVJaNqbKr4wxZj4V8OqX21hh23ExdEKPF15GdahNGBz72Uqgsv00BvMhF9+SVVKjW/+W7nUKaibRF3dwO0bK17TrRlIOeTjOTTOw4xp8Xu3VkJAEufm9DUvtnngTXGC/kWefHqjP3s1tsvS8Wij0UjZs1k3tbiJKIzM7NhSB0JGWOjk6UPX3TNxl/MfH5gYI2xNN/CM/cSOeL9A2sMTO+SdM4Fp0Cmp0vsoOoGK+MDd1+mDPUomFsLluNLQfJk09iamcOmItOQbq7kvmfTFrWt+8asfKUlYu6T2D0huh8Z9Lu7M4xKP5bP1XYIBH26xLx7jQKWYgIHvmOY8v2O48fKrudLOnkxHxK1ZreuJmLkC/aPG6/sufFw9D27ZrgFgp5nHFq0u63je60tiY8MjRTAzKc8Z4QAeJr9+lRUThZK34LmruYV50a2IhD0LIq5rW2zHnmia0U0ZGwpu17U9XxJp3fgxY9FTZkv2IWamugX8+Plh5qu3vDsK+etBMzhNYVnC42Ni4gIrH3/rZGwkfI8zadZzGBmyhdsp7EuHjelvMeXfHvwFRuBoN8QVq/OeH19bbJlxcZvD48WbquviZpas1OZ13TKQta+Zj9sGqKpIWGWHe8bQ6O5K1pX9Pwt0B1E56MQ5KFPA08/vYi5P60GQ3iwaDmfbqiLXWzbLiz79aV+GewRE0cjphEJGyjZzjMTOevBhmUbeipCn7uThwIPPWcyHRU/+3z/HW+rr02uLdvuI5D4uedrBsAEUsx8zNHC6RUjPhiioTYmtGaM5e3r4iHVnh3N9b71Pfe9zNwngac5EHMg6DMk6sO7Bu37za2NTVQ7IqWAUgKTuZIXCZnKsl0GVQ0wMcCsGUJJIVLxMFxfwyo5X3B9f/C8FRv//tCxZ3mb2sBynIvRgcDTm6bT8A5HlIX3os/8EkAjNYnIB6dy9h7DEEuUFKSZYSgJKSqbieeL5UnN+pelkvPLBVdu+CegugEkAHQzEQViDiL07FDdffPgts+2Nl79pUEAGNre8UdC8ItCqEd9X3M8FlK5gv2fDHq0Nhn+6lTe/lDz8p4dwNE3MQ8IOGuCRfVLLY/HwMAaI/hy0ICz11On06K6vrHy7bZH3hErz/fJauYiqLGAgICAgICAgICAgICAgICAgICAeQidaNI/ICAgIOBMR+js9s5PBdUQMG8EzdmvBKseAuYNamT/2C1BNQTMF/4fzAVqFtUAzTAAAAAASUVORK5CYII=";
+
+// ── STATE ──
+// ══════════════════════════════════════════════════════════════════
+// CONFIGURE: Paste the central Google Apps Script URL here.
+// Students just enter their leader's group code — no long URLs needed.
+// ══════════════════════════════════════════════════════════════════
+var CENTRAL_URL = "YOUR_GAS_URL_HERE";
+
+let S = JSON.parse(localStorage.getItem("ptf_v3") || "null") || {
+  day: 0, done: [], commits: [], remTimes: ["07:00","12:00","17:00"],
+  streak: 0, lastListo: null, posts: [], chat: [], profile: null,
+  remActive: false, assessments: {}, pendingAssess: null,
+  xp: 0, level: 1, badges: [], streakShield: 0, lastLogin: null, longestStreak: 0
+};
+// ── Auto-fill from shared portal profile ──
+(function(){
+  try {
+    var sp = JSON.parse(localStorage.getItem('ptf_shared_profile') || 'null');
+    if (sp && sp.name && !S.profile) {
+      S.profile = {
+        name: sp.name,
+        email: sp.email || '',
+        leaderEmail: sp.leaderEmail || '',
+        groupCode: sp.group || '',
+        age: sp.age || '',
+        gender: sp.gender || '',
+        apptTime: '',
+        apptPlace: ''
+      };
+      save();
+    }
+  } catch(e) {}
+})();
+// Migrar estado antiguo — rellenar campos de gamificación faltantes
+if (!Array.isArray(S.badges))   S.badges = [];
+if (S.xp == null)               S.xp = 0;
+if (S.streakShield == null)     S.streakShield = 0;
+if (S.lastLogin == null)        S.lastLogin = null;
+if (S.longestStreak == null)    S.longestStreak = 0;
+if (S.streak == null)           S.streak = 0;
+function save() { localStorage.setItem("ptf_v3", JSON.stringify(S)); }
+
+// ── DEVOTIONAL DATA ──
+const W = [
+{title:"Qué Significa Vivir para Jesús",theme:"amor, compromiso, vivir para Dios",id:"Soy alguien que ama a Dios por encima de todo — con todo mi corazón, alma y mente.",días:[
+{t:"El Gran Mandamiento",v:"Amarás al Señor tu Dios con todo tu corazón, con toda tu alma y con toda tu mente. Este es el primero y el gran mandamiento. Y el segundo es semejante: Amarás a tu prójimo como a ti mismo.",r:"Mateo 22:37-40",teach:"Si has tomado la decisión de seguir a Jesús, ya no vives para el mundo — vives para Dios. Lo más importante que puedes hacer con tu vida es amarlo con todo tu corazón. Piensa en las cosas que más amas: si realmente amas algo, pones tu energía en ello, inviertes tu tiempo, te consumes con ello. Jesús nos llama a esa misma búsqueda apasionada de él.",act:["Reflexiona honestamente: ¿hay algo — una relación, las redes sociales, el deporte, el dinero — que tenga más prioridad que Jesús?","Pide a Dios que se convierta en lo más importante de tu vida hoy.","Elige amar a Jesús más que las cosas que has amado en el pasado."],read:"Mateo 1"},
+{t:"Él Te Amó Primero",v:"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, sino que tenga vida eterna.",r:"Juan 3:16",teach:"Dios nos ama tanto que dio a su único Hijo. No envió un ángel ni una historia de Instagram desde el cielo — envió a Jesús, lo mejor de sí mismo. Lo amamos porque él nos amó primero (1 Juan 4:19). La mejor respuesta a un amor tan increíble es amarlo de vuelta con todo lo que somos. De eso se trata ser seguidor de Cristo.",act:["Medita en Juan 3:16 todo el día — dilo en voz alta, escríbelo donde puedas verlo.","Anota maneras en que puedes darle hoy lo mejor de ti a Dios.","Dale lo mejor a Dios porque él te dio lo mejor de sí."],read:"Mateo 2"},
+{t:"Ama a Dios con Todo Tu Ser",v:"Mirad cuál amor nos ha dado el Padre, para que seamos llamados hijos de Dios. ¡Y lo somos!",r:"1 Juan 3:1",teach:"Dios ha derramado su amor sobre ti — no tenía que hacerlo, pero eligió hacerlo. Te llama su hijo. La mujer que lavó los pies de Jesús con sus lágrimas nos muestra cómo responder a ese amor: con devoción extravagante y de todo corazón. A quien mucho se le perdona, mucho ama. ¿Cuánto se te ha perdonado?",act:["Escribe 1 Juan 3:1 con tus propias palabras.","Escribe una oración de agradecimiento a Dios por su amor y perdón.","Pídele que te ayude a amarlo de vuelta de manera extravagante."],read:"Mateo 3"},
+{t:"¿Amas al Mundo?",v:"No améis al mundo, ni las cosas que están en el mundo. Si alguno ama al mundo, el amor del Padre no está en él. Porque todo lo que hay en el mundo — los deseos de la carne, los deseos de los ojos, y la vanagloria de la vida — no proviene del Padre, sino del mundo.",r:"1 Juan 2:15-17",teach:"Nuestra vida se enreda en modas y tendencias. Muchas cosas que anhelamos terminan colocándonos en situaciones pecaminosas. Mucha de la música, películas y cosas que el mundo ama son anti-Dios — ahogan nuestro amor por él. Amar al mundo diluye nuestro amor por Dios.",act:["Haz una lista de cosas que el mundo ama y que son claramente trampas para alejar a las personas de Dios.","Haz una lista de cosas que necesitas eliminar de tu vida.","Ora sobre esa lista y decide alejarte de esas cosas."],read:"Mateo 4"},
+{t:"¿Me Amas Más que Estas Cosas?",v:"Simón, hijo de Juan, ¿me amas más que estas?",r:"Juan 21:15",teach:"Jesús le preguntó a Pedro si lo amaba más que sus peces, sus ingresos, las cosas con que había sido bendecido. Nos hace la misma pregunta: ¿Me amas más que tu teléfono, tus redes sociales, tu popularidad? ¿Estás dispuesto a darlo todo por Jesús si él te lo pidiera? Esa es la pregunta central de si amamos a Jesús con todo lo que tenemos.",act:["¿Cuánto tiempo pasas pensando en las cosas de tu cuarto y tus actividades?","¿Piensas en Jesús tanto como en esas cosas?","Decide cómo reordenar tus prioridades para que Jesús sea el número uno."],read:"Mateo 5"},
+{t:"Amar a Dios Es Obedecerle",v:"Si me amáis, guardad mis mandamientos.",r:"Juan 14:15",teach:"Jesús dijo que si realmente lo amamos, debemos obedecerle y someternos a él con gozo. Mucha gente cree que Jesús viene a arruinar toda la diversión — eso es mentira. Él dijo que vino para que tengamos vida en abundancia. Dios te creó, sabe para qué naciste, y cuando le obedecemos, encontramos verdadera plenitud.",act:["Haz una lista de maneras en que recientemente no obedeciste a Dios.","Ora y pide al Señor que te dé entendimiento sobre cómo sus caminos te hacen libre.","Comprométete hoy a someterte a Jesús con todo tu corazón."],read:"Mateo 6"},
+{t:"Entrega Tu Vida",v:"Nadie tiene mayor amor que este, que uno ponga su vida por sus amigos.",r:"Juan 15:13",teach:"Esta es la verdadera definición del amor. Jesús entregó su vida por nosotros. Quiere el mismo tipo de compromiso de nuestra parte: que lo amemos tanto que renunciemos a nuestros planes, nuestro orgullo, nuestro egoísmo. Podemos entregar el tiempo que tenemos aquí para que todo — nuestros objetivos, nuestros sueños, nuestras carreras — gire en torno a nuestro amor por él.",act:["¿Puedes pensar en alguien que se haya sacrificado por ti? Nómbralo.","¿Alguna vez te sacrificaste por alguien? ¿Qué te motivó a hacerlo?","¿Cómo puedes entregar tu vida prácticamente a Jesús hoy?"],read:"Mateo 7"}
+]},
+{title:"Convirtiéndote en Alguien Completamente Nuevo",theme:"identidad, fortaleza, lo que Dios dice de ti",id:"Soy creado(a) de manera admirable y maravillosa. Dios dice que soy más que vencedor(a), y elijo creer lo que él dice de mí.",días:[
+{t:"La Plaga Burbónica de los Jóvenes: La Inferioridad",v:"Humillaos delante del Señor, y él os exaltará.",r:"Santiago 4:10",teach:"Hay una epidemia de inferioridad que recorre esta generación — mata los sueños y frena el potencial. El mundo, los medios y la presión social nos dicen constantemente que no somos suficientes. Pero Dios tiene una meta diferente para ti. Él te levanta porque piensa que eres más valioso que cualquiera de sus otras creaciones.",act:["¿Qué dices de ti mismo cuando nadie está mirando?","¿De dónde obtienes tu identidad — de amigos, redes sociales, otra cosa?","Dedica tiempo a orar Santiago 4:10. Derrama tu corazón al Señor con honestidad."],read:"Mateo 8"},
+{t:"¿Se Supone que Debes Amarte a Ti Mismo?",v:"Amarás a tu prójimo como a ti mismo.",r:"Mateo 22:39",teach:"Jesús dijo que el segundo gran mandamiento es amar a tu prójimo como a ti mismo — lo que significa que SÍ debes amarte a ti mismo. No es pecado. Es santo. Es correcto. La arrogancia en realidad proviene de baja autoestima. El verdadero amor propio significa que estás tan seguro de ti mismo que tu enfoque se vuelve hacia afuera para elevar a otros.",act:["¿Cómo hablas de ti mismo?","¿Cómo te tratas a ti mismo?","Pide a Dios que te muestre cómo te ve él y escribe lo que habla a tu corazón."],read:"Mateo 9"},
+{t:"¿Cuál Es la Verdad Real sobre Ti?",v:"Te alabaré; porque formidables, maravillosas son tus obras; estoy maravillado, y mi alma lo sabe muy bien.",r:"Salmos 139:13-14",teach:"Dios te creó a su imagen. Él no hace basura. Se emocionó el día que naciste porque te hizo único. Un objeto vale lo que alguien está dispuesto a pagar por él — y Dios pagó por ti con la sangre de Jesús. Ese es tu valor. Si Dios lo dice de ti, entonces tú puedes decirlo de ti mismo.",act:["Memoriza Filipenses 4:13: Todo lo puedo en Cristo que me fortalece.","Dilo enfatizando diferentes palabras para que cobre vida.","Elige creer lo que Dios dice de ti en lugar de lo que dice el mundo."],read:"Mateo 10"},
+{t:"Transformarte Cambiando Tu Mente",v:"Todo lo puedo en Cristo que me fortalece.",r:"Filipenses 4:13",teach:"Obtienes fortaleza reconstruyendo el interior de tu corazón y mente con las palabras de Dios. El mundo intenta decirte que es una tontería vivir para Dios, pero la Palabra de Dios es verdad y realidad. Di este versículo tantas veces que explote y cobre vida dentro de tu corazón.",act:["Escribe Filipenses 4:13 con tus propias palabras.","Haz una lista de tus mayores obstáculos y las áreas donde te sientes impotente.","Di 'Todo lo puedo [obstáculo] en Cristo' sobre cada área débil."],read:"Mateo 11"},
+{t:"Lo que Dios Dice de Ti",v:"Antes, en todas estas cosas somos más que vencedores por medio de aquel que nos amó.",r:"Romanos 8:37",teach:"En medio de toda clase de persecución y circunstancia, somos MÁS que vencedores. Eso significa que tenemos la fortaleza de Dios. No tienes que apenas sobrevivir — puedes vencer. La clave: Dios dice que eres más que vencedor. Cuando Dios lo dice, tú puedes decirlo.",act:["Escribe Romanos 8:37 en una tarjeta o ponlo como fondo de tu teléfono.","Dilo tantas veces que explote dentro de tu cerebro.","Pide a Dios que encienda tu corazón con confianza en quién él dice que eres."],read:"Mateo 12"},
+{t:"Creciendo en Fortaleza",v:"Y el niño crecía y se fortalecía en espíritu.",r:"Lucas 1:80",teach:"Tanto Juan el Bautista como Jesús tuvieron que crecer en fortaleza. Incluso Jesús, el Hijo de Dios, creció. La fortaleza no es algo por lo que solo oras y obtienes de inmediato — creces en ella haciendo que la Palabra de Dios se plante profundamente en tu corazón. Comprométete a que la fortaleza sea un rasgo de carácter en el que trabajarás por el resto de tu vida.",act:["Haz una lista de algunas áreas en las que te gustaría crecer en fortaleza.","Ora sobre esas áreas y pide a Dios versículos específicos para cada una.","Ora: Señor, quiero que la fortaleza que tengo hoy no sea el límite de mi fortaleza."],read:"Mateo 13"},
+{t:"Dios Te Hace Fuerte en Tu Debilidad",v:"Porque cuando soy débil, entonces soy fuerte.",r:"2 Corintios 12:10",teach:"Pablo se glorió en sus debilidades porque esas eran las mismas áreas en que Dios lo hacía fuerte. Un área en la que has sido débil por mucho tiempo NO es un área en la que tengas que seguir siendo débil. Dios quiere enfrentarse al diablo de manera poderosa en tu vida haciéndote fuerte en áreas de debilidad.",act:["Haz una lista de algunas áreas en las que te has sentido débil.","Escribe 2 Corintios 12:10 en una tarjeta o como fondo de tu teléfono.","Cítalo cada vez que te sientas débil hoy. ¡Empieza a decir: Soy fuerte!"],read:"Mateo 14"}
+]},
+{title:"Amistades que Importan",theme:"rendición de cuentas, amistad, comunidad",id:"Estoy construyendo amistades que me hacen mejor. Me uno a otros que están en llamas por Dios.",días:[
+{t:"Un Nuevo Nivel de Amistad",v:"En todo tiempo ama el amigo, y el hermano nace para el tiempo de angustia.",r:"Proverbios 17:17",teach:"Un amigo de rendición de cuentas te ama en todo momento — en los buenos tiempos y en los difíciles. El cristianismo se trata de unir corazones con personas y decir que nos amamos demasiado para dejarnos retrodecer. Si te aíslas, te vuelves mucho más vulnerable al ataque del Enemigo.",act:["Piensa en alguien que podría ser un amigo de rendición de cuentas para ti.","Comprométete a contactar a esa persona esta semana.","Pregúntate: ¿quién me conoce de verdad — incluyendo mis luchas?"],read:"Mateo 15"},
+{t:"El Valor de un Amigo de Rendición de Cuentas",v:"Pero cuando Pedro vino a Antioquía, le resistí cara a cara, porque era de condenar.",r:"Gálatas 2:11",teach:"Un compañero de rendición de cuentas te impide hacer cosas que a largo plazo son dañinas. Algunas cosas pueden parecernos correctas, pero según las Escrituras no lo son. Si tu amigo no puede dar cuenta de sus acciones o actitud, debe admitir que está equivocado. No se trata de juzgar — se trata de amarse lo suficiente para decirse la verdad.",act:["Describe un momento en que alguien fue honesto contigo y te ayudó a tomar una mejor decisión.","¿Eres el tipo de amigo que dice la verdad con amor?","Ora para que Dios te envíe un amigo de rendición de cuentas si no tienes uno."],read:"Mateo 16"},
+{t:"Tus Amigos Más Cercanos: En Llamas por Dios",v:"No os unáis en yugo desigual con los incrédulos.",r:"2 Corintios 6:14",teach:"A medida que te tomas en serio seguir a Jesús, necesitarás ser intencional sobre con quién pasas más tiempo. Tu círculo íntimo debe ser de personas que estén en llamas por Dios y que te eleven, no que te arrastren hacia abajo. La razón más importante para pasar tiempo con no creyentes es mostrarles cómo es Jesús.",act:["Mira tus amistades más cercanas — ¿te acercan o te alejan de Dios?","Haz un plan para profundizar las amistades con personas que amen a Jesús.","Comprométete a ser un ejemplo para amigos que no conocen a Jesús."],read:"Mateo 17"},
+{t:"Los Amigos de Pablo",v:"Y se detuvieron allí mucho tiempo, hablando con denuedo, confiados en el Señor.",r:"Hechos 14:3",teach:"Pablo y Bernabé tenían una asociación profunda en el ministerio. Se desafiaban mutuamente, se animaban y enfrentaban situaciones difíciles juntos. Necesitas personas así en tu vida. Esta idea de amistad de rendición de cuentas no es solo una sugerencia casual — es esencial para crecer en tu fe.",act:["¿Quién en tu vida habla con valentía para el Señor?","¿Cómo puedes ser un Bernabé — un animador — para alguien esta semana?","Comprométete a invertir en al menos una amistad profunda de fe."],read:"Mateo 18"},
+{t:"Amistades que se Meten en Tu Vida",v:"Fieles son las heridas del que ama.",r:"Proverbios 27:6",teach:"La amistad de rendición de cuentas se trata de estar dispuesto a meterte en la vida del otro. No es simplemente decir 'oraré por ti'. Es amarse lo suficiente para decir 'veo algo en tu vida que no se parece a Jesús, y te amo lo suficiente para decírtelo'. Eso no es cómodo — pero es esencial para el crecimiento.",act:["¿Estás viviendo lo que profesas, o hay una brecha?","¿Hay alguien en tu vida que te ame lo suficiente para decirte cuando estás desencaminado?","Comprométete a ser ese tipo de amigo para alguien esta semana."],read:"Mateo 19"},
+{t:"De Qué Hablar con un Amigo de Rendición de Cuentas",v:"Os he llamado amigos, porque todas las cosas que oí de mi Padre, os las he dado a conocer.",r:"Juan 15:15",teach:"Jesús definió la amistad como compartir las cosas más profundas. Ese es el estándar para la amistad de rendición de cuentas: compartir real, profundo y honesto. No conversación superficial. Sino compartir genuino de lo que Dios está haciendo en tu vida, dónde estás luchando y qué compromisos estás cumpliendo.",act:["¿Hay algún área de tu vida que no hayas compartido con nadie?","Practica ser vulnerable — comparte algo real con un amigo de confianza hoy.","Habla con tu amigo de rendición de cuentas sobre lo que Dios te ha estado hablando esta semana."],read:"Mateo 20"},
+{t:"Cómo Hacer Amigos",v:"El hombre que tiene amigos ha de mostrarse amigo; y amigo hay más unido que un hermano.",r:"Proverbios 18:24",teach:"Si vas a tener amigos, tienes que ser amistoso. Encuentras la amistad de rendición de cuentas no quedándote en el aislamiento sino saliendo y siendo el tipo de persona con quien otros quieren estar. El amigo supremo que es más unido que un hermano es el mismo Jesús.",act:["Da un paso hoy para acercarte a alguien con quien quieres construir una amistad más profunda.","Pregúntate: ¿soy el tipo de amigo que quiero tener?","Repasa todos los versículos que memorizaste esta semana."],read:"Mateo 21"}
+]},
+{title:"Integridad: El Primer Paso para Parecerte a Jesús",theme:"integridad, cumplir tu palabra, carácter",id:"Soy una persona de integridad. Mi sí es sí y mi no es no. Vivo igual en público que en privado.",días:[
+{t:"¿Qué Es la Integridad?",v:"De más estima es el buen nombre que las muchas riquezas, y la buena fama más que la plata y el oro.",r:"Proverbios 22:1",teach:"Integridad significa ser la misma persona en privado que en público. Tu mundo interior coincide con tu mundo exterior. Un buen nombre — una reputación por ser confiable y honesto — vale más que todo el dinero del mundo. Las personas de integridad son escasas y se destacan.",act:["Escribe lo que crees que significa Proverbios 22:1.","Piensa en alguien en tu vida que tenga una gran reputación de integridad. ¿Qué hace de manera diferente?","¿Cuál es tu reputación? ¿Qué dice la gente de ti cuando no estás?"],read:"Mateo 22"},
+{t:"Cumplir Tu Palabra",v:"Pero sea vuestro hablar: Sí, sí; no, no; porque lo que es más de esto, de mal procede.",r:"Mateo 5:37",teach:"Ser una persona de integridad significa decir lo que piensas y pensar lo que dices. Si dices sí, lo haces. Si dices no, no lo haces. Nuestra cultura ha normalizado romper promesas y decir lo que sea conveniente. Dios llama a su pueblo a ser diferente.",act:["Piensa en un compromiso que hiciste recientemente. ¿Lo cumpliste?","¿Hay alguien con quien necesites cumplir algo?","Comprométete hoy: cuando digas algo, lo significarás."],read:"Mateo 23"},
+{t:"Dios Es Nuestro Ejemplo",v:"De mi boca salió lo recto, y no será revocado.",r:"Isaías 45:23",teach:"Dios es el ejemplo supremo de integridad. Cuando Dios dice algo, se hace. Su palabra no regresa vacía. No hace promesas que no cumple. Estamos llamados a imitarlo. Cuando caminas con integridad, reflejas el carácter de Dios a las personas que te rodean.",act:["Haz una lista de áreas de tu vida donde no has vivido con plena integridad.","Pide a Dios que te perdone y te ayude a comprometerte con su estándar.","Elige un área específica para llevar a la integridad hoy."],read:"Mateo 24"},
+{t:"Integridad de Corazón",v:"Que andes delante de mí con integridad de corazón y con rectitud.",r:"1 Reyes 9:4",teach:"A Dios le interesa por qué haces lo que haces. Caminar con integridad de corazón significa que tus motivos son puros, tus intenciones son honestas y tu vida interior coincide con tu vida exterior. Dios prometió al hijo de David que si caminaba con integridad de corazón, establecería su trono.",act:["Pide a Dios que revele algún área donde tus motivos no sean puros.","Escribe una oración pidiendo a Dios que te dé un corazón íntegro y recto.","¿Cómo puedes mostrar integridad en tu familia hoy?"],read:"Mateo 25"},
+{t:"Dios Juzga Nuestros Corazones",v:"Júzgame, oh Jehová, conforme a mi justicia, y conforme a mi integridad.",r:"Salmos 7:8",teach:"David fue lo suficientemente audaz para pedir a Dios que lo juzgara por su integridad. ¿Podrías hacer esa oración hoy? Dios no solo ve lo que mostramos a otros — ve los rincones ocultos de nuestros corazones. Le interesa quiénes somos cuando nadie está mirando. Esa es la verdadera prueba de la integridad.",act:["Escribe lo que Salmos 7:8 significa para ti.","Pide a Dios: ¿Hay algo en mí que no refleje integridad?","Comprométete a vivir de manera que puedas hacer esta oración con confianza."],read:"Mateo 26"},
+{t:"La Integridad Es Nuestro Estándar",v:"La integridad de los rectos los encaminará; pero la perversidad de los transgresores los destruirá.",r:"Proverbios 11:3",teach:"Cuando dices algo, la gente debería poder contar con ello. Como seguidor de Jesús, estás llamado a un estándar más alto. La integridad en realidad te guía — se convierte en una brújula que te mantiene en el camino correcto incluso cuando nadie está mirando. ¿Dónde actúas de una manera en público y de otra en privado?",act:["¿Dónde actúas de una manera en público y de otra en privado?","¿Qué cambiaría si vivieras igual en todas las áreas de tu vida?","Comprométete a dejar que la integridad sea tu guía hoy."],read:"Mateo 27"},
+{t:"La Integridad Trae Seguridad",v:"El que camina en integridad anda confiado; mas el que pervierte sus caminos será descubierto.",r:"Proverbios 10:9",teach:"Una de las ventajas más increíbles de caminar con integridad es la seguridad. Cuando vives honestamente, no tienes nada que esconder. No tienes que llevar la cuenta de mentiras. No tienes que preocuparte de ser descubierto. La integridad te da una libertad y seguridad que nada más puede proporcionar.",act:["Escribe lo que este versículo significa para ti hoy.","¿Hay algo en tu vida ahora mismo de lo que te avergonzaría que otros se enteraran?","Ocúpate de ello hoy — sácalo a la luz."],read:"Mateo 28"}
+]},
+{title:"¿A Quién Perteneces?",theme:"iglesia, comunidad, pertenencia, autoridad",id:"Pertenezco a Dios y a su familia. Estoy plantado(a) en una iglesia y me someto a la autoridad piadosa.",días:[
+{t:"Reúnete Regularmente",v:"No dejando de congregarnos, como algunos tienen por costumbre, sino exhortándonos.",r:"Hebreos 10:25",teach:"Pablo llamó específicamente la costumbre de faltar a la iglesia. Reunirse no es opcional para un seguidor de Jesús — es esencial. No fuiste diseñado para hacer esto solo. Cuando te reúnes con otros creyentes, eres animado, fortalecido y responsabilizado. La iglesia es el plan de Dios para tu crecimiento.",act:["¿Asistes consistentemente a la iglesia? Si no, ¿qué lo impide?","Comprométete a asistir a tu iglesia consistentemente durante las próximas 12 semanas.","Anima a alguien más a venir a la iglesia contigo esta semana."],read:"Marcos 1"},
+{t:"Estimúlense Mutuamente",v:"Y considerémonos unos a otros para estimularnos al amor y a las buenas obras.",r:"Hebreos 10:24",teach:"Necesitamos personas en nuestras vidas que nos provoquen — de buena manera — hacia el amor y las buenas obras. Un estímulo es algo que provoca movimiento hacia adelante. ¿Quién te está estimulando? ¿A quién estás estimulando tú? Para eso nos reunimos — no solo para ser inspirados sino para inspirar a otros.",act:["Escribe con tus propias palabras lo que significa estimularse mutuamente.","Nombra a alguien que necesite ser estimulado hacia Dios ahora mismo.","Envíale un mensaje de aliento hoy."],read:"Marcos 2"},
+{t:"¿A Dónde Perteneces?",v:"Porque habéis sido comprados por precio; glorificad, pues, a Dios en vuestro cuerpo.",r:"1 Corintios 6:20",teach:"Jesús te compró con su sangre. Si le has dado tu corazón, ya no te perteneces a ti mismo — perteneces a Dios. Y Dios te ha colocado en una familia: la iglesia. Perteneces a esa familia. Tienes un lugar. Tienes un papel. Tu vida está destinada a vivirse en comunidad, no en aislamiento.",act:["¿Estás activamente involucrado en una iglesia local? ¿Cuál es tu papel?","Pregunta a Dios: ¿Dónde quieres que sirva en tu familia?","Da un paso hacia una mayor participación en tu iglesia esta semana."],read:"Marcos 3"},
+{t:"Toma la Visión",v:"Y todo lo que hagáis, hacedlo de corazón, como para el Señor y no para los hombres.",r:"Colosenses 3:23",teach:"Dios sabe que todas las personas anhelan encontrar algo a lo que puedan entregar sus corazones y mentes. Como seguidor de Jesús, tienes la visión más grande de todas: cambiar el mundo para Dios. Todo lo que hagas — en la escuela, en casa, en tu iglesia — hazlo como si lo estuvieras haciendo directamente para Dios. Eso cambia todo.",act:["¿Qué es algo que has estado haciendo a medias que podrías entregar completamente a Dios?","¿Cómo se vería hacer tus actividades diarias como para el Señor?","Comprométete a ir con todo por Dios en un área específica esta semana."],read:"Marcos 4"},
+{t:"Sométete a Tu Líder de Iglesia",v:"Pagad a todos lo que debéis: al que tributo, tributo; al que respeto, respeto; al que honra, honra.",r:"Romanos 13:7",teach:"Nuestra cultura nos enseña a hacer lo que queramos e ignorar la autoridad. Pero Dios nos llama a honrar a quienes ha colocado sobre nosotros. Tu líder de grupo de conexión, pastor de jóvenes y el liderazgo de la iglesia están ahí puestos por Dios. Someterse a ellos no es debilidad — es sabiduría. Es una de las maneras en que Dios te protege y guía.",act:["¿Cómo hablas de tus líderes de iglesia? ¿Es con respeto?","Escribe una nota o mensaje de agradecimiento a un líder que te haya impactado.","Pide a Dios que te dé un corazón que honre a quienes tienen autoridad sobre ti."],read:"Marcos 5"},
+{t:"Sométete a Tu Pastor Principal",v:"Sométase toda persona a las autoridades superiores; porque no hay autoridad sino de parte de Dios.",r:"Romanos 13:1",teach:"Un seguidor de Cristo respeta al pastor principal y al liderazgo de la iglesia. Esto no significa que los líderes sean perfectos — significa que Dios los ha colocado ahí y honramos a Dios al honrarlos. Cuando te sometes a la autoridad piadosa, te colocas bajo la protección y bendición de Dios.",act:["¿Hay algún líder hacia quien hayas tenido una actitud crítica? Arrepiéntete de eso hoy.","Ora por tu pastor principal por nombre ahora mismo.","Comprométete a hablar bien de tus líderes de iglesia a otros."],read:"Marcos 6"},
+{t:"Ejemplos Jóvenes y Radicales",v:"Ninguno tenga en poco tu juventud, sino sé ejemplo de los creyentes en palabra, conducta, amor, espíritu, fe y pureza.",r:"1 Timoteo 4:12",teach:"Pablo le dijo a Timoteo — que era joven — que no dejara que nadie lo menospreciara por su edad. Tu juventud no es una limitación; es una oportunidad. Puedes ser un ejemplo ahora mismo. No tienes que esperar a ser mayor para hacer la diferencia. Establece el estándar con tus palabras, tus acciones, tu amor, tu fe y tu pureza.",act:["¿En qué áreas estás dando un buen ejemplo? ¿En qué áreas necesitas crecer?","¿A quién de tus compañeros podrías ser un ejemplo piadoso esta semana?","Comprométete a una manera específica en que serás un ejemplo para otros hoy."],read:"Marcos 7"}
+]},
+{title:"Fe Cuando No Sientes Nada",theme:"fe, sentimientos, la Palabra de Dios",id:"Vivo por fe, no por sentimientos. Elijo confiar en la Palabra de Dios incluso cuando no siento su presencia.",días:[
+{t:"Los Sentimientos van y Vienen",v:"Cualquiera, pues, que me oye estas palabras, y las hace, le compararé a un hombre prudente, que edificó su casa sobre la roca.",r:"Mateo 7:24",teach:"Cuando las personas entregan su vida al Señor, algunos tienen una experiencia emocional dramática. Pero esos sentimientos van y vienen. La roca sobre la que edificas tu vida no son los sentimientos — es la Palabra de Dios. Los sentimientos son reales, pero no son fundamentos confiables. La fe no es un sentimiento; es una elección de confiar en la Palabra de Dios sin importar cómo te sientas.",act:["¿Has estado basando tu fe en sentimientos o en la Palabra de Dios?","¿Cuál es una verdad de las Escrituras en la que puedes sostenerte hoy, sin importar los sentimientos?","Comprométete a leer tu Biblia incluso los días que no te apetezca."],read:"Marcos 8"},
+{t:"¿Guiado por la Palabra o las Emociones?",v:"Si confesares con tu boca que Jesús es el Señor, y creyeres en tu corazón que Dios le levantó de los muertos, serás salvo.",r:"Romanos 10:9",teach:"La salvación no está basada en un sentimiento — está basada en lo que declaras y crees. Si creíste cuando entregaste tu corazón a Jesús, eso fue real. Tus emociones ese día fueron solo la respuesta. Eres salvo porque creíste y confesaste — no por cómo te sentiste. Deja que la Palabra te guíe, no tus emociones.",act:["Escribe Romanos 10:9 con tus propias palabras.","Recuérdate: soy salvo porque creí y confesé — no por cómo me siento ahora mismo.","Deja que esta verdad te ancle en los días difíciles."],read:"Marcos 9"},
+{t:"Acércate a Dios",v:"Acercaos a Dios, y él se acercará a vosotros.",r:"Santiago 4:8",teach:"¿Qué pasa si no sientes nada? ¿Qué debes hacer? Necesitas vivir una vida de obediencia porque amas a Jesús — incluso si no sientes nada. Acércate a Dios. Eso significa pasar tiempo con él en su Palabra y en oración, incluso cuando se siente seco. La promesa es: cuando te acercas a él, él se acerca a ti.",act:["Memoriza y medita en Santiago 4:8.","Toma la decisión hoy de acercarte a Dios sin importar tus sentimientos.","Dedica 5 minutos extra en oración o en las Escrituras hoy — aunque no tengas ganas."],read:"Marcos 10"},
+{t:"Fe que Opera como una Ley Natural",v:"La fe es la certeza de lo que se espera, la convicción de lo que no se ve.",r:"Hebreos 11:1",teach:"La fe no es una emoción — es como la ley de la gravedad. No necesitas sentir la gravedad para que funcione; simplemente funciona. De la misma manera, la fe en la Palabra de Dios funciona aunque no lo sientas. Cuando pones en práctica la Palabra de Dios, produce resultados — con o sin sentimientos.",act:["¿Cuál es una promesa de Dios que puedes actuar con fe hoy?","Escribe Hebreos 11:1 con tus propias palabras.","Actúa sobre una promesa de Dios hoy, incluso si no tienes el sentimiento."],read:"Marcos 11"},
+{t:"Construyendo Tu Fe",v:"Así que la fe es por el oír, y el oír, por la palabra de Dios.",r:"Romanos 10:17",teach:"La fe se construye escuchando la Palabra de Dios. Cuanto más llenas tu corazón con las Escrituras, más crece tu fe. No puedes confiar en lo que no conoces. Pero a medida que lees, escuchas y meditas en la Palabra de Dios, tu fe se fortalece. Este es el secreto para vivir por fe y no por sentimientos.",act:["¿Cuánto tiempo dedicaste esta semana a escuchar/leer la Palabra de Dios?","¿Hay un podcast, aplicación o plan de lectura bíblica que podría ayudarte a alimentar tu fe?","Comprométete a llenar tu mente con la Palabra de Dios esta semana."],read:"Marcos 12"},
+{t:"Pedirle a Dios que Aumente Tu Fe",v:"Y respondieron los apóstoles al Señor: Auméntanos la fe.",r:"Lucas 17:5",teach:"Incluso los discípulos de Jesús le pidieron que aumentara su fe. No tienes que avergonzarte de tener poca fe — puedes pedirle a Dios que la aumente. La honestidad con Dios sobre dónde estás espiritualmente es el primer paso para ir más lejos. Dios responde cuando le pedimos más fe.",act:["¿En qué área de tu vida la fe está más débil ahora mismo?","Ora específicamente: Señor, auméntame la fe en [área].","Memoriza y medita en Lucas 17:5."],read:"Marcos 13"},
+{t:"Actuar sobre la Fe",v:"Pero alguno dirá: Tú tienes fe, y yo tengo obras. Muéstrame tu fe sin tus obras, y yo te mostraré mi fe por mis obras.",r:"Santiago 2:18",teach:"La fe sin acción no es fe bíblica. Santiago dice que la fe se demuestra a través de las obras. Esto no significa que te ganes la salvación — significa que la fe real produce acción real. Cuando confías en Dios, actúas basado en esa confianza. La acción es la evidencia de la fe.",act:["¿Hay un paso de acción que Dios te ha estado pidiendo que des?","Da ese paso hoy por fe, incluso si no te sientes listo.","Escribe: la fe sin obras es muerta. ¿Qué obra de fe daré hoy?"],read:"Marcos 14"}
+]},
+{title:"Tu Cita con Jesús Todos los Días",theme:"tiempo devocional, oración, la Palabra",id:"Tengo un tiempo de cita con Jesús todos los días. Guardo mi tiempo con él como algo sagrado.",días:[
+{t:"Comienza Tu Día con Jesús",v:"Por la mañana, oh Jehová, oirás mi voz; de mañana me presentaré delante de ti, y esperaré.",r:"Salmos 5:3",teach:"Comienza al menos quince minutos al día solo con Jesús. Es tu tiempo de cita con él. Así como pondrías en tu calendario cualquier otra cita importante, mantén este tiempo sagrado. Cuando empiezas tu día con Jesús, estableces el tono para todo lo demás.",act:["¿A qué hora del día es mejor para que tengas tu tiempo con Jesús?","¿Qué necesitas quitar de tu mañana para proteger este tiempo?","Pon tu tiempo de cita con Jesús en tu calendario ahora mismo."],read:"Marcos 15"},
+{t:"Siéntate con Él",v:"María, sentándose a los pies de Jesús, oía su palabra.",r:"Lucas 10:39",teach:"María eligió la mejor parte — sentarse a los pies de Jesús y escuchar. No hay actividad más importante en tu día que sentarte con Jesús. Todo lo demás puede esperar. El problema con muchos creyentes es que siempre están ocupados haciendo cosas para Dios pero nunca se sientan con él.",act:["¿Cuánto tiempo real pasas sentado con Jesús en silencio cada día?","¿Qué te impide tener tiempo de calidad con él?","Comprométete a sentarte con Jesús en silencio por al menos 10 minutos hoy."],read:"Marcos 16"},
+{t:"Cómo Orar",v:"Vosotros, pues, oraréis así: Padre nuestro que estás en los cielos, santificado sea tu nombre.",r:"Mateo 6:9",teach:"Jesús enseñó a sus discípulos cómo orar. La oración no es complicada — es una conversación con tu Padre. Usar el Padre Nuestro como modelo te ayuda: alabanza, pedir el reino de Dios, pedido de necesidades, perdón, y protección. La oración cambia las cosas — y te cambia a ti.",act:["Ora el Padre Nuestro lentamente, deteniéndote en cada frase y dejándola hacerse personal.","¿Qué parte de la oración es más difícil para ti?","Comprométete a pasar tiempo en oración todos los días esta semana."],read:"Lucas 1"},
+{t:"Escuchar la Voz de Dios",v:"Mis ovejas oyen mi voz, y yo las conozco, y me siguen.",r:"Juan 10:27",teach:"Dios no solo quiere hablarle a tu pastor — quiere hablarte a ti. Puedes escuchar la voz de Dios. Lo hace principalmente a través de su Palabra, pero también habla a tu corazón en momentos de quietud y oración. Aprende a reconocer su voz distinguiéndola de tus propios pensamientos.",act:["Durante tu tiempo con Dios hoy, después de orar, siéntate en silencio por 5 minutos y escucha.","Escribe cualquier pensamiento que venga a tu mente que esté de acuerdo con la Escritura.","Comparte con un amigo de rendición de cuentas lo que sientes que Dios te dijo."],read:"Lucas 2"},
+{t:"Medita en Su Palabra",v:"Nunca se apartará de tu boca este libro de la ley, sino que de día y de noche meditarás en él.",r:"Josué 1:8",teach:"Meditar en la Palabra de Dios no es un concepto oriental místico — es tomar un versículo y hacerlo rodar en tu mente durante todo el día, como una vaca masticando su boca. Cuando meditas en un versículo, penetra en tu espíritu y comienza a cambiar cómo piensas y actúas.",act:["Elige un versículo de esta semana y medita en él durante todo el día.","Dilo en voz alta, escríbelo, ponlo como fondo de tu teléfono.","Comparte con alguien lo que Dios te está hablando a través de ese versículo."],read:"Lucas 3"},
+{t:"El Diario de Tu Cita",v:"Escribe la visión, y declárala en tablas, para que corra el que leyere en ella.",r:"Habacuc 2:2",teach:"Llevar un diario de tu tiempo de cita con Jesús te ayuda a recordar lo que Dios te ha hablado y a ver el patrón de su trabajo en tu vida. Cuando escribes lo que sientes que Dios te dice, te ayuda a distinguir su voz de tus propios pensamientos. Y cuando miras atrás, puedes ver cuánto has crecido.",act:["Empieza un diario de tu tiempo devocional si no tienes uno.","Escribe: fecha, versículo, lo que Dios me habló, cómo lo voy a aplicar.","Vuelve a leer las entradas de esta semana y observa el patrón de lo que Dios te está diciendo."],read:"Lucas 4"},
+{t:"Una Cita que No Puedes Perder",v:"Buscad a Jehová mientras puede ser hallado, llamadle en tanto que está cercano.",r:"Isaías 55:6",teach:"Hay un sentido de urgencia en este versículo. Busca al Señor mientras puede ser hallado. No postergues tu tiempo con Dios — hazlo una prioridad. La temporada de tu vida en la que estás ahora es increíblemente formativa. Lo que decides hacer con tu tiempo con Dios ahora establecerá patrones para toda tu vida.",act:["¿Qué está compitiendo con tu tiempo con Dios?","¿Qué necesitas eliminar o reordenar para proteger tu cita con Jesús?","Establece una hora y un lugar específicos para tu tiempo devocional diario y escríbelo ahora."],read:"Lucas 5"}
+]},
+{title:"¿Qué Hay en Tu Corazón?",theme:"pureza de corazón, mente, lo que entra en ti",id:"Cuido lo que entra en mi corazón y mente. Lo que pongo en mi corazón determina la persona en que me convierto.",días:[
+{t:"El Corazón Es Todo",v:"Sobre toda cosa guardada, guarda tu corazón; porque de él mana la vida.",r:"Proverbios 4:23",teach:"Todo fluye de tu corazón — lo que entra en él da forma a quien eres. La música que escuchas, las películas que ves, los pensamientos que nutres — todo va al corazón y eventualmente sale en tus palabras, tus acciones y tus actitudes. Por eso necesitas proteger lo que dejas entrar.",act:["¿Qué está entrando regularmente en tu corazón — bueno y malo?","¿Hay algo que necesitas dejar de consumir?","Comprométete a proteger tu corazón esta semana siendo intencional sobre lo que consumes."],read:"Lucas 6"},
+{t:"Renueva Tu Mente",v:"Transformaos por medio de la renovación de vuestro entendimiento.",r:"Romanos 12:2",teach:"Tu mente es transformada siendo renovada — no por la cultura sino por la Palabra de Dios. Cuando llenas tu mente con las Escrituras y la alabanza, literalmente rehaces tus procesos de pensamiento. Esta es la forma en que Dios te cambia desde adentro hacia afuera. No te amoldes al mundo — sé transformado por Dios.",act:["¿A qué dedicas la mayor parte del tiempo de tu mente — música, redes sociales, televisión, Escritura?","¿Qué cambio específico harás para renovar tu mente esta semana?","Memoriza Romanos 12:2 y úsalo como prueba para lo que permites en tu mente."],read:"Lucas 7"},
+{t:"Piensa en las Cosas Correctas",v:"Todo lo que es verdadero, todo lo honesto, todo lo justo, todo lo puro, todo lo amable... en esto pensad.",r:"Filipenses 4:8",teach:"Pablo nos da una lista de verificación para nuestros pensamientos. Antes de permitir que un pensamiento se hospede en tu mente, hazle las preguntas de Filipenses 4:8: ¿Es esto verdadero? ¿Es puro? ¿Es amable? Si no pasa la prueba, échalo fuera. Eres el guardián de tu propia mente.",act:["Escribe el filtro de Filipenses 4:8 como lista de verificación.","La próxima vez que un pensamiento negativo llegue, pásalo por este filtro.","Practica redirigir tus pensamientos hacia cosas que cumplan con esta norma."],read:"Lucas 8"},
+{t:"Las Palabras que Hablas",v:"La muerte y la vida están en poder de la lengua.",r:"Proverbios 18:21",teach:"Lo que dices importa — no solo para los demás sino para ti mismo. Las palabras que hablas sobre ti, sobre tu futuro, sobre los demás — tienen poder. Empiezas a creer lo que te dices a ti mismo. Cuando alineas tus palabras con la Palabra de Dios, estás literalmente tomando el poder de Proverbios 18:21 en la dirección correcta.",act:["¿Qué tipo de palabras sale más frecuentemente de tu boca?","Escribe cinco declaraciones de fe basadas en la Escritura que hablarás sobre ti mismo esta semana.","Di esas declaraciones en voz alta todos los días esta semana."],read:"Lucas 9"},
+{t:"Sé un Guardián de Tu Mente",v:"Llevando cautivo todo pensamiento a la obediencia a Cristo.",r:"2 Corintios 10:5",teach:"Tienes la capacidad de tomar tus pensamientos cautivos. No tienes que ser víctima de cada pensamiento que te viene a la mente. Cuando un pensamiento viene que no concuerda con lo que Dios dice, puedes capturarlo, juzgarlo y reemplazarlo con la verdad. Eso es guerra espiritual en la mente.",act:["¿Qué pensamientos recurrentes tienes que no están alineados con la Palabra de Dios?","Practica el proceso: reconocer, capturar, reemplazar con la verdad de la Escritura.","Escribe el versículo que reemplazará ese pensamiento y memorízalo."],read:"Lucas 10"},
+{t:"La Banda Sonora de Tu Vida",v:"Todo lo que hacéis, sea de palabra o de hecho, hacedlo todo en el nombre del Señor Jesús.",r:"Colosenses 3:17",teach:"Todo — incluyendo tu música — debe hacerse para la gloria de Dios. Cuando te preguntas '¿glorifica esto a Dios?' antes de dar play, comienzas a construir una banda sonora que te edifica en lugar de destruirte. Tu lista de reproducción da forma a tu día y a tu mente.",act:["Revisa tus listas de reproducción actuales esta semana.","Elimina o reemplaza cualquier cosa que no pase la prueba de glorificar a Dios.","Construye una nueva lista de reproducción de la que puedas estar orgulloso."],read:"Lucas 11"},
+{t:"Perdonado",v:"Crea en mí, oh Dios, un corazón limpio, y renueva un espíritu recto dentro de mí.",r:"Salmos 51:10",teach:"David oró esta oración después de haber fallado realmente. No intentó encubrirlo — se lo llevó a Dios. Y Dios lo perdonó y creó en él un corazón puro. Sin importar lo que hayas hecho, esta oración está disponible para ti. Dios puede crear un corazón puro en ti — no solo limpiar el viejo, sino crear algo nuevo.",act:["Reescribe Salmos 51:10 con tus propias palabras.","¿Hay algo que necesitas llevar a Dios para perdonarte hoy?","Recibe el perdón de Dios y deja que cree en ti un corazón puro."],read:"Lucas 17"}
+]},
+{title:"Honor: Cómo Honrar a Tus Padres",theme:"honor, familia, autoridad",id:"Honro a mis padres y a quienes están sobre mí. El honor no es solo obediencia — es actitud del corazón.",días:[
+{t:"El Mandamiento con Promesa",v:"Honra a tu padre y a tu madre, para que tus días se alarguen en la tierra.",r:"Éxodo 20:12",teach:"Este es el único mandamiento que viene con una promesa — larga vida. Dios se tomó el tiempo de adjuntar una bendición específica a este mandamiento porque sabe lo difícil que es y cuánto importa. Honrar a tus padres no es opcional para un seguidor de Cristo — es un mandamiento directo con una recompensa directa.",act:["¿Cómo calificarías tu nivel de honor hacia tus padres en una escala del 1 al 10?","¿Qué es lo más difícil de honrar a tus padres para ti?","Elige un acto específico de honor para mostrar a tus padres hoy."],read:"Lucas 12"},
+{t:"¿Qué Es el Honor?",v:"Hijos, obedeced a vuestros padres en todo, porque esto agrada al Señor.",r:"Colosenses 3:20",teach:"El honor es más que obediencia — es una actitud del corazón. Puedes obedecer de mala gana y no estar honrando a alguien. El honor significa pensar en alguien como valioso, hablar de ellos con respeto, tratarlos como si fueran importantes. Cuando honras a tus padres, honras a Dios.",act:["¿Cuál es la diferencia entre obedecer y honrar?","¿Cómo hablas de tus padres cuando no están presentes?","Comprométete a hablar de tus padres con honor en todo momento esta semana."],read:"Lucas 13"},
+{t:"Honor Equivale a Mostrar Responsabilidad",v:"Bien, buen siervo y fiel; sobre poco has sido fiel, sobre mucho te pondré.",r:"Mateo 25:21",teach:"Muchos jóvenes quieren más libertad pero no han demostrado ser lo suficientemente responsables para tenerla. En la parábola de los talentos, al siervo se le dio más cuando fue fiel con lo poco. Honra a tus padres mostrando que eres responsable con lo que se te ha dado. La fidelidad en las cosas pequeñas es el camino hacia una mayor confianza.",act:["¿En qué áreas eres fiel y responsable en casa?","¿En qué áreas necesitas crecer en responsabilidad?","Comprométete a ser fiel en una pequeña cosa específica esta semana."],read:"Juan 9"},
+{t:"Cuando los Padres Son Difíciles",v:"Hijos, obedezcan a sus padres en el Señor, porque esto es justo.",r:"Efesios 6:1",teach:"A veces los padres parecen difíciles, injustos o incomprensibles. Pero la Escritura dice que obedecer a tus padres es justo — es correcto. Esto no significa que estén siempre en lo correcto, pero significa que Dios los ha colocado en autoridad sobre ti por una razón. Cuando te es difícil honrarlos, ora por ellos y pide a Dios que te dé el corazón correcto.",act:["¿Hay algo que tus padres te piden que te parezca difícil o injusto?","Ora por esa situación y por tus padres específicamente hoy.","Pide a Dios que te dé un corazón de honor incluso en las circunstancias difíciles."],read:"Juan 10"},
+{t:"Los Padres También Son Humanos",v:"El que maldice a su padre o a su madre, su lámpara se apagará en oscuridad tenebrosa.",r:"Proverbios 20:20",teach:"Tus padres son personas normales que cometen errores. No son perfectos. Pero Dios dice que maldecir — o deshonrar — a tus padres lleva oscuridad a tu vida. Independientemente de sus errores, honrarlos es lo correcto. Cuando lo haces, Dios puede trabajar en la relación de maneras que tú no podrías hacerlo.",act:["¿Hay algo que necesites perdonarle a tus padres?","¿Hay alguna manera en que has deshonrado a tus padres que necesitas arreglar?","Comprométete a honrar a tus padres independientemente de sus imperfecciones."],read:"Juan 11"},
+{t:"Sé Bendecido en Tu Casa",v:"Con toda humildad y mansedumbre, soportándoos con paciencia los unos a los otros en amor.",r:"Efesios 4:2",teach:"Una casa donde el honor fluye libremente es un lugar de bendición. Cuando humildemente sirves a tu familia — haciendo las tareas sin que te lo pidan, siendo paciente, mostrando bondad — creas una atmósfera que Dios puede bendecir. Empieza con tu familia y luego se extenderá a todo lo que haces.",act:["¿Cómo es tu actitud en casa cuando nadie te está evaluando?","¿Qué puedes hacer sin que te lo pidan para servir a tu familia esta semana?","Comprométete a traer una actitud de honor a tu hogar hoy."],read:"Juan 12"},
+{t:"Cuando No Tienes Padres en Casa",v:"El Padre de los huérfanos y defensor de las viudas es Dios en su santa morada.",r:"Salmos 68:5",teach:"No todos tienen padres que están presentes o son seguros. Si esa es tu situación, Dios conoce tu dolor. Él se llama a sí mismo Padre de los huérfanos. Él suple lo que te falta. Él coloca a personas en tu vida — líderes de la iglesia, mentores — para llenar ese papel. Puedes honrar a esas personas como representantes de Dios.",act:["¿Quién en tu vida ha cumplido el papel de figura paterna?","¿Cómo puedes expresar honor y gratitud hacia ellos?","Ora y agradece a Dios por colocar a esas personas en tu vida."],read:"Juan 13"}
+]},
+{title:"La Pureza Sexual: El Estándar de Dios",theme:"pureza, relaciones, estándares de Dios",id:"Estoy comprometido(a) a la pureza sexual. Honro a Dios con mi cuerpo y establezco límites claros.",días:[
+{t:"El Estándar de Dios para la Pureza",v:"Huid de la fornicación. Cualquier otro pecado que el hombre cometa, está fuera del cuerpo; mas el que fornica, contra su propio cuerpo peca.",r:"1 Corintios 6:18",teach:"La Escritura es clara: huye de la inmoralidad sexual. No te pongas en situaciones donde estés tentado. No camines hacia el peligro — ve en la dirección contraria. Dios no da este mandamiento para arruinar tu vida; lo da para protegerte de una herida que puede tardar años en sanar.",act:["¿Hay situaciones en tu vida en las que estás caminando hacia la tentación en lugar de huir de ella?","¿Qué límites prácticos necesitas establecer en tus relaciones?","Haz una lista de los límites que te comprometes a mantener."],read:"Juan 14"},
+{t:"Tu Cuerpo Es Templo del Espíritu Santo",v:"¿O ignoráis que vuestro cuerpo es templo del Espíritu Santo, el cual está en vosotros, el cual tenéis de Dios, y que no sois vuestros?",r:"1 Corintios 6:19",teach:"Tu cuerpo no te pertenece — fue comprado por el precio de la sangre de Jesús. El Espíritu Santo literalmente vive dentro de ti. ¿Cómo cambiaría tu comportamiento si recordaras que eres un templo del Espíritu Santo? Lo que haces con tu cuerpo importa a Dios porque es su hogar.",act:["¿Cómo cambia tu perspectiva el saber que eres un templo del Espíritu Santo?","¿Hay algo que estás haciendo con tu cuerpo que no honra a Dios?","Ora y pide a Dios que te ayude a ver tu cuerpo como él lo ve."],read:"Juan 15"},
+{t:"Guarda Tu Corazón en las Relaciones",v:"No os unáis en yugo desigual con los incrédulos.",r:"2 Corintios 6:14",teach:"Las relaciones románticas pueden ser las más poderosas en dar forma a quién eres. Por eso Dios dice que no te unas en yugo desigual. Si estás saliendo con alguien que no comparte tu fe, su influencia te jalará en la dirección equivocada, incluso con las mejores intenciones. La persona con quien salgas eventualmente se convierte en la persona con quien te cases.",act:["¿Estás en una relación que te acerca a Dios o te aleja de él?","¿Cuáles son los estándares que Dios tiene para quién deberías citar?","Escribe los valores más importantes que quieres en una pareja futura."],read:"Juan 16"},
+{t:"Las Consecuencias del Pecado Sexual",v:"El que siembra para su carne, de la carne segará corrupción.",r:"Gálatas 6:8",teach:"El pecado sexual parece bueno en el momento pero produce consecuencias reales — emocionales, espirituales y físicas. Las conexiones que se hacen en la intimidad física son profundas y el dolor de romperlas es real. Dios no inventó el sexo para torturarte — lo inventó para protegerte dentro del contexto del matrimonio.",act:["¿Ves a alguien en tu vida que esté sufriendo las consecuencias del pecado sexual?","¿Qué te dice eso sobre los caminos de Dios siendo para tu protección?","Agradece a Dios hoy por sus estándares y pídele que te ayude a caminar en ellos."],read:"Juan 17"},
+{t:"Cómo Huir de la Tentación",v:"No os ha sobrevenido ninguna tentación que no sea humana; pero fiel es Dios, que no os dejará ser tentados más de lo que podéis resistir.",r:"1 Corintios 10:13",teach:"Dios promete que nunca serás tentado más allá de lo que puedes manejar — y que siempre habrá una salida. Pero tienes que buscar y tomar esa salida. La tentación sexual generalmente sigue un patrón — cuando conoces tus patrones de tentación, puedes prepararte para ellos y crear salidas de antemano.",act:["¿Cuáles son tus principales desencadenantes de tentación sexual?","¿Cuál es tu plan de escape para cada uno?","Comparte tus límites con un amigo de rendición de cuentas."],read:"Juan 18"},
+{t:"La Restauración Es Real",v:"Si confesamos nuestros pecados, él es fiel y justo para perdonar nuestros pecados, y limpiarnos de toda maldad.",r:"1 Juan 1:9",teach:"Si ya has fallado sexualmente, hay buenas noticias: la restauración de Dios es completa. Él te perdona y te limpia. No tienes que vivir con vergüenza. Pero la restauración requiere honestidad — confesar a Dios, alejarse del pecado y posiblemente encontrar un consejero de confianza o un líder. La gracia de Dios es suficiente para todo lo que has hecho.",act:["¿Hay algo sexual que necesitas confesar a Dios y alejar de tu vida?","¿Necesitas hablar con un líder de confianza sobre algo en tu pasado?","Recibe el perdón de Dios hoy y comienza de nuevo desde este punto."],read:"Juan 19"},
+{t:"El Camino hacia la Pureza",v:"¿Con qué limpiará el joven su camino? Con guardar tu palabra.",r:"Salmos 119:9",teach:"El camino hacia la pureza está pavimentado con la Palabra de Dios. Cuando llenas tu corazón y mente con las Escrituras, renuevas tu mente y fortaleces tu voluntad. La pureza no es solo evitar las cosas malas — es llenar tu vida de Dios hasta que no haya espacio para el pecado.",act:["Memoriza Salmos 119:9 y ponlo como fondo de tu teléfono.","¿Qué tan llena está tu vida de la Palabra de Dios en comparación con el contenido del mundo?","Comprométete a un plan diario de lectura bíblica que te ayude a caminar en pureza."],read:"Juan 20"}
+]},
+{title:"El Poder de Dar",theme:"generosidad, diezmo, administración",id:"Soy un(a) dador(a) generoso(a). Honro a Dios con mis finanzas y confío en su provisión.",días:[
+{t:"Todo Pertenece a Dios",v:"Del Señor es la tierra y su plenitud; el mundo, y los que en él habitan.",r:"Salmos 24:1",teach:"El primer principio de la administración financiera cristiana es reconocer que todo pertenece a Dios. No eres el dueño de tu dinero — eres un administrador. Dios te lo ha confiado para que lo uses sabiamente para sus propósitos. Cuando cambias tu perspectiva de dueño a administrador, cambia cómo gastas, ahorras y das.",act:["¿Ves tu dinero como tuyo o como de Dios?","¿Cómo cambiaría tu comportamiento financiero si lo vieras como el administrador del dinero de Dios?","Ora y entrega tus finanzas a Dios hoy."],read:"Juan 21"},
+{t:"El Diezmo",v:"Traed todos los diezmos al alfolí... y probadme ahora en esto, dice Jehová de los ejércitos, si no os abriré las ventanas de los cielos.",r:"Malaquías 3:10",teach:"El diezmo — dar el diez por ciento de tus ingresos a la iglesia — es el único lugar en la Biblia donde Dios dice ponme a prueba en esto. Es una invitación a un experimento: da el diez por ciento y observa lo que hace Dios con el noventa por ciento restante. El diezmo es el punto de partida de la generosidad, no el final.",act:["¿Estás diezmando actualmente? Si no, ¿qué te lo impide?","Calcula qué es el diez por ciento de cualquier dinero que recibes.","Comprométete a comenzar a diezmar este mes como un experimento de fe."],read:"Lucas 18"},
+{t:"Dios Ama al Dador Alegre",v:"Cada uno dé como propuso en su corazón: no con tristeza, ni por necesidad, porque Dios ama al dador alegre.",r:"2 Corintios 9:7",teach:"Dios no quiere que des porque tienes que hacerlo — quiere que des porque quieres. La diferencia entre dar obligatoriamente y dar alegremente es el corazón detrás de ello. Cuando das con un corazón alegre, estás siendo como Dios — que dio a su Hijo más preciado por amor a nosotros.",act:["¿Con qué actitud das actualmente?","¿Qué necesitaría cambiar para que tú dieras con alegría?","La próxima vez que des en la iglesia, hazlo con una oración de alegría."],read:"Lucas 19"},
+{t:"La Viuda y Sus Dos Blancas",v:"Esta viuda pobre echó más que todos los que han echado en el arca.",r:"Marcos 12:43",teach:"Jesús observó a todos en el templo dar — incluidos los ricos que daban grandes sumas. Pero señaló a la viuda que dio dos pequeñas monedas como la que más dio. ¿Por qué? Porque ella dio todo lo que tenía. Dios no mide los dólares — mide el porcentaje y el corazón.",act:["¿Cuánto le importa a Dios cuánto das en comparación con cuánto tienes?","¿Estás dando de tu sobrante o de tu sustento?","Pide a Dios que te dé un corazón generoso como el de la viuda."],read:"Lucas 20"},
+{t:"Siembra y Cosecha",v:"El que siembra escasamente, también segará escasamente; y el que siembra generosamente, generosamente también segará.",r:"2 Corintios 9:6",teach:"Dar funciona según la ley de la siembra y la cosecha. No plantes en primavera y esperes una cosecha en el otoño si no sembraste nada. Lo que siembras en el reino de Dios — tiempo, dinero, talento — eventualmente vuelve multiplicado. Esta no es una fórmula de salud y riqueza — es un principio bíblico de generosidad.",act:["¿Qué estás sembrando actualmente en el reino de Dios?","¿Hay áreas donde quieres ver a Dios cosechar pero no has sembrado?","Haz un plan esta semana para sembrar algo específico en el reino de Dios."],read:"Lucas 21"},
+{t:"Cómo Dios Prueba a Sus Administradores",v:"Y si en lo ajeno no fuisteis fieles, ¿quién os dará lo que es vuestro?",r:"Lucas 16:12",teach:"Jesús dijo que la fidelidad en las cosas pequeñas lleva a responsabilidades mayores. Si no puedes ser fiel con el poco dinero que tienes ahora, ¿por qué Dios te daría más? Administra bien lo que tienes ahora — ese es el camino para que Dios amplíe tu influencia y recursos.",act:["¿Cómo estás manejando el dinero que tienes actualmente?","¿Tienes presupuesto, deudas o hábitos de gasto que necesitan cambiar?","Pide a Dios que te dé sabiduría para ser fiel en las finanzas pequeñas."],read:"Lucas 22"},
+{t:"Los Tesoros del Cielo",v:"No os hagáis tesoros en la tierra... sino haceos tesoros en el cielo.",r:"Mateo 6:19-20",teach:"Todo dinero que des al reino de Dios es una inversión con retorno eterno. El dinero que gastas en ti mismo se queda en la tierra — el dinero que das a Dios se va al cielo. No hay inversión de mayor rendimiento que invertir en las almas de las personas y el avance del reino de Dios.",act:["¿Qué porcentaje de tus recursos va hacia el reino eterno versus cosas temporales?","¿Hay una organización misionera, iglesia u obra de Dios a la que podrías dar?","Comprométete a hacer una inversión eterna con parte de tus recursos esta semana."],read:"Lucas 23"}
+]},
+{title:"Libertad: Vivir en Victoria",theme:"libertad, victoria, el camino adelante",id:"¡Soy libre! Vivo en la victoria que Jesús ganó para mí. Nunca vuelvo atrás.",días:[
+{t:"Para Libertad Fuiste Liberado",v:"Para libertad fue que Cristo nos hizo libres; estad, pues, firmes, y no os sujetéis de nuevo al yugo de esclavitud.",r:"Gálatas 5:1",teach:"Cristo te liberó para vivir en libertad real — no en libertad para pecar, sino libertad del poder del pecado, libertad de la vergüenza, libertad de las cadenas de tu pasado. Pero Pablo dice que permanezcas firme. La libertad no viene automáticamente — tienes que caminar en ella, a propósito, todos los días.",act:["¿En qué área de tu vida sientes que todavía no eres libre?","¿Qué te ha estado sosteniendo en el pasado?","Declara en voz alta hoy: Soy libre en Cristo. Vivo en victoria."],read:"Lucas 24"},
+{t:"Victoria sobre el Pecado",v:"Porque el pecado no se enseñoreará de vosotros; pues no estáis bajo la ley, sino bajo la gracia.",r:"Romanos 6:14",teach:"Pablo hace una declaración audaz: el pecado no tiene dominio sobre ti. No tienes que pecar. Tienes una elección. La gracia de Dios no es solo perdón del pecado pasado — es poder para vivir de manera diferente ahora. Cuando caminas bajo la gracia, el pecado pierde su poder sobre ti.",act:["¿Hay un pecado habitual en tu vida del que sientes que no puedes escapar?","Memoriza Romanos 6:14 y decláralo sobre esa área hoy.","Comparte tu lucha con un amigo de rendición de cuentas y ora juntos."],read:"Hechos 1"},
+{t:"Renuncia a Toda Amargura",v:"Quitaos toda amargura, enojo, ira, gritería y maledicencia, y toda malicia.",r:"Efesios 4:31",teach:"Llevar amargura, enojo y ofensas es como beber veneno y esperar que la otra persona muera. Solo te hace daño a ti. Para vivir en libertad, debes soltar todo lo que te han hecho. El perdón no es decir que lo que hicieron estuvo bien — es soltar tu derecho a cobrar la deuda. Cuando perdonas, eres libre.",act:["¿Llevas amargura u ofensa hacia alguien?","Toma la decisión de perdonarlos hoy — no porque se lo merezcan sino porque tú mereces ser libre.","Ora por esa persona por su nombre ahora mismo."],read:"Hechos 2"},
+{t:"Vestirte de Cristo",v:"Antes, vestíos del Señor Jesucristo, y no hagáis provisión para los deseos de la carne.",r:"Romanos 13:14",teach:"Cada día tienes una elección de qué ponerte — y Pablo lo pone de manera espiritual: vístete de Cristo. Eso significa que intencionalmente te llevas de los pensamientos de Dios, sus caminos, su carácter. No hagas provisión — no dejes espacio para que los viejos hábitos de la carne entren de nuevo.",act:["¿De qué necesitas vestirte hoy para vivir en libertad?","¿Qué es algo que has estado 'poniendo de vuelta' que necesitas dejar definitivamente?","Haz una declaración audaz hoy: Hoy me visto de Cristo. ¡El viejo yo se fue!"],read:"Hechos 3"},
+{t:"El Camino Adelante",v:"Olvidando ciertamente lo que queda atrás, y extendiéndome a lo que está delante, prosigo a la meta.",r:"Filipenses 3:13-14",teach:"Pablo dijo que olvida lo que está detrás. Tu pasado no define tu futuro — la gracia de Dios sí. Cada día es un nuevo comienzo. No importa lo que hayas hecho, de dónde vengas, o en qué hayas fallado — el camino adelante siempre está abierto a través de Jesús. Mantén tus ojos hacia adelante y sigue corriendo.",act:["¿Qué del pasado ha seguido tirando de ti hacia atrás?","Escríbelo en un papel, ora sobre él, y luego tíralo como símbolo de que lo sueltas.","Declara Filipenses 3:13-14 como tu versículo de hoy y corre hacia adelante."],read:"Hechos 4"},
+{t:"Comparte Tu Libertad",v:"Id por todo el mundo y predicad el evangelio a toda criatura.",r:"Marcos 16:15",teach:"La libertad que has encontrado en Jesús no es solo para ti — es para compartir. Las personas a tu alrededor están viviendo en cadenas que no tienen que soportar. Tú eres vivencia de lo que Jesús hace. Tu historia — tu cambio, tu libertad — es el evangelio con pies. No te avergüences de ello.",act:["¿Quién en tu vida necesita escuchar sobre la libertad que tienes en Cristo?","Practica contar tu historia en 2 minutos: antes, cómo conociste a Jesús, y ahora.","Comprométete a compartir tu historia con alguien esta semana."],read:"Hechos 5"},
+{t:"No Vuelvas Atrás",v:"Pero yo os digo que todo el que mira a una mujer para codiciarla, ya adulteró con ella en su corazón.",r:"Génesis 19:26 (Lote) — Pero más bien: Ninguno que poniendo su mano en el arado mira hacia atrás, es apto para el reino de Dios.",r:"Lucas 9:62",teach:"La esposa de Lot se convirtió en estatua de sal porque miró hacia atrás. Jesús dijo que el que pone la mano en el arado y mira atrás no es apto para el reino. La decisión de seguir a Jesús es una decisión de no volver atrás. Esta es la semana 12 de tu camino hacia la libertad — no vuelvas atrás. Eres libre. Camina en ello.",act:["Revisa los compromisos que hiciste durante estas 12 semanas.","¿En qué has crecido más? ¿De qué eres más libre?","Declara: No vuelvo atrás. Soy libre. Camino hacia adelante con Jesús."],read:"Hechos 6"}
+]}
+];
+
+
+// ── HELPERS ──
+function getDia(i) {
+  const w = Math.floor(i/7), d = i%7;
+  return { w, d, week: W[w], day: W[w].días[d] };
+}
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmt12(t) {
+  const [h,m] = t.split(':'); const hr=parseInt(h);
+  return (hr>12?hr-12:(hr||12))+':'+m+' '+(hr>=12?'PM':'AM');
+}
+function makeCode() {
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length:6},()=>c[Math.floor(Math.random()*c.length)]).join('');
+}
+function toast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// ── NAVIGATION ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  if(name==='today')    { renderHoy(); var ntEl=document.getElementById('ntfyTopic'); if(ntEl && S.ntfyTopic) ntEl.value=S.ntfyTopic; }
+  if(name==='verse')    renderVersiculo();
+  if(name==='commit')   renderCommit();
+  if(name==='share')    renderShare();
+  if(name==='progress') renderProgreso();
+  if(name==='chat')     renderChat();
+}
+
+// ── TODAY ──
+function renderHoy() {
+  const {w,d,week,day} = getDia(S.day);
+  renderGameBar();
+  document.getElementById('hdrDia').textContent = 'Día '+(S.day+1);
+  document.getElementById('todaySemana').textContent = 'Semana '+(w+1)+': '+week.title;
+  document.getElementById('todayTitle').textContent = day.t;
+  document.getElementById('verseText').textContent = day.v;
+  document.getElementById('verseRef').textContent = day.r;
+  document.getElementById('teachingText').textContent = day.teach;
+  document.getElementById('actionPasos').innerHTML = day.act.map(a=>
+    '<div class="action-item"><div class="action-dot"></div><div class="action-text">'+esc(a)+'</div></div>'
+  ).join('');
+  document.getElementById('bibleReading').textContent = 'Lee '+day.read+' hoy. ¿Qué te está hablando Dios de ese pasaje?';
+
+  const cb = document.getElementById('completeBtn');
+  const done = S.done.includes(S.day);
+  cb.textContent = done ? '✓ ¡Completado!' : 'Marcar como Completo ✓';
+  cb.style.background = done ? 'var(--green)' : '';
+
+  // Appointment card
+  const wrap = document.getElementById('apptCardWrap');
+  if (S.profile && S.profile.apptTime) {
+    wrap.innerHTML = '<div class="appt-card"><div class="appt-time">'+fmt12(S.profile.apptTime)+'</div><div class="appt-info"><div class="appt-label">Cita Diaria with Jesus</div><div class="appt-place">'+(S.profile.apptPlace?'📍 '+esc(S.profile.apptPlace):'Meeting with Jesus')+'</div><div class="appt-hint">Tap ⚙️ to update</div></div></div>';
+  } else {
+    wrap.innerHTML = '';
+  }
+
+  if (S.remActive) {
+    document.getElementById('reminderStatus').textContent = '✅ ¡Recordatorios activos! Aparecerán a las: '+S.remTimes.join(', ');
+  }
+  // Pending assessment tap-banner
+  var pa = document.getElementById('pendingAssessBanner');
+  if (pa) {
+    var hasPending = S.pendingAssess && !S.assessments['w'+S.pendingAssess];
+    pa.style.display = hasPending ? 'block' : 'none';
+    if (hasPending) {
+      var wkLabel = S.pendingAssess;
+      pa.innerHTML = '<div onclick="showAssessment(\''+wkLabel+'\')" style="cursor:pointer;background:linear-gradient(135deg,#e8c87a,#d4a843);color:#3a2800;border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;">'
+        +'<div style="font-size:24px;">📋</div>'
+        +'<div><div style="font-weight:800;font-size:14px;">Semana '+wkLabel+' Assessment Ready</div>'
+        +'<div style="font-size:12px;margin-top:2px;opacity:.8;">Toca aquí — solo toma 2 minutos</div></div>'
+        +'<div style="margin-left:auto;font-size:20px;">›</div></div>';
+    }
+  }
+}
+
+function changeDia(d) {
+  const n = S.day + d;
+  if (n>=0 && n<84) { S.day=n; save(); renderHoy(); }
+}
+
+function markComplete() {
+  if (!S.done.includes(S.day)) {
+    S.done.push(S.day);
+    const today = new Date().toDateString();
+    if (S.lastListo !== today) {
+      S.streak = (S.streak||0) + 1;
+      S.lastListo = today;
+      if(S.streak > (S.longestStreak||0)) S.longestStreak = S.streak;
+      checkStreakMilestones(S.streak);
+    }
+    save();
+    awardXP(50);
+    checkBadges();
+    checkStreakShield();
+    toast('¡Día '+(S.day+1)+' completado! +50 XP 🎉');
+    ptfWriteProgress('ptf1_es');
+    checkAssessmentTrigger(S.day);
+    renderGameBar();
+  }
+  if (S.day<83) setTimeout(()=>changeDia(1), 700);
+  else renderHoy();
+}
+
+// ── VERSE / FLASHCARD ──
+let vIdx=0, vFlipped=false;
+function renderVersiculo() {
+  vIdx = S.day;
+  const {w,week} = getDia(S.day);
+  document.getElementById('verseSemanaTitle').textContent = 'Semana '+(w+1)+': '+week.title;
+  document.getElementById('verseSemanaTema').textContent = week.theme;
+  loadFlashcard(vIdx);
+  const start=w*7;
+  document.getElementById('allVersiculos').innerHTML = Array.from({length:7},(_,i)=>{
+    const dd=W[w].días[i];
+    return '<div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Día '+(i+1)+':</strong> '+esc(dd.v.substring(0,65))+'… <em>'+esc(dd.r)+'</em></div></div>';
+  }).join('');
+}
+function loadFlashcard(i) {
+  vFlipped=false;
+  const {day}=getDia(i);
+  document.getElementById('fcHint').style.display='block';
+  document.getElementById('fcText').style.display='none';
+  document.getElementById('fcRef').style.display='none';
+  document.getElementById('fcText').textContent=day.v;
+  document.getElementById('fcRef').textContent=day.r;
+  document.getElementById('flashcard').style.background='linear-gradient(145deg,#00c8da,var(--teal-dark))';
+}
+function flipCard() {
+  vFlipped=!vFlipped;
+  document.getElementById('fcHint').style.display=vFlipped?'none':'block';
+  document.getElementById('fcText').style.display=vFlipped?'block':'none';
+  document.getElementById('fcRef').style.display=vFlipped?'block':'none';
+  document.getElementById('flashcard').style.background=vFlipped?'linear-gradient(145deg,#1a5c3a,#0d3322)':'linear-gradient(145deg,#00c8da,var(--teal-dark))';
+}
+function prevVersiculo() { if(vIdx>0){vIdx--;loadFlashcard(vIdx);} }
+function nextVersiculo() { if(vIdx<83){vIdx++;loadFlashcard(vIdx);} }
+function shuffleVersiculo() { vIdx=Math.floor(Math.random()*84);loadFlashcard(vIdx); }
+
+// ── COMMITMENTS ──
+function renderCommit() {
+  const {day}=getDia(S.day);
+  document.getElementById('commitPrompt').textContent='"'+day.act[0]+'" — ¿Qué compromiso específico harás?';
+  renderCommitList();
+  renderChips();
+}
+function renderCommitList() {
+  const el=document.getElementById('commitList');
+  const none=document.getElementById('noCommits');
+  if(!S.commits.length){el.innerHTML='';none.style.display='block';return;}
+  none.style.display='none';
+  el.innerHTML=S.commits.map((c,i)=>
+    '<div class="commit-row">'
+    +'<div class="commit-check '+(c.done?'done':'')+'" onclick="toggleCommit('+i+')">'
+    +(c.done?'<svg viewBox="0 0 24 24" width="14" height="14" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>':'')
+    +'</div>'
+    +'<div class="commit-text">'+esc(c.text)+'</div>'
+    +'<div class="commit-time">'+esc(c.time||'')+'</div>'
+    +'<button class="del-btn" onclick="deleteCommit('+i+')">×</button>'
+    +'</div>'
+  ).join('');
+}
+function addCommitment() {
+  const text=document.getElementById('newCommit').value.trim();
+  const time=document.getElementById('commitTime').value;
+  if(!text)return;
+  S.commits.push({text,time,done:false,id:Date.now()});
+  document.getElementById('newCommit').value='';
+  save(); renderCommitList();
+  toast('¡Compromiso agregado! Recordatorio para las '+time);
+}
+function toggleCommit(i){S.commits[i].done=!S.commits[i].done;save();renderCommitList();}
+function deleteCommit(i){S.commits.splice(i,1);save();renderCommitList();}
+function renderChips() {
+  document.getElementById('reminderChips').innerHTML=S.remTimes.map((t,i)=>
+    '<div class="chip">🕐 '+t+'<button onclick="removeReminder('+i+')">×</button></div>'
+  ).join('');
+}
+function addReminderTime() {
+  const t=document.getElementById('newReminderTime').value;
+  if(!t||S.remTimes.includes(t))return;
+  S.remTimes.push(t); S.remTimes.sort(); save(); renderChips();
+  toast('Recordatorio agregado para las '+t);
+}
+function removeReminder(i){S.remTimes.splice(i,1);save();renderChips();}
+
+// ── IN-APP NOTIFICATIONS ──
+function getPhone() {
+  return S.profile&&S.profile.phone ? S.profile.phone.replace(/\D/g,'') : '';
+}
+function smsVersiculo() {
+  var res=getDia(S.day); var day=res.day;
+  var txt='📖 Camino a la Libertad - Día '+(S.day+1)+'\n\n"'+day.v+'"\n— '+day.r+'\n\nHoy: '+day.t;
+  var ph=getPhone();
+  window.open('sms:'+(ph?ph:'')+'?body='+encodeURIComponent(txt),'_blank');
+}
+function smsCommitments() {
+  var open=S.commits.filter(function(c){return !c.done;});
+  if(!open.length){toast('¡Aún no tienes compromisos!');return;}
+  var txt='🎯 My commitments today:\n\n'+open.map(function(c){return '• '+c.text;}).join('\n')+'\n\nCamino a la Libertad - Día '+(S.day+1);
+  var ph=getPhone();
+  window.open('sms:'+(ph?ph:'')+'?body='+encodeURIComponent(txt),'_blank');
+}
+function smsWhatsApp() {
+  var res=getDia(S.day); var day=res.day;
+  var txt='📖 *Camino a la Libertad* - Día '+(S.day+1)+'\n\n_"'+day.v+'"_\n— '+day.r+'\n\n*Hoy:* '+day.t+'\n\n'+day.act[0];
+  var ph=getPhone();
+  var url=ph ? 'https://wa.me/'+ph+'?text='+encodeURIComponent(txt) : 'https://wa.me/?text='+encodeURIComponent(txt);
+  window.open(url,'_blank');
+}
+function activateReminders() {
+  S.remActive=true; save();
+  startReminderLoop();
+  document.getElementById('reminderStatus').textContent='✅ ¡Recordatorios activos! Aparecerán a las: '+S.remTimes.join(', ')+'. Keep this tab open.';
+  toast('¡Recordatorios activados! 🔔');
+  // Also try browser notifications
+  if('Notification' in window && Notification.permission==='default') {
+    Notification.requestPermission().then(p=>{
+      if(p==='granted') toast('¡Notificaciones del navegador habilitadas!');
+    });
+  }
+}
+function startReminderLoop() {
+  if(window._remLoop) clearInterval(window._remLoop);
+  window._remLoop = setInterval(checkTime, 30000);
+}
+function checkTime() {
+  if(!S.remActive) return;
+  const now=new Date();
+  const ts=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  const {day}=getDia(S.day);
+  const name=S.profile?.name?', '+S.profile.name:'';
+
+  // Check reminder times
+  if(S.remTimes.includes(ts)) {
+    const msgs=[
+      {icon:'📖',title:'Versículo Reminder'+name,text:'"'+day.v.substring(0,90)+'…" — '+day.r},
+      {icon:'🎯',title:'Revisión de Compromisos'+name,text:S.commits.filter(c=>!c.done).map(c=>c.text).join(' · ')||'How are tu compromisos going?'},
+      {icon:'🕊️',title:'Camino a la Libertad',text:'Día '+(S.day+1)+': "'+day.t+'" — '+day.act[0].substring(0,80)}
+    ];
+    const m=msgs[Math.floor(Math.random()*msgs.length)];
+    showBanner(m.icon,m.title,m.text);
+    if(Notification.permission==='granted') new Notification(m.title,{body:m.text});
+  }
+
+  // Appointment reminder
+  if(S.profile?.apptTime===ts) {
+    const place=S.profile.apptPlace?' at '+S.profile.apptPlace:'';
+    showBanner('☀️','Tiempo con Jesús'+name,'Tu cita diaria'+place+' es ahora. ¡Abre tu devocional!');
+  }
+
+  // Commitment reminders
+  S.commits.forEach(c=>{
+    if(c.time===ts&&!c.done) showBanner('⏰','Commitment Reminder',c.text);
+  });
+}
+let bannerTimer=null;
+function showBanner(icon,title,text) {
+  document.getElementById('notifIcon').textContent=icon;
+  document.getElementById('notifTitle').textContent=title;
+  document.getElementById('notifText').textContent=text;
+  const b=document.getElementById('notifBanner');
+  b.classList.add('show');
+  if(bannerTimer) clearTimeout(bannerTimer);
+  bannerTimer=setTimeout(()=>b.classList.remove('show'),6000);
+}
+function closeNotif(){document.getElementById('notifBanner').classList.remove('show');}
+
+// ── COMMUNITY / SHARE ──
+function renderShare() {
+  const {w,day,week}=getDia(S.day);
+  const post=['📖 Día '+(S.day+1)+' — Camino a la Libertad','','"'+day.v.substring(0,110)+'..."','— '+day.r,'','Esta semana: '+week.theme,'',week.id,'','#CaminoALaLibertadeedom #Faith'].join('\n');
+  document.getElementById('sharePostText').textContent=post;
+  document.getElementById('identityText').textContent=week.id;
+  document.getElementById('communityVTag').textContent='📖 Día '+(S.day+1)+': "'+day.t+'" — '+day.r;
+  document.getElementById('groupCodeDisplay').textContent=S.profile?.groupCode||'——';
+  renderGrupo();
+}
+function postReflection() {
+  const text=document.getElementById('communityText').value.trim();
+  if(!text){toast('¡Escribe tu reflexión primero!');return;}
+  const {day}=getDia(S.day);
+  const post={
+    id:Date.now(), name:S.profile?.name||'Me',
+    dayNum:S.day+1, dayTitle:day.t, verseRef:day.r,
+    text, date:new Date().toLocaleDateString(),
+    time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),
+    mine:true
+  };
+  S.posts.unshift(post); save();
+  document.getElementById('communityText').value='';
+  renderGrupo();
+  toast('¡Publicado! Copiando enlace... 🎉');
+  setTimeout(()=>{
+    const enc=btoa(unescape(encodeURIComponent(JSON.stringify(post))));
+    const url=location.href.split('#')[0]+'#post='+enc;
+    navigator.clipboard.writeText(url).catch(()=>{});
+    toast('¡Enlace copiado — comparte con tu grupo! 🔗');
+  },800);
+}
+function renderGrupo() {
+  const el=document.getElementById('groupGrupo');
+  if(!S.posts.length){
+    el.innerHTML='<div style="text-align:center;padding:22px 0;color:var(--muted);font-size:13px;">No posts yet. Be the first to share!<br><br><em>When group members share their link, their reflection appears here.</em></div>';
+    return;
+  }
+  el.innerHTML=S.posts.map(p=>{
+    const init=(p.name||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    return '<div class="post-card">'
+      +'<div class="post-meta">'
+        +'<div class="post-avatar">'+esc(init)+'</div>'
+        +'<div><div class="post-name">'+esc(p.name)+(p.mine?' <span style="font-size:10px;font-weight:400;color:var(--muted);">(you)</span>':'')+'</div>'
+        +'<div class="post-day">Día '+p.dayNum+' · '+esc(p.date)+'</div></div>'
+        +'<div class="post-ref">'+esc(p.verseRef)+'</div>'
+      +'</div>'
+      +'<div class="post-text">"'+esc(p.text)+'"</div>'
+      +'<div style="display:flex;justify-content:space-between;">'
+        +'<div style="font-size:11px;color:var(--muted);font-style:italic;">'+esc(p.dayTitle)+'</div>'
+        +'<div class="post-time">'+esc(p.time||'')+'</div>'
+      +'</div></div>';
+  }).join('');
+}
+function copyGroupCode(){const c=S.profile?.groupCode||'';if(!c){toast('¡Configura tu perfil primero!');return;}navigator.clipboard.writeText(c).then(()=>toast('¡Código copiado!'));}
+function copyPost(){navigator.clipboard.writeText(document.getElementById('sharePostText').textContent).then(()=>toast('¡Publicación copiada!'));}
+function shareToX(){window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(document.getElementById('sharePostText').textContent.substring(0,280)),'_blank');}
+function shareToFB(){copyPost();toast('¡Copiado — pega en Facebook!');}
+function shareToIG(){copyPost();toast('¡Copiado — pega en Instagram!');}
+function shareViaSMS(){window.open('sms:?body='+encodeURIComponent(document.getElementById('sharePostText').textContent),'_blank');}
+
+// ── IMPORT SHARED POST ──
+function checkImport() {
+  const h=location.hash;
+  if(!h.startsWith('#post='))return;
+  try {
+    const post=JSON.parse(decodeURIComponent(escape(atob(h.replace('#post=','')))));
+    post.mine=false;
+    document.getElementById('importName').textContent=post.name+' shared a reflection!';
+    document.getElementById('importDia').textContent='Día '+post.dayNum+': "'+post.dayTitle+'" — '+post.verseRef;
+    document.getElementById('importText').textContent=post.text;
+    window._imp=post;
+    document.getElementById('importModal').classList.remove('hidden');
+    history.replaceState(null,'',location.pathname);
+  } catch(e){}
+}
+function confirmImport() {
+  const p=window._imp; if(!p)return;
+  if(!S.posts.find(x=>x.id===p.id)){S.posts.unshift(p);save();toast('¡Reflexión de '+p.name+' añadida a tu grupo!');}
+  closeImport(); showPage('share');
+}
+function closeImport(){document.getElementById('importModal').classList.add('hidden');window._imp=null;}
+
+// ── PROGRESS ──
+function renderProgreso() {
+  renderBadges();
+  const done=S.done.length, pct=Math.round(done/84*100);
+  document.getElementById('statListo').textContent=done;
+  document.getElementById('statRacha').textContent=S.streak||0;
+  document.getElementById('statPct').textContent=pct+'%';
+  document.getElementById('mainProg').style.width=pct+'%';
+  document.getElementById('weekCards').innerHTML=W.map((w,wi)=>{
+    const s=wi*7,wd=Array.from({length:7},(_,i)=>S.done.includes(s+i)).filter(Boolean).length;
+    const p=Math.round(wd/7*100);
+    return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;">'
+      +'<div><div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal-dark);">Semana '+(wi+1)+'</div>'
+      +'<div style="font-size:13px;">'+esc(w.title)+'</div></div>'
+      +'<div style="font-size:18px;font-weight:900;color:'+(wd===7?'var(--green)':'var(--teal-dark)')+';">'+wd+'/7</div>'
+      +'</div><div class="prog-wrap"><div class="prog-bar" style="width:'+p+'%;background:'+(wd===7?'var(--green)':'')+'"></div></div></div>';
+  }).join('');
+  const cw=Math.floor(S.day/7);
+  document.getElementById('weekTabs').innerHTML=W.map((_,i)=>'<button class="week-tab '+(i===cw?'active':'')+'" onclick="jumpSemana('+i+')">'+(i+1)+'</button>').join('');
+  renderDiaGrid(cw);
+}
+function renderDiaGrid(wi) {
+  const s=wi*7;
+  document.getElementById('dayGrid').innerHTML=Array.from({length:7},(_,i)=>{
+    const di=s+i, dn=S.done.includes(di), td=di===S.day;
+    return '<div class="day-dot '+(dn?'done':'')+(td?' today':'')+'" onclick="jumpDia('+di+')" title="Dia '+(di+1)+'">'+(i+1)+'</div>';
+  }).join('');
+}
+function jumpSemana(wi){document.querySelectorAll('.week-tab').forEach((t,i)=>t.classList.toggle('active',i===wi));renderDiaGrid(wi);}
+function jumpDia(i){S.day=i;save();showPage('today');}
+function resetAll(){if(confirm('¿Reiniciar todo el progreso? No se puede deshacer.')){S.done=[];S.streak=0;S.day=0;save();renderProgreso();toast('Progreso reiniciado.');}}
+
+// ── CHAT ──
+const CHAT_RESPONSES = {
+  greet:["¡Qué bueno conectar! ¿Cómo estás con el devocional de hoy?","¡Hola! Estoy aquí para acompañarte en Camino a la Libertad. ¿Qué hay en tu corazón?"],
+  encourage:["Lo estás haciendo muy bien. Sigue adelante — Dios está obrando en ti aunque no lo puedas ver.","Cada día que apareces importa. Dios ve tu fidelidad."],
+  verse:["¿Has tenido la oportunidad de memorizarlo? ¡Trata de decirlo en voz alta unas cuantas veces!","Ese versículo fue escrito para ti, para este momento. Deja que penetre en tu corazón."],
+  struggle:["Está bien luchar — ahí es donde ocurre el crecimiento. ¿Cuál área es más difícil para ti ahora mismo?","La fortaleza de Dios se perfecciona en la debilidad. Llévale tu lucha y mira lo que hace."],
+  prayer:["Aquí hay una oración para ti: Señor, llename de tu Espíritu hoy. Ayúdame a vivir lo que estoy aprendiendo. Hazme más como Jesús. Amén.","Tómate un momento para orar ahora. Dile a Dios exactamente lo que estás sintiendo — él puede con ello."],
+  commit:["Tus compromisos importan. La persona en quien te conviertes es formada por las decisiones que tomas cuando nadie está mirando.","¿Qué compromiso hiciste hoy? Puedo ayudarte a mantenerte firme en él."]
+};
+function getAI(msg) {
+  var lo=msg.toLowerCase();
+  var res=getDia(S.day); var day=res.day; var week=res.week; var w=res.w;
+  var name=S.profile&&S.profile.name?', '+S.profile.name:'';
+  if(/hi|hello|hey|hola/.test(lo)) return "Hey"+name+"! "+CHAT_RESPONSES.greet[1];
+  if(/verse|scripture|memorize|versiculo|versículo|escritura/.test(lo)) return "El versículo de hoy: "+day.v.substring(0,80)+"... ("+day.r+"). "+CHAT_RESPONSES.verse[0];
+  if(/struggle|hard|difficult|lucho|luchar|difícil|dificil/.test(lo)) return CHAT_RESPONSES.struggle[Math.floor(Math.random()*2)];
+  if(/pray|prayer|ora|orar|oración/.test(lo)) return CHAT_RESPONSES.prayer[Math.floor(Math.random()*2)];
+  if(/commit|promise|compromiso|comprometer/.test(lo)) return CHAT_RESPONSES.commit[Math.floor(Math.random()*2)];
+  if(/encourage|help|motivat|anima|ayuda/.test(lo)) return CHAT_RESPONSES.encourage[Math.floor(Math.random()*2)];
+  if(/appoint|morning|time|quiet/.test(lo)) {
+    var a=S.profile&&S.profile.apptTime?fmt12(S.profile.apptTime):'not set';
+    var pl=S.profile&&S.profile.apptPlace?' at '+S.profile.apptPlace:'';
+    return "Your appointment with Jesus is at "+a+pl+". That daily time is the foundation of everything!";
+  }
+  if(/today|devotional|lesson|hoy|devocional|lección/.test(lo)) return "Hoy in Semana "+(w+1)+': estás en "'+day.t+'". Punto clave: '+day.teach.substring(0,120)+'... ¿Qué parte te hablau most?';
+  if(/identity|who am i|identidad|quien soy/.test(lo)) return "Esto es lo que Dios dice de ti"+name+': "'+week.id+'" Dilo en voz alta. ¿Lo crees?';
+  if(/action|step|do/.test(lo)) return "Hoy's action steps: "+day.act.join(' and ')+". ¿Cuál se siente más desafiante?";
+  if(/group|community|share/.test(lo)) return "¡Ve a la pestaña Grupo para publicar tu reflexión para tu grupo!";
+  return "Vale la pena meditar en eso"+name+'. Punto clave: "'+day.teach.substring(0,100)+'..." ¿Qué significa eso para tu vida?';
+}
+
+function renderChat() {
+  if(!S.chat.length) {
+    var res=getDia(S.day); var day=res.day;
+    var name=S.profile&&S.profile.name?', '+S.profile.name:'';
+    var place=S.profile&&S.profile.apptPlace?' I hope your time at '+S.profile.apptPlace+' was rich.':'';
+    var msg="Hey"+name+"! Your Camino a la Libertad companion here."+place+" Hoy is Día "+(S.day+1)+'. What is resonating with you from the devotional?';
+    S.chat.push({r:'ai',t:msg});
+    save();
+  }
+  document.getElementById('chatWrap').innerHTML=S.chat.map(function(m){return '<div class="chat-msg '+m.r+'">'+esc(m.t)+'</div>';}).join('');
+  var cw=document.getElementById('chatWrap'); cw.scrollTop=cw.scrollHeight;
+  var prompts=["Dime el versículo","Estoy luchando hoy","Dame una oración","¿En quién me estoy convirtiendo?","Anímame","Pasos de acción de hoy"];
+  document.getElementById('promptChips').innerHTML=prompts.map(function(p){
+    return '<button class="prompt-chip" onclick="quickChat(this.dataset.p)" data-p="'+p.replace(/"/g,'&quot;')+'">'+p+'</button>';
+  }).join('');
+}
+
+function quickChat(t){document.getElementById('chatInput').value=t||'';sendChat();}
+function sendChat() {
+  const inp=document.getElementById('chatInput'),msg=inp.value.trim();
+  if(!msg)return;
+  S.chat.push({r:'user',t:msg}); inp.value=''; save(); renderChat();
+  setTimeout(()=>{S.chat.push({r:'ai',t:getAI(msg)});save();renderChat();},450);
+}
+
+// ── PROFILE ──
+function openPerfil() {
+  const p=S.profile||{};
+  document.getElementById('pName').value=p.name||'';
+  document.getElementById('pAge').value=p.age||'';
+  document.getElementById('pStart').value=p.startDate||new Date().toISOString().split('T')[0];
+  document.getElementById('pTime').value=p.apptTime||'07:00';
+  document.getElementById('pPlace').value=p.apptPlace||'';
+  document.getElementById('pGroup').value=p.groupName||'';
+  document.getElementById('pPhone').value=p.phone||'';
+  document.getElementById('pEmail').value=p.email||'';
+  document.getElementById('pCode').value=p.groupCode||'';
+  document.getElementById('pLeaderName').value=p.leaderName||'';
+  document.getElementById('pLeaderEmail').value=p.leaderEmail||'';
+  document.getElementById('pPastorName').value=p.pastorName||'';
+  document.getElementById('pPastorEmail').value=p.pastorEmail||'';
+  var w1=(S.assessments&&S.assessments.w1)||{};
+  var el;
+  el=document.getElementById('p1_growth'); if(el) el.value=w1.growth||'';
+  el=document.getElementById('p1_hope'); if(el) el.value=w1.hope||'';
+  el=document.getElementById('p1_likely'); if(el){el.value=w1.likely||'8';document.getElementById('p1_likelyVal').textContent=w1.likely||'8';}
+  el=document.getElementById('p1_prayer'); if(el) el.value=w1.prayer||'';
+  document.getElementById('profileModal').classList.remove('hidden');
+}
+function clickGenCode() { document.getElementById('pCode').value=makeCode(); }
+function savePerfil() {
+  const name=document.getElementById('pName').value.trim();
+  if(!name){toast('¡Por favor ingresa tu nombre!');return;}
+  const code=document.getElementById('pCode').value.trim().toUpperCase()||makeCode();
+  var leaderName=document.getElementById('pLeaderName').value.trim();
+  var leaderEmail=document.getElementById('pLeaderEmail').value.trim();
+  var pastorName=document.getElementById('pPastorName').value.trim();
+  var pastorEmail=document.getElementById('pPastorEmail').value.trim();
+  S.profile={name,age:document.getElementById('pAge').value,startDate:document.getElementById('pStart').value,
+    apptTime:document.getElementById('pTime').value,apptPlace:document.getElementById('pPlace').value.trim(),
+    groupName:document.getElementById('pGroup').value.trim(),groupCode:code,phone:document.getElementById('pPhone').value.trim(),
+    email:document.getElementById('pEmail').value.trim(),leaderName,leaderEmail,pastorName,pastorEmail,done:true};
+  // Save Semana 1 check-in from profile
+  var p1g=document.getElementById('p1_growth'), p1h=document.getElementById('p1_hope');
+  var p1l=document.getElementById('p1_likely'), p1p=document.getElementById('p1_prayer');
+  if(p1g||p1h) {
+    var w1data={week:"1",name:name,age:document.getElementById('pAge').value,
+      group:document.getElementById('pGroup').value.trim(),date:new Date().toLocaleDateString(),
+      email:document.getElementById('pEmail').value.trim(),
+      leaderName,leaderEmail,pastorName,pastorEmail,
+      daysCompleted:S.done||[], program:"ptf1_es",
+      growth:p1g?p1g.value:'',hope:p1h?p1h.value:'',
+      likely:p1l?p1l.value:'',prayer:p1p?p1p.value:''};
+    if(!S.assessments) S.assessments={};
+    S.assessments.w1=w1data;
+    window._w1ShareData=w1data;
+  }
+  const t=S.profile.apptTime;
+  if(t&&!S.remTimes.includes(t)){S.remTimes.unshift(t);S.remTimes=[...new Set(S.remTimes)].sort();}
+  S.chat=[];
+  save();
+  document.getElementById('profileModal').classList.add('hidden');
+  const b=document.getElementById('setupBanner');
+  if(b) b.style.display='none';
+  toast('¡Bienvenido(a), '+name+'! Tu jornada comienza. 🕊️');
+  // Show W1 share prompt if assessment filled
+  if(window._w1ShareData && window._w1ShareData.growth) {
+    setTimeout(function(){ autoForward(window._w1ShareData, "1"); }, 600);
+    window._w1ShareData = null;
+  }
+  renderHoy();
+}
+
+
+// ── ASSESSMENTS ──
+var ASSESS_MAP = {"4":27,"8":55,"12":83}; // Semana 1 check-in is in profile
+var ASSESS_LABELS = {
+  "1":"Semana 1 — Cómo Empezó",
+  "4":"Semana 4 — One Month In",
+  "8":"Semana 8 — A Mitad del Camino",
+  "12":"Semana 12 — ¡Lo Lograste!"
+};
+
+function checkAssessmentTrigger(dayIdx) {
+  var keys = Object.keys(ASSESS_MAP);
+  for (var i = 0; i < keys.length; i++) {
+    var wk = keys[i];
+    if (ASSESS_MAP[wk] === dayIdx && !S.assessments["w"+wk]) {
+      S.pendingAssess = wk; save();
+      (function(w){ setTimeout(function(){ showAssessment(w); }, 1200); })(wk);
+      return;
+    }
+  }
+}
+
+function showAssessment(week) {
+  week = String(week);
+  window._assessSemana = week;
+  document.getElementById("assessTitle").textContent = ASSESS_LABELS[week] || ("Semana "+week+" Check-In");
+  document.querySelectorAll(".assess-section").forEach(function(s){ s.style.display="none"; });
+  var sec = document.getElementById("assess-w"+week);
+  if (sec) sec.style.display = "block";
+  // Reset submit button
+  var btn = document.getElementById("assessEnviarBtn");
+  btn.textContent = "Enviar a Mi Líder →";
+  btn.disabled = false;
+  document.getElementById("assessModal").classList.remove("hidden");
+}
+
+function closeAssessment() {
+  document.getElementById("assessModal").classList.add("hidden");
+}
+
+function g(id){ var el=document.getElementById(id); return el?el.value:""; }
+
+function collectAssessmentData(week) {
+  var prof = S.profile || {};
+  var d = { week:week, name:prof.name||"Unknown", age:prof.age||"",
+    group:prof.groupName||"", date:new Date().toLocaleDateString(),
+    email:prof.email||"",
+    leaderName:prof.leaderName||"", leaderEmail:prof.leaderEmail||"",
+    pastorName:prof.pastorName||"", pastorEmail:prof.pastorEmail||"",
+    daysCompleted:S.done||[], xp:S.xp||0, streak:S.streak||0, longestStreak:S.longestStreak||0, level:LEVELS[getLevel(S.xp||0)].name, badges:(S.badges||[]).length, program:"ptf1_es" };
+  if (week==="1") {
+    d.growth=g("a1_growth"); d.hope=g("a1_hope");
+    d.likely=g("a1_likely"); d.prayer=g("a1_prayer");
+  } else if (week==="4") {
+    d.qt=g("a4_qt"); d.hear=g("a4_hear"); d.grow=g("a4_grow");
+    d.group_close=g("a4_group"); d.trust=g("a4_trust");
+    d.ldr_qualities=g("a4_ldrq"); d.ldr_connect=g("a4_ldrc");
+    d.likely=g("a4_likely"); d.issue=g("a4_issue"); d.prayer=g("a4_prayer");
+  } else if (week==="8") {
+    d.group_close=g("a8_group"); d.trust=g("a8_trust");
+    d.ldr_qualities=g("a8_ldrq"); d.ldr_connect=g("a8_ldrc");
+    d.issue=g("a8_issue"); d.tri2=g("a8_tri2");
+  } else if (week==="12") {
+    d.group_close=g("a12_group"); d.trust=g("a12_trust");
+    d.ldr_qualities=g("a12_ldrq"); d.issue=g("a12_issue");
+    d.growth_now=g("a12_growth"); d.tri2=g("a12_tri2");
+  }
+  return d;
+}
+
+function submitAssessment() {
+  var week = String(window._assessSemana || "1");
+  var data = collectAssessmentData(week);
+  ptfWriteCheckin(data);
+  data.groupCode = (S.profile && S.profile.groupCode) ? S.profile.groupCode.trim() : "";
+  S.assessments["w"+week] = data;
+  S.pendingAssess = null;
+  save();
+  closeAssessment();
+  renderHoy();
+  // Auto-forward to both leader and youth pastor
+  autoForward(data, week);
+}
+
+function buildShareUrl(data) {
+  try {
+    var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+    var base = window.location.href.replace(/[^/\\]*$/, "ptf-leader-hub.html");
+    return base + "?ptf=" + b64;
+  } catch(e) { return ""; }
+}
+
+function autoForward(data, week) {
+  // Build the shareable dashboard URL with encoded assessment data
+  var url = buildShareUrl(data);
+  var name = data.name || "Student";
+  var leaderEmail = data.leaderEmail || (S.profile && S.profile.leaderEmail) || "";
+  var pastorEmail = data.pastorEmail || (S.profile && S.profile.pastorEmail) || "";
+  var leaderName = data.leaderName || (S.profile && S.profile.leaderName) || "tu líder";
+  var pastorName = data.pastorName || (S.profile && S.profile.pastorName) || "tu pastor de jóvenes";
+  var subject = encodeURIComponent("CTL Semana " + week + " Revisión — " + name);
+  var body = encodeURIComponent(name + " completed the Semana " + week + " Camino a la Libertad check-in.\n\nView their results here:\n" + url + "\n\n(Open on any device — no app needed)");
+
+  // Show a brief success screen
+  var el = document.getElementById("autoFwdOverlay");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "autoFwdOverlay";
+    el.style.cssText = "position:fixed;inset:0;background:rgba(0,50,60,.88);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;";
+    document.body.appendChild(el);
+  }
+  var toList = [leaderName, pastorName].filter(function(n){return n&&n!=="tu líder"&&n!=="tu pastor de jóvenes";}).join(" & ") || "tus líderes";
+  window._fwdTo = [leaderEmail, pastorEmail].filter(Boolean).join(",");
+  window._fwdSubject = subject;
+  window._fwdBody = body;
+  el.innerHTML = "<div style='background:white;border-radius:22px;padding:28px 22px;max-width:380px;width:100%;text-align:center;'>"
+    + "<div style='font-size:50px;margin-bottom:10px;'>✅</div>"
+    + "<div style='font-size:21px;font-weight:900;font-family:Georgia,serif;color:#005f6e;margin-bottom:8px;'>Semana " + week + " Listo!</div>"
+    + "<div style='font-size:14px;color:#5a8a92;line-height:1.6;margin-bottom:20px;'>Tu revisión ha sido guardada. Toca abajo para enviarla a " + esc(toList) + " —r email app will open with everything ready to go.</div>"
+    + "<button onclick='sendViaEmail()' style='width:100%;padding:16px;background:linear-gradient(135deg,#00B5C5,#007d8c);color:white;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:10px;'>📨 Enviar a Mis Líderes</button>"
+    + "<button onclick='closeAutoFwd()' style='width:100%;padding:12px;background:transparent;border:2px solid #b8e4ea;border-radius:14px;font-size:13px;font-weight:700;color:#5a8a92;cursor:pointer;'>Listo</button>"
+    + "</div>";
+  el.style.display = "flex";
+
+  // Auto-trigger email if addresses are known
+  if (leaderEmail || pastorEmail) {
+    setTimeout(function(){
+      var to = [leaderEmail, pastorEmail].filter(Boolean).join(",");
+      window.location.href = "mailto:" + to + "?subject=" + subject + "&body=" + body;
+    }, 1200);
+  }
+}
+
+function sendViaEmail() {
+  var to = window._fwdTo || "";
+  var subject = window._fwdSubject || "";
+  var body = window._fwdBody || "";
+  if (to) {
+    window.location.href = "mailto:" + to + "?subject=" + subject + "&body=" + body;
+  } else {
+    // No email addresses — copy link to clipboard
+    var url = buildShareUrl(window._shareData || {});
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function(){ toast('¡Enlace copiado! Comparte con tus líderes.'); });
+    } else {
+      toast('Agrega los correos de tus líderes en tu perfil para enviar automáticamente.');
+    }
+  }
+  closeAutoFwd();
+}
+
+function closeAutoFwd() {
+  var el = document.getElementById("autoFwdOverlay");
+  if (el) el.style.display = "none";
+}
+
+// Keep these for backwards compat
+function closeSharePrompt() { closeAutoFwd(); }
+
+// Retry unsent assessments (called on load)
+function retryPendingSubmissions() {
+  var isCentralReady = CENTRAL_URL && CENTRAL_URL !== "YOUR_GAS_URL_HERE";
+  if (!isCentralReady) return;
+  var groupCode = (S.profile && S.profile.groupCode) ? S.profile.groupCode.trim() : "";
+  if (!groupCode) return;
+  Object.keys(S.assessments).forEach(function(key){
+    var d = S.assessments[key];
+    if (!d || d._sent) return;
+    d.groupCode = groupCode;
+    fetch(CENTRAL_URL, {
+      method: "POST",
+      headers: {"Content-Type": "application/json", "Accept": "application/json"},
+      body: JSON.stringify(d)
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(res){ if (res.success) { d._sent = true; save(); } })
+    .catch(function(){});
+  });
+}
+
+// ── INIT ──
+window.addEventListener('load',()=>{
+  // Clear stale old-version data
+  ['ptfState','ptf_state','ptfv2'].forEach(k=>localStorage.removeItem(k));
+  checkImport();
+  // Always show profile setup if name or appointment not set
+  if(!S.profile?.name || !S.profile?.apptTime) {
+    document.getElementById('pStart').value=new Date().toISOString().split('T')[0];
+    if(!S.profile?.groupCode) document.getElementById('pCode').value=makeCode();
+    document.getElementById('profileModal').classList.remove('hidden');
+  }
+  renderHoy();
+  if(S.remActive) startReminderLoop();
+  setTimeout(retryPendingSubmissions, 3000);
+  const h=new Date().getHours();
+  if(S.remActive&&h>=6&&h<=9){
+    const {day}=getDia(S.day);
+    const n=S.profile?.name?', '+S.profile.name:'';
+    showBanner('🌅','¡Buenos Días'+n+'!','Día '+(S.day+1)+': "'+day.t+'" — Tiempo con Jesús.');
+  }
+});
+
+// ══ GAMIFICATION ENGINE ══
+const LEVELS = [
+  {min:0,    name:"Buscador",   icon:"🌱", next:200},
+  {min:200,  name:"Aprendiz",   icon:"⚡", next:500},
+  {min:500,  name:"Guerrero",   icon:"🛡️", next:1000},
+  {min:1000, name:"Campeón",    icon:"🔥", next:2000},
+  {min:2000, name:"Libertador", icon:"👑", next:9999},
+];
+const ALL_BADGES = [
+  {id:"first_day",  icon:"🌅", name:"Primer Paso",      xp:50,  check:function(){return S.done.length>=1;}},
+  {id:"week1",      icon:"⭐", name:"Primera Semana",    xp:100, check:function(){return S.done.length>=7;}},
+  {id:"streak7",    icon:"🔥", name:"Racha de 7",        xp:150, check:function(){return (S.streak||0)>=7;}},
+  {id:"streak14",   icon:"💪", name:"Racha de 14",       xp:200, check:function(){return (S.streak||0)>=14;}},
+  {id:"streak30",   icon:"⚡", name:"Racha de 30",       xp:400, check:function(){return (S.streak||0)>=30;}},
+  {id:"halfway",    icon:"🏆", name:"A Mitad del Camino",xp:250, check:function(){return S.done.includes(41);}},
+  {id:"assess1",    icon:"📋", name:"Primera Evaluación",xp:100, check:function(){return Object.keys(S.assessments||{}).length>=1;}},
+  {id:"commit5",    icon:"🎯", name:"Comprometido",      xp:75,  check:function(){return (S.commits||[]).length>=5;}},
+  {id:"commit_done",icon:"✅", name:"Cumplidor",         xp:150, check:function(){return (S.commits||[]).filter(function(c){return c.done;}).length>=10;}},
+  {id:"shared",     icon:"🤝", name:"Compartidor",       xp:50,  check:function(){return (S.posts||[]).length>=1;}},
+  {id:"complete84", icon:"🕊️", name:"¡LIBRE!",           xp:1000,check:function(){return S.done.length>=84;}},
+];
+
+function getLevel(xp) {
+  for(var i=LEVELS.length-1;i>=0;i--) { if((xp||0)>=LEVELS[i].min) return i; }
+  return 0;
+}
+function awardXP(amount) {
+  var oldLevel = getLevel(S.xp||0);
+  S.xp = (S.xp||0) + amount;
+  var newLevel = getLevel(S.xp);
+  save();
+  if(newLevel > oldLevel) {
+    var lv = LEVELS[newLevel];
+    setTimeout(function(){ showMilestone(lv.icon, '¡Subiste de Nivel!', 'Ahora eres ' + lv.name, '+XP', true); }, 800);
+  }
+}
+function checkBadges() {
+  if(!S.badges) S.badges = [];
+  var newBadge = null;
+  for(var i=0;i<ALL_BADGES.length;i++) {
+    var b = ALL_BADGES[i];
+    if(!S.badges.includes(b.id) && b.check()) {
+      S.badges.push(b.id);
+      if(!newBadge) newBadge = b;
+    }
+  }
+  save();
+  if(newBadge) {
+    var nb = newBadge;
+    setTimeout(function(){ showMilestone(nb.icon, '¡Insignia Desbloqueada!', nb.name, '+'+nb.xp+' XP', nb.xp>=100); }, 700);
+    if(nb.xp) awardXP(nb.xp);
+  }
+}
+function checkStreakMilestones(streak) {
+  var m = {7:'¡7 días — Vas fuerte!',14:'¡14 días — ¡Imparable!',21:'¡21 días — Nuevo hábito!',30:'¡30 días — ¡Campeón!',42:'¡A mitad del camino!',84:'¡84 días — ¡ERES LIBRE!'};
+  var icons = {7:'🔥',14:'💪',21:'⚡',30:'🏆',42:'🛡️',84:'🕊️'};
+  if(m[streak]) {
+    var bonus = streak * 5;
+    showMilestone(icons[streak], '¡Racha de '+streak+' Días!', m[streak], '+'+bonus+' XP', true);
+    awardXP(bonus);
+  }
+}
+function showMilestone(emoji, title, sub, xp, doConfetti) {
+  document.getElementById('milestoneEmoji').textContent = emoji;
+  document.getElementById('milestoneTitle').textContent = title;
+  document.getElementById('milestoneSub').textContent = sub;
+  document.getElementById('milestoneXp').textContent = xp;
+  document.getElementById('milestoneOverlay').classList.add('show');
+  if(doConfetti) launchConfetti();
+}
+function closeMilestone() {
+  document.getElementById('milestoneOverlay').classList.remove('show');
+  document.getElementById('confettiWrap').innerHTML = '';
+}
+function launchConfetti() {
+  var c = document.getElementById('confettiWrap');
+  var colors = ['#00B5C5','#E8C87A','#005f6e','#ffffff','#f0d890','#2e7d6a'];
+  for(var i=0;i<70;i++) {
+    var el = document.createElement('div');
+    var size = 6 + Math.random()*8;
+    el.style.cssText = 'position:absolute;width:'+size+'px;height:'+size+'px;background:'+colors[Math.floor(Math.random()*colors.length)]+';border-radius:'+(Math.random()>.5?'50%':'2px')+';left:'+(Math.random()*100)+'%;top:-20px;animation:cffall '+(1.5+Math.random()*2)+'s ease-in '+(Math.random()*.8)+'s forwards;';
+    c.appendChild(el);
+  }
+  var s = document.createElement('style');
+  s.textContent = '@keyframes cffall{to{top:110%;opacity:0;transform:rotate(720deg) translateX(40px)}}';
+  document.head.appendChild(s);
+}
+function checkDailyLogin() {
+  var today = new Date().toDateString();
+  if(S.lastLogin !== today) {
+    S.lastLogin = today;
+    if((S.done||[]).length > 0) awardXP(10);
+    save();
+  }
+  // Streak break check
+  if(S.lastListo && (S.streak||0) > 0) {
+    var last = new Date(S.lastListo);
+    var now = new Date();
+    var diff = Math.floor((now - last) / 86400000);
+    if(diff > 1) {
+      if((S.streakShield||0) > 0) {
+        S.streakShield--;
+        save();
+        toast('🛡️ ¡Tu escudo protegió tu racha!');
+      } else if(diff > 2) {
+        var lost = S.streak;
+        S.streak = 0;
+        save();
+        if(lost > 2) toast('Tu racha de '+lost+' días se reinició. ¡Hoy comienzas de nuevo!');
+      }
+    }
+  }
+}
+function checkStreakShield() {
+  var done = (S.done||[]).length;
+  if(done > 0 && done % 7 === 0) {
+    if((S.streakShield||0) < 3) {
+      S.streakShield = (S.streakShield||0) + 1;
+      save();
+      setTimeout(function(){ toast('🛡️ ¡Escudo de racha ganado! ('+S.streakShield+'/3)'); }, 1500);
+    }
+  }
+}
+function renderGameBar() {
+  var el = document.getElementById('gameBarWrap');
+  if(!el) return;
+  var xp = S.xp||0;
+  var lvIdx = getLevel(xp);
+  var lv = LEVELS[lvIdx];
+  var nextLv = LEVELS[Math.min(lvIdx+1,LEVELS.length-1)];
+  var pct = lvIdx===LEVELS.length-1 ? 100 : Math.round(((xp-lv.min)/(nextLv.min-lv.min))*100);
+  var streak = S.streak||0;
+  var fire = streak===0?'💤':streak<7?'🔥':streak<14?'🔥🔥':streak<30?'🔥🔥🔥':'⚡🔥⚡';
+  var msg = streak===0?'Completa hoy para empezar tu racha':streak===1?'¡Vuelve mañana para mantenerla!':streak<7?'¡Vas bien! '+streak+' días seguidos':'¡'+streak+' días seguidos! ¡Imparable!';
+  var shield = S.streakShield||0;
+  el.innerHTML = '<div class="game-bar">'
+    +'<div class="game-bar-top">'
+    +'<div class="streak-display"><span class="streak-fire">'+fire+'</span>'
+    +'<div><div class="streak-num">'+streak+'</div><div class="streak-label">días seguidos</div></div></div>'
+    +'<div class="level-badge"><div class="level-icon">'+lv.icon+'</div><div class="level-name">'+lv.name+'</div></div>'
+    +(shield>0?'<div class="shield-pill">🛡️ x'+shield+'</div>':'')
+    +'</div>'
+    +'<div style="font-size:11px;opacity:.7;margin-bottom:8px;font-style:italic;">'+msg+'</div>'
+    +'<div class="xp-bar-wrap"><div class="xp-bar-label"><span>⚡ '+xp+' XP</span><span>'+(lvIdx<LEVELS.length-1?'hacia '+nextLv.name:'¡Nivel Máximo!')+'</span></div>'
+    +'<div class="xp-bar-track"><div class="xp-bar-fill" style="width:'+pct+'%"></div></div></div>'
+    +'</div>';
+}
+function renderBadges() {
+  var el = document.getElementById('badgesGridWrap');
+  if(!el) return;
+  if(!S.badges) S.badges = [];
+  el.innerHTML = '<div class="card-label" style="margin-bottom:8px;">🏅 Tus Insignias</div>'
+    +'<div class="badges-grid">'
+    +ALL_BADGES.map(function(b){
+      var earned = S.badges.includes(b.id);
+      return '<div class="badge-item '+(earned?'earned':'locked')+'">'
+        +'<div class="badge-icon">'+b.icon+'</div>'
+        +'<div class="badge-name">'+b.name+'</div>'
+        +(b.xp?'<div class="badge-xp">+'+b.xp+' XP</div>':'')
+        +'</div>';
+    }).join('')
+    +'</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;">'
+    +S.badges.length+' de '+ALL_BADGES.length+' insignias desbloqueadas</div>';
+}
+// ══ END GAMIFICATION ══
+
+</script>
+
+<div class="milestone-overlay" id="milestoneOverlay" onclick="closeMilestone()">
+  <div class="milestone-card" onclick="event.stopPropagation()">
+    <div class="milestone-emoji" id="milestoneEmoji">🔥</div>
+    <div class="milestone-title" id="milestoneTitle">¡Logro!</div>
+    <div class="milestone-sub" id="milestoneSub">¡Sigue adelante!</div>
+    <div class="milestone-xp" id="milestoneXp">+100 XP</div>
+    <button class="btn btn-primary" onclick="closeMilestone()" style="width:100%;">¡Seguir Adelante! 🕊️</button>
+  </div>
+</div>
+<div class="confetti-wrap" id="confettiWrap"></div>
+</body>
+</html>
