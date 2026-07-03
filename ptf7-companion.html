@@ -513,6 +513,75 @@ textarea { resize: vertical; min-height: 80px; }
   </div>
 </div>
 
+<!-- MEDIA AUDIT MODAL -->
+<div class="modal-overlay hidden" id="mediaAuditModal">
+  <div class="modal-sheet">
+    <div class="modal-head">
+      <div class="modal-pre">Pathway to Freedom</div>
+      <div class="modal-title" id="maTitle">Week 1 · Media Audit</div>
+      <div class="modal-desc" id="maDesc">Be honest — this is for your growth, not judgment.</div>
+    </div>
+    <!-- Week 1: baseline + goals -->
+    <div id="maWeek1" style="display:none;">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6;">How many hours per day do you currently spend on each category? Then set your goal for this trimester.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px;padding:0 2px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--teal-dark);text-align:center;">Current hrs/day</div>
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--green);text-align:center;">My Goal hrs/day</div>
+      </div>
+      <div style="background:#f8f5ff;border-radius:10px;padding:10px 12px;margin-bottom:7px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:7px;">📺 TV / Streaming</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <input type="number" id="ma1_tv_now" min="0" max="24" step="0.5" placeholder="e.g. 3" style="text-align:center;margin-bottom:0;">
+          <input type="number" id="ma1_tv_goal" min="0" max="24" step="0.5" placeholder="e.g. 1" style="text-align:center;margin-bottom:0;border-color:var(--green);">
+        </div>
+      </div>
+      <div style="background:#f8f5ff;border-radius:10px;padding:10px 12px;margin-bottom:7px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:7px;">📱 YouTube / Online Video</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <input type="number" id="ma1_yt_now" min="0" max="24" step="0.5" placeholder="e.g. 2" style="text-align:center;margin-bottom:0;">
+          <input type="number" id="ma1_yt_goal" min="0" max="24" step="0.5" placeholder="e.g. 0.5" style="text-align:center;margin-bottom:0;border-color:var(--green);">
+        </div>
+      </div>
+      <div style="background:#f8f5ff;border-radius:10px;padding:10px 12px;margin-bottom:7px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:7px;">👍 Social Media</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <input type="number" id="ma1_social_now" min="0" max="24" step="0.5" placeholder="e.g. 2" style="text-align:center;margin-bottom:0;">
+          <input type="number" id="ma1_social_goal" min="0" max="24" step="0.5" placeholder="e.g. 0.5" style="text-align:center;margin-bottom:0;border-color:var(--green);">
+        </div>
+      </div>
+      <div style="background:#f8f5ff;border-radius:10px;padding:10px 12px;margin-bottom:7px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:7px;">🎮 Video Games</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <input type="number" id="ma1_games_now" min="0" max="24" step="0.5" placeholder="e.g. 1" style="text-align:center;margin-bottom:0;">
+          <input type="number" id="ma1_games_goal" min="0" max="24" step="0.5" placeholder="e.g. 0.5" style="text-align:center;margin-bottom:0;border-color:var(--green);">
+        </div>
+      </div>
+    </div>
+    <!-- Weeks 2–12: actual this week -->
+    <div id="maWeekN" style="display:none;">
+      <div id="maGoalCompare" style="margin-bottom:10px;"></div>
+      <div style="background:#f8f5ff;border-radius:10px;padding:10px 12px;margin-bottom:7px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:7px;">📺 TV / Streaming — hrs/day this week</div>
+        <input type="number" id="maN_tv" min="0" max="24" step="0.5" placeholder="Hours per day" style="text-align:center;margin-bottom:0;">
+      </div>
+      <div style="background:#f8f5ff;border-radius:10px;padding:10px 12px;margin-bottom:7px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:7px;">📱 YouTube / Online Video — hrs/day this week</div>
+        <input type="number" id="maN_yt" min="0" max="24" step="0.5" placeholder="Hours per day" style="text-align:center;margin-bottom:0;">
+      </div>
+      <div style="background:#f8f5ff;border-radius:10px;padding:10px 12px;margin-bottom:7px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:7px;">👍 Social Media — hrs/day this week</div>
+        <input type="number" id="maN_social" min="0" max="24" step="0.5" placeholder="Hours per day" style="text-align:center;margin-bottom:0;">
+      </div>
+      <div style="background:#f8f5ff;border-radius:10px;padding:10px 12px;margin-bottom:7px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:7px;">🎮 Video Games — hrs/day this week</div>
+        <input type="number" id="maN_games" min="0" max="24" step="0.5" placeholder="Hours per day" style="text-align:center;margin-bottom:0;">
+      </div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:14px;font-size:15px;padding:15px;" onclick="submitMediaAudit()">Save My Audit ✓</button>
+    <button class="btn btn-outline btn-sm" onclick="closeMediaAudit()">Do This Later</button>
+  </div>
+</div>
+
 <!-- IMPORT POST MODAL -->
 <div class="modal-overlay hidden" id="importModal">
   <div class="modal-sheet" style="border-radius:20px;padding:22px 18px 32px;">
@@ -745,6 +814,15 @@ textarea { resize: vertical; min-height: 80px; }
   <div class="card" style="margin-top:12px;">
     <div id="badgesGridWrap"></div>
   </div>
+
+  <!-- MEDIA AUDIT CHART -->
+  <div class="card" id="mediaChartCard" style="display:none;margin-top:12px;">
+    <div class="card-label">📱 Media Audit Progress</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Hours per day each week · dashed line = your goal</p>
+    <canvas id="mediaChart" style="width:100%;display:block;"></canvas>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;" id="mediaLegend"></div>
+  </div>
+
   <button class="btn btn-outline" onclick="resetAll()" style="margin-top:4px;">Reset Progress</button>
 </div>
 
@@ -820,7 +898,7 @@ var CENTRAL_URL = "YOUR_GAS_URL_HERE";
 let S = JSON.parse(localStorage.getItem("ptf7_v1") || "null") || {
   day: 0, done: [], commits: [], remTimes: ["07:00","12:00","17:00"],
   streak: 0, lastDone: null, posts: [], chat: [], profile: null,
-  remActive: false, assessments: {}, pendingAssess: null,
+  remActive: false, assessments: {}, pendingAssess: null, mediaAudit: { goals: {tv:0,yt:0,social:0,games:0}, weeks: {} },
   xp: 0, level: 1, badges: [], streakShield: 0, lastLogin: null, longestStreak: 0,
   ntfyTopic: null
 };
@@ -1079,6 +1157,7 @@ function markComplete() {
     toast('Day '+(S.day+1)+' complete! +50 XP 🎉');
     ptfWriteProgress('ptf7');
     checkAssessmentTrigger(S.day);
+    checkMediaAuditTrigger(S.day);
   }
   if (S.day<83) setTimeout(()=>changeDay(1), 700);
   else renderToday();
@@ -1385,6 +1464,7 @@ function renderProgress() {
   const cw=Math.floor(S.day/7);
   document.getElementById('weekTabs').innerHTML=W.map((_,i)=>'<button class="week-tab '+(i===cw?'active':'')+'" onclick="jumpWeek('+i+')">'+(i+1)+'</button>').join('');
   renderDayGrid(cw);
+  renderMediaAuditChart();
 }
 function renderDayGrid(wi) {
   const s=wi*7;
@@ -1395,7 +1475,7 @@ function renderDayGrid(wi) {
 }
 function jumpWeek(wi){document.querySelectorAll('.week-tab').forEach((t,i)=>t.classList.toggle('active',i===wi));renderDayGrid(wi);}
 function jumpDay(i){S.day=i;save();showPage('today');}
-function resetAll(){if(confirm('Reset all progress? Cannot be undone.')){S.done=[];S.streak=0;S.day=0;save();renderProgress();toast('Progress reset.');}}
+function resetAll(){if(confirm('Reset all progress? Cannot be undone.')){S.done=[];S.streak=0;S.day=0;S.mediaAudit={goals:{tv:0,yt:0,social:0,games:0},weeks:{}};save();renderProgress();toast('Progress reset.');}}
 
 // ── CHAT ──
 const CHAT_RESPONSES = {
@@ -1552,6 +1632,178 @@ function checkAssessmentTrigger(dayIdx) {
   }
 }
 
+// ── MEDIA AUDIT ──
+var MEDIA_AUDIT_DAYS = [6,13,20,27,34,41,48,55,62,69,76,83]; // Day 7 of each week (0-indexed)
+
+function checkMediaAuditTrigger(dayIdx) {
+  var weekNum = MEDIA_AUDIT_DAYS.indexOf(dayIdx) + 1;
+  if (weekNum > 0) {
+    if (!S.mediaAudit) S.mediaAudit = { goals: {tv:0,yt:0,social:0,games:0}, weeks: {} };
+    if (!S.mediaAudit.weeks) S.mediaAudit.weeks = {};
+    var alreadyDone = S.mediaAudit.weeks[weekNum] !== undefined;
+    if (!alreadyDone) {
+      // If an assessment is also pending, delay media audit slightly more
+      var delay = (S.pendingAssess) ? 4000 : 1500;
+      (function(wk){ setTimeout(function(){ showMediaAudit(wk); }, delay); })(weekNum);
+    }
+  }
+}
+
+function showMediaAudit(weekNum) {
+  if (!S.mediaAudit) S.mediaAudit = { goals: {tv:0,yt:0,social:0,games:0}, weeks: {} };
+  if (!S.mediaAudit.weeks) S.mediaAudit.weeks = {};
+  window._maWeek = weekNum;
+  document.getElementById('maTitle').textContent = 'Week ' + weekNum + ' · Media Audit';
+  if (weekNum === 1) {
+    document.getElementById('maDesc').textContent = 'Set your starting point and commit to your goals.';
+    document.getElementById('maWeek1').style.display = 'block';
+    document.getElementById('maWeekN').style.display = 'none';
+  } else {
+    document.getElementById('maDesc').textContent = 'How many hours per day did you actually spend on each category this week?';
+    document.getElementById('maWeek1').style.display = 'none';
+    document.getElementById('maWeekN').style.display = 'block';
+    var g = S.mediaAudit.goals || {};
+    var prevWk = weekNum - 1;
+    var prev = S.mediaAudit.weeks[prevWk];
+    var html = '<div style="background:#eef6ff;border-radius:9px;padding:10px 12px;font-size:12px;line-height:1.8;">'
+      + '<strong>Your goals:</strong> 📺 ' + (g.tv||0) + 'h · 📱 ' + (g.yt||0) + 'h · 👍 ' + (g.social||0) + 'h · 🎮 ' + (g.games||0) + ' h/day';
+    if (prev) {
+      html += '<br><strong>Last week:</strong> 📺 ' + prev.tv + 'h · 📱 ' + prev.yt + 'h · 👍 ' + prev.social + 'h · 🎮 ' + prev.games + ' h/day';
+    }
+    html += '</div>';
+    document.getElementById('maGoalCompare').innerHTML = html;
+    // Pre-clear inputs
+    ['maN_tv','maN_yt','maN_social','maN_games'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.value='';
+    });
+  }
+  document.getElementById('mediaAuditModal').classList.remove('hidden');
+}
+
+function closeMediaAudit() {
+  document.getElementById('mediaAuditModal').classList.add('hidden');
+}
+
+function submitMediaAudit() {
+  var wk = window._maWeek || 1;
+  if (!S.mediaAudit) S.mediaAudit = { goals: {tv:0,yt:0,social:0,games:0}, weeks: {} };
+  if (!S.mediaAudit.weeks) S.mediaAudit.weeks = {};
+  var gv = function(id){ var el=document.getElementById(id); return el ? (parseFloat(el.value)||0) : 0; };
+  if (wk === 1) {
+    S.mediaAudit.goals = { tv: gv('ma1_tv_goal'), yt: gv('ma1_yt_goal'), social: gv('ma1_social_goal'), games: gv('ma1_games_goal') };
+    S.mediaAudit.weeks[1] = { tv: gv('ma1_tv_now'), yt: gv('ma1_yt_now'), social: gv('ma1_social_now'), games: gv('ma1_games_now') };
+  } else {
+    S.mediaAudit.weeks[wk] = { tv: gv('maN_tv'), yt: gv('maN_yt'), social: gv('maN_social'), games: gv('maN_games') };
+  }
+  save();
+  closeMediaAudit();
+  toast('Week ' + wk + ' media audit saved! 📊');
+  sendMediaAuditToLeaders(wk);
+}
+
+function sendMediaAuditToLeaders(weekNum) {
+  var isCentralReady = CENTRAL_URL && CENTRAL_URL !== "YOUR_GAS_URL_HERE";
+  if (!isCentralReady) return;
+  var prof = S.profile || {};
+  var groupCode = (prof.groupCode||'').trim();
+  if (!groupCode) return;
+  var data = {
+    type: 'media_audit', program: 'ptf7', week: weekNum,
+    name: prof.name||'Unknown', email: prof.email||'',
+    leaderEmail: prof.leaderEmail||'', pastorEmail: prof.pastorEmail||'',
+    groupCode: groupCode, date: new Date().toLocaleDateString(),
+    goals: S.mediaAudit.goals || {}, weeksData: S.mediaAudit.weeks || {}
+  };
+  fetch(CENTRAL_URL, {
+    method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body: JSON.stringify(data)
+  }).catch(function(){});
+}
+
+function renderMediaAuditChart() {
+  if (!S.mediaAudit || !S.mediaAudit.weeks) { document.getElementById('mediaChartCard').style.display='none'; return; }
+  var weeks = Object.keys(S.mediaAudit.weeks).map(Number).sort(function(a,b){return a-b;});
+  if (!weeks.length) { document.getElementById('mediaChartCard').style.display='none'; return; }
+  document.getElementById('mediaChartCard').style.display='block';
+  var canvas = document.getElementById('mediaChart');
+  var goals = S.mediaAudit.goals || {};
+  var cats = [
+    { key:'tv',     label:'📺 TV',      color:'#6b55a0' },
+    { key:'yt',     label:'📱 YouTube', color:'#e67e22' },
+    { key:'social', label:'👍 Social',  color:'#2980b9' },
+    { key:'games',  label:'🎮 Games',   color:'#27ae60' }
+  ];
+  // Legend
+  document.getElementById('mediaLegend').innerHTML = cats.map(function(c){
+    var g = (goals[c.key] !== undefined && goals[c.key] > 0) ? ' (goal: '+goals[c.key]+'h)' : '';
+    return '<div style="display:flex;align-items:center;gap:5px;font-size:11px;">'
+      +'<span style="display:inline-block;width:18px;height:3px;background:'+c.color+';border-radius:2px;"></span>'
+      +'<span>'+c.label+g+'</span></div>';
+  }).join('');
+  // Canvas sizing
+  var dpr = window.devicePixelRatio || 1;
+  var w = Math.max(canvas.parentElement.clientWidth - 32, 200);
+  var h = 200;
+  canvas.style.width = w+'px'; canvas.style.height = h+'px';
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  var ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  var pL=34, pR=10, pT=12, pB=28;
+  var cW=w-pL-pR, cH=h-pT-pB;
+  // Max value
+  var maxVal=1;
+  weeks.forEach(function(wk){ var d=S.mediaAudit.weeks[wk]; if(d) cats.forEach(function(c){ if((d[c.key]||0)>maxVal) maxVal=d[c.key]; }); });
+  cats.forEach(function(c){ if((goals[c.key]||0)>maxVal) maxVal=goals[c.key]; });
+  maxVal=Math.ceil(maxVal)+0.5;
+  // Grid
+  ctx.strokeStyle='#e0d8f8'; ctx.lineWidth=1;
+  for(var i=0;i<=4;i++){
+    var yy=pT+cH-(i/4)*cH;
+    ctx.beginPath(); ctx.moveTo(pL,yy); ctx.lineTo(pL+cW,yy); ctx.stroke();
+    ctx.fillStyle='#999'; ctx.font='9px sans-serif'; ctx.textAlign='right';
+    ctx.fillText((i/4*maxVal).toFixed(1)+'h', pL-3, yy+3);
+  }
+  // Week labels
+  ctx.fillStyle='#888'; ctx.font='9px sans-serif'; ctx.textAlign='center';
+  weeks.forEach(function(wk,i){
+    var x=pL+(weeks.length<2?cW/2:i/(weeks.length-1)*cW);
+    ctx.fillText('W'+wk, x, h-pB+14);
+  });
+  // Goal dashed lines + actual lines
+  cats.forEach(function(c){
+    var gVal=goals[c.key]||0;
+    if(gVal>0){
+      var gy=pT+cH-(gVal/maxVal)*cH;
+      ctx.save(); ctx.strokeStyle=c.color; ctx.lineWidth=1.5;
+      ctx.setLineDash([4,4]); ctx.globalAlpha=0.45;
+      ctx.beginPath(); ctx.moveTo(pL,gy); ctx.lineTo(pL+cW,gy); ctx.stroke();
+      ctx.restore();
+    }
+    if(weeks.length>0){
+      ctx.save(); ctx.strokeStyle=c.color; ctx.lineWidth=2.5; ctx.lineJoin='round';
+      ctx.beginPath();
+      weeks.forEach(function(wk,i){
+        var val=(S.mediaAudit.weeks[wk]&&S.mediaAudit.weeks[wk][c.key])||0;
+        var x=pL+(weeks.length<2?cW/2:i/(weeks.length-1)*cW);
+        var y=pT+cH-(val/maxVal)*cH;
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      });
+      ctx.stroke(); ctx.restore();
+      // Dots
+      ctx.fillStyle=c.color;
+      weeks.forEach(function(wk,i){
+        var val=(S.mediaAudit.weeks[wk]&&S.mediaAudit.weeks[wk][c.key])||0;
+        var x=pL+(weeks.length<2?cW/2:i/(weeks.length-1)*cW);
+        var y=pT+cH-(val/maxVal)*cH;
+        ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fill();
+        // Value label on dot
+        ctx.fillStyle='white'; ctx.font='bold 8px sans-serif'; ctx.textAlign='center';
+        ctx.fillText(val+'h',x,y+3); ctx.fillStyle=c.color;
+      });
+    }
+  });
+}
+
 function showAssessment(week) {
   week = String(week);
   window._assessWeek = week;
@@ -1579,7 +1831,9 @@ function collectAssessmentData(week) {
     email:prof.email||"",
     leaderName:prof.leaderName||"", leaderEmail:prof.leaderEmail||"",
     pastorName:prof.pastorName||"", pastorEmail:prof.pastorEmail||"",
-    daysCompleted:S.done||[], program:"ptf7" };
+    daysCompleted:S.done||[], program:"ptf7",
+    mediaAuditGoals: (S.mediaAudit&&S.mediaAudit.goals)||{},
+    mediaAuditWeeks: (S.mediaAudit&&S.mediaAudit.weeks)||{} };
   if (week==="1") {
     d.finished_tri2=g("a1_finished_tri6"); d.different=g("a1_different");
     d.growth=g("a1_growth");
