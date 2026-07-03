@@ -502,26 +502,10 @@ function latestRow(name, data){
 
 // ── TABS ──
 // ── MEDIA AUDIT ──
-var mediaAuditRows = [];
-function loadMediaAudit(callback) {
-  if (!_db) { callback([]); return; }
-  var q;
-  if (cfg.role === 'admin') {
-    q = _db.collection('ptf_media_audit');
-  } else if (cfg.role === 'yp') {
-    q = _db.collection('ptf_media_audit').where('pastorEmail','==',cfg.email);
-  } else {
-    q = _db.collection('ptf_media_audit').where('leaderEmail','==',cfg.email);
-  }
-  q.get().then(function(snap){
-    mediaAuditRows = snap.docs.map(function(d){ return d.data(); });
-    callback(mediaAuditRows);
-  }).catch(function(){ callback([]); });
-}
-
 function renderMediaAudit(container) {
-  container.innerHTML = '<div style="padding:12px;text-align:center;color:#888;">Loading media audits…</div>';
-  loadMediaAudit(function(rows) {
+  // Data already loaded in global rows[] via existing onSnapshot
+  var maRows = rows.filter(function(r){ return r.type === 'media_audit' && r.program === 'ptf7'; });
+  (function(rows) {
     if (!rows.length) {
       container.innerHTML = '<div style="padding:24px;text-align:center;color:#888;">No media audit data yet.<br>Students submit on Day 7 of each week.</div>';
       return;
