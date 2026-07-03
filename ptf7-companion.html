@@ -1762,6 +1762,20 @@ function submitMediaAudit() {
     S.mediaAudit.weeks[wk] = { tv: gv('maN_tv'), yt: gv('maN_yt'), social: gv('maN_social'), games: gv('maN_games') };
   }
   save();
+  // Write to Firestore so leaders can see it
+  try {
+    var prof = S.profile || {};
+    var lid = ptfSanitize(prof.leaderEmail||prof.groupCode||'anon');
+    var nid = ptfSanitize(prof.name||'unknown');
+    var maData = {
+      name: prof.name||'', leaderEmail: prof.leaderEmail||'',
+      pastorEmail: prof.pastorEmail||'', groupCode: prof.groupCode||'',
+      program: 'ptf7',
+      goals: S.mediaAudit.goals||{}, weeks: S.mediaAudit.weeks||{},
+      lastUpdated: new Date().toISOString()
+    };
+    _db.collection('ptf_media_audit').doc(lid+'_'+nid).set(maData);
+  } catch(e){ console.warn('MA Firestore err',e); }
   closeMediaAudit();
   toast('Week ' + wk + ' media audit saved! 📊');
   sendMediaAuditToLeaders(wk);
