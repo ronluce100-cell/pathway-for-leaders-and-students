@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Shoreline Church | Leader Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--teal:#1f7fa6;--teal-dark:#0c3b53;--gold:#d9a857;--green:#1f7a5c;--red:#e74c3c;--bg:#eef3f5;--card:#fff;--muted:#5b7689;--border:#cfe0e6;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);min-height:100vh;padding-bottom:40px;}
+.hdr{background:linear-gradient(135deg,#06222f,#0c3b53);color:white;padding:16px 18px 14px;position:sticky;top:0;z-index:50;}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;}
+.hdr-title{font-size:17px;font-weight:900;font-family:Georgia,serif;}
+.hdr-sub{font-size:11px;opacity:.7;margin-top:2px;}
+.role-badge{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:.5px;}
+.btn{display:inline-block;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:opacity .15s;}
+.btn:active{opacity:.8;}
+.btn-primary{background:linear-gradient(135deg,#1f7fa6,#0c3b53);color:white;}
+.btn-outline{background:transparent;border:2px solid var(--teal);color:var(--teal);}
+.btn-sm{padding:8px 14px;font-size:12px;}
+.btn-gold{background:linear-gradient(135deg,#d9a857,#bb8a3f);color:#3a2800;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,50,60,.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+.modal-sheet{background:white;border-radius:22px;padding:26px 22px;max-width:440px;width:100%;max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:20px;font-weight:900;font-family:Georgia,serif;color:#0c3b53;margin-bottom:6px;}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.5;}
+.form-label{font-size:12px;font-weight:700;color:var(--teal-dark);letter-spacing:.5px;text-transform:uppercase;display:block;margin:14px 0 5px;}
+input,select,textarea{width:100%;padding:11px 14px;border:2px solid var(--border);border-radius:10px;font-size:14px;color:#06222f;background:#f7fafb;font-family:inherit;margin-bottom:4px;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);}
+textarea{min-height:80px;resize:vertical;}
+.role-selector{display:flex;gap:10px;margin-bottom:4px;}
+.role-option{flex:1;border:2px solid var(--border);border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center;transition:all .15s;}
+.role-option.selected{border-color:var(--teal);background:#e7eef2;}
+.role-option .role-icon{font-size:26px;margin-bottom:6px;}
+.role-option .role-name{font-size:13px;font-weight:800;color:#06222f;}
+.role-option .role-desc{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
+.tabs{display:flex;background:white;border-bottom:2px solid var(--border);overflow-x:auto;position:sticky;top:68px;z-index:40;}
+.tab{flex:1;min-width:70px;padding:11px 6px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;transition:all .15s;text-align:center;}
+.tab.active{color:var(--teal-dark);border-bottom-color:var(--teal);}
+.content{padding:16px;}
+.card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,80,90,.07);}
+.card-title{font-size:14px;font-weight:800;color:#06222f;margin-bottom:10px;}
+.stat-row{display:flex;gap:10px;margin-bottom:12px;}
+.stat-box{flex:1;background:linear-gradient(135deg,#e7eef2,#d7e3e8);border-radius:12px;padding:12px;text-align:center;}
+.stat-num{font-size:26px;font-weight:900;color:var(--teal-dark);}
+.stat-label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-top:2px;}
+.student-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.student-row:last-child{border-bottom:none;}
+.student-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#0c3b53);color:white;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;}
+.student-name{font-size:14px;font-weight:800;color:#06222f;}
+.student-meta{font-size:11px;color:var(--muted);}
+.progress-bar{height:6px;background:#e3eef1;border-radius:3px;margin-top:4px;}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--teal),#0c3b53);}
+.day-grid{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px;}
+.day-dot{width:18px;height:18px;border-radius:4px;background:#e3eef1;font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--muted);}
+.day-dot.done{background:var(--green);color:white;}
+.day-dot.today{background:var(--gold);color:#3a2800;}
+.assess-card{background:#f7fafb;border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:10px;}
+.assess-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
+.assess-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #eef3f5;font-size:13px;}
+.assess-row:last-child{border-bottom:none;}
+.assess-key{color:var(--muted);}
+.assess-val{font-weight:700;color:#06222f;text-align:right;max-width:180px;}
+.score-bar{display:flex;align-items:center;gap:6px;}
+.score-pip{width:8px;height:8px;border-radius:2px;background:#e3eef1;}
+.score-pip.filled{background:var(--teal);}
+.group-section{margin-bottom:16px;}
+.group-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(135deg,#06222f,#0c3b53);border-radius:14px;cursor:pointer;margin-bottom:8px;}
+.group-hdr-name{font-size:14px;font-weight:900;color:white;flex:1;}
+.group-hdr-meta{font-size:11px;color:rgba(255,255,255,.7);}
+.group-hdr-arrow{color:rgba(255,255,255,.7);transition:transform .2s;}
+.group-body{display:none;}
+.group-body.open{display:block;}
+.prayer-card{background:linear-gradient(135deg,#fff9ef,#fbeed2);border:1px solid #d9a857;border-radius:12px;padding:14px;margin-bottom:10px;}
+.prayer-name{font-size:13px;font-weight:800;color:#5a3800;margin-bottom:4px;}
+.prayer-text{font-size:13px;color:#7a5a00;line-height:1.5;}
+.prayer-week{font-size:10px;color:#9a7a20;margin-top:4px;}
+.empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty-icon{font-size:48px;margin-bottom:12px;}
+.empty-text{font-size:15px;font-weight:700;color:#06222f;margin-bottom:6px;}
+.empty-sub{font-size:13px;line-height:1.5;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#06222f;color:white;padding:12px 22px;border-radius:22px;font-size:14px;font-weight:700;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+.settings-overlay{position:fixed;inset:0;background:rgba(0,50,60,.5);z-index:100;display:none;align-items:flex-end;justify-content:center;}
+.settings-sheet{background:white;border-radius:22px 22px 0 0;padding:24px 20px 36px;width:100%;max-width:480px;}
+.code-display{background:linear-gradient(135deg,#e7eef2,#d7e3e8);border-radius:12px;padding:16px;text-align:center;margin:12px 0;}
+.code-val{font-size:32px;font-weight:900;letter-spacing:6px;color:#0c3b53;font-family:monospace;}
+.week-section{margin-bottom:20px;}
+.week-label{font-size:13px;font-weight:800;color:var(--teal-dark);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--border);}
+.import-banner{background:linear-gradient(135deg,#06222f,#0c3b53);color:white;padding:14px 16px;border-radius:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+
+/* GAMIFICATION DASHBOARD */
+.streak-chip{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#ff6b35,#ff9500);color:white;border-radius:20px;padding:3px 9px;font-size:11px;font-weight:800;}
+.xp-chip{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#0c3b53,#0c3b53);color:white;border-radius:20px;padding:3px 9px;font-size:11px;font-weight:700;}
+.badge-chip{display:inline-flex;align-items:center;gap:3px;background:#fffbee;border:1.5px solid #d9a857;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700;color:#7a5c00;}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.on-fire-tag{background:#fff3e0;border:1.5px solid #ff9500;border-radius:8px;padding:2px 7px;font-size:10px;font-weight:800;color:#e65100;}
+.at-risk-tag{background:#fce4ec;border:1.5px solid #e91e63;border-radius:8px;padding:2px 7px;font-size:10px;font-weight:800;color:#880e4f;}
+.leaderboard-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.leaderboard-row:last-child{border-bottom:none;}
+.lb-rank{font-size:22px;width:30px;text-align:center;}
+.lb-name{flex:1;font-weight:700;font-size:14px;color:var(--teal-dark);}
+.lb-streak{display:flex;align-items:center;gap:4px;font-size:22px;font-weight:900;color:#ff6b35;}
+</style>
+</head>
+<body>
+
+<!-- SETUP MODAL -->
+<div id="setupModal" style="display:none;">
+<div class="modal-overlay">
+<div class="modal-sheet">
+  <div style="text-align:center;margin-bottom:18px;">
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMGEwYTBjIi8+PHJlY3QgeD0iMjMiIHk9IjI5IiB3aWR0aD0iMzQiIGhlaWdodD0iMTEiIHJ4PSIyIiBmaWxsPSIjZmZmZmZmIi8+PHJlY3QgeD0iMjMiIHk9IjQ2IiB3aWR0aD0iNTQiIGhlaWdodD0iMTEiIHJ4PSIyIiBmaWxsPSIjZmZmZmZmIi8+PHJlY3QgeD0iMjMiIHk9IjYzIiB3aWR0aD0iNTQiIGhlaWdodD0iMTEiIHJ4PSIyIiBmaWxsPSIjZmZmZmZmIi8+PC9zdmc+" style="width:48px;height:48px;border-radius:11px;margin-bottom:8px;"/>
+    <div class="modal-title">Shoreline Leader Dashboard</div>
+    <p class="modal-sub">Shoreline Jesus Follower • Set up your account to begin tracking your group.</p>
+  </div>
+  <label class="form-label">Your Name</label>
+  <input type="text" id="sName" placeholder="First and last name"/>
+  <label class="form-label">Your Email</label>
+  <input type="email" id="sEmail" placeholder="your@email.com"/>
+  <label class="form-label">Your Role</label>
+  <div class="role-selector">
+    <div class="role-option selected" id="roleCGL" onclick="selectRole('cgl')">
+      <div class="role-icon">👥</div>
+      <div class="role-name">Connect Group Leader</div>
+      <div class="role-desc">See your group members only</div>
+    </div>
+    <div class="role-option" id="roleYP" onclick="selectRole('yp')">
+      <div class="role-icon">🏛️</div>
+      <div class="role-name">Youth Pastor</div>
+      <div class="role-desc">See all groups & leaders</div>
+    </div>
+  </div>
+  <div id="groupNameWrap">
+    <label class="form-label">Your Group Name</label>
+    <input type="text" id="sGroup" placeholder="e.g. Fire Squad, Tuesday Night..."/>
+  </div>
+  <button class="btn btn-primary" style="width:100%;margin-top:20px;padding:15px;" onclick="startSetup()">Create My Dashboard →</button>
+</div>
+</div>
+</div>
+
+<!-- SETTINGS PANEL -->
+<div class="settings-overlay" id="settingsOverlay" onclick="closeSettings(event)">
+<div class="settings-sheet">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div style="font-size:17px;font-weight:900;color:#06222f;">⚙️ Settings</div>
+    <button class="btn btn-sm" style="border:none;background:#eef3f5;color:#0c3b53;" onclick="closeSettings()">Done</button>
+  </div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:4px;">Logged in as</div>
+  <div style="font-size:15px;font-weight:800;color:#06222f;" id="settingsName">—</div>
+  <div style="font-size:12px;color:var(--muted);" id="settingsEmail">—</div>
+  <div style="font-size:12px;color:var(--muted);margin-top:2px;" id="settingsRole">—</div>
+  <div id="settingsCodeWrap">
+    <div class="form-label">Your Group Code</div>
+    <div class="code-display">
+      <div class="code-val" id="settingsCode">——</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;">Share this code with your group members</div>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="copyCode()" style="width:100%;margin-bottom:8px;">📋 Copy Group Code</button>
+  </div>
+  <button class="btn btn-sm" style="width:100%;background:#fee;color:#c0392b;border:none;margin-top:8px;" onclick="resetAll()">Reset Dashboard</button>
+</div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none;">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div>
+        <div class="hdr-title" style="display:flex;align-items:center;gap:8px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMGEwYTBjIi8+PHJlY3QgeD0iMjMiIHk9IjI5IiB3aWR0aD0iMzQiIGhlaWdodD0iMTEiIHJ4PSIyIiBmaWxsPSIjZmZmZmZmIi8+PHJlY3QgeD0iMjMiIHk9IjQ2IiB3aWR0aD0iNTQiIGhlaWdodD0iMTEiIHJ4PSIyIiBmaWxsPSIjZmZmZmZmIi8+PHJlY3QgeD0iMjMiIHk9IjYzIiB3aWR0aD0iNTQiIGhlaWdodD0iMTEiIHJ4PSIyIiBmaWxsPSIjZmZmZmZmIi8+PC9zdmc+" style="width:22px;height:22px;border-radius:5px;"/>Shoreline Leader Dashboard</div>
+        <div class="hdr-sub" id="leaderNameDisplay">—</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="role-badge" id="roleBadgeDisplay">Leader</span>
+        <button onclick="openSettings()" style="background:rgba(255,255,255,.15);border:none;color:white;border-radius:50%;width:34px;height:34px;font-size:16px;cursor:pointer;">⚙️</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabBar">
+    <button class="tab active" onclick="renderTab('overview')" id="tab-overview">📊 Overview</button>
+    <button class="tab" onclick="renderTab('students')" id="tab-students">👥 Students</button>
+    <button class="tab" onclick="renderTab('prayer')" id="tab-prayer">🙏 Prayer</button>
+    <button class="tab" onclick="renderTab('trends')" id="tab-trends">📈 Trends</button>
+  </div>
+
+  <div class="content" id="mainContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var CKEY = "shoreline_ldr_cfg1";
+var DKEY = "shoreline_ldr_dat1";
+var cfg = {};
+var rows = [];
+var selectedRole = "cgl";
+var activeTab = "overview";
+
+// Load state
+try { cfg = JSON.parse(localStorage.getItem(CKEY)||"{}"); } catch(e){}
+try { rows = JSON.parse(localStorage.getItem(DKEY)||"[]"); } catch(e){}
+
+// URL import (serverless student data)
+(function(){
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var ptf = params.get("ptf");
+    if (ptf) {
+      var d = JSON.parse(decodeURIComponent(escape(atob(ptf))));
+      if (d && d.name) {
+        var key = d.name+"|"+d.week;
+        var idx = rows.findIndex(function(r){ return r.name+"|"+r.week === key; });
+        if (idx >= 0) rows[idx] = d; else rows.push(d);
+        try { localStorage.setItem(DKEY, JSON.stringify(rows)); } catch(ex){}
+        history.replaceState(null, "", window.location.pathname);
+        window._ptfImport = d;
+      }
+    }
+  } catch(e){}
+})();
+
+// Paste import: leader pastes a big URL from chat/email
+window.addEventListener("paste", function(e){
+  var text = (e.clipboardData||window.clipboardData).getData("text")||"";
+  var m = text.match(/[?&]ptf=([A-Za-z0-9+/=]+)/);
+  if (!m) return;
+  try {
+    var d = JSON.parse(decodeURIComponent(escape(atob(m[1].trim()))));
+    if (!d||!d.name) return;
+    var key = d.name+"|"+d.week;
+    var idx = rows.findIndex(function(r){ return r.name+"|"+r.week===key; });
+    if (idx>=0) rows[idx]=d; else rows.push(d);
+    try{localStorage.setItem(DKEY, JSON.stringify(rows));}catch(ex){}
+    window._ptfImport = d;
+    toast("✅ "+d.name+"'s Week "+d.week+" imported!");
+    renderTab(activeTab);
+  } catch(ex){}
+});
+
+// ── INIT ──
+window.onload = function(){
+  if (!cfg.done) {
+    document.getElementById("setupModal").style.display = "flex";
+  } else {
+    startApp();
+  }
+  if (window._ptfImport) {
+    setTimeout(function(){
+      toast("✅ "+(window._ptfImport.name||"Student")+"'s Week "+window._ptfImport.week+" assessment imported!");
+    }, 600);
+  }
+};
+
+function selectRole(r){
+  selectedRole = r;
+  document.getElementById("roleCGL").classList.toggle("selected", r==="cgl");
+  document.getElementById("roleYP").classList.toggle("selected", r==="yp");
+  document.getElementById("groupNameWrap").style.display = r==="cgl" ? "block" : "none";
+}
+
+function clientGroupCode(group, email){
+  var s = (group+email).toLowerCase();
+  var h = 5381;
+  for(var i=0;i<s.length;i++){ h=((h<<5)+h)^s.charCodeAt(i); h=h>>>0; }
+  var C="ABCDEFGHJKLMNPQRSTUVWXYZ23456789", out="";
+  for(var i=0;i<6;i++){out+=C[h%C.length];h=Math.floor(h/C.length);}
+  return out;
+}
+
+function startSetup(){
+  var name = document.getElementById("sName").value.trim();
+  var email = document.getElementById("sEmail").value.trim();
+  var group = selectedRole==="cgl" ? document.getElementById("sGroup").value.trim() : "";
+  if (!name||!email){ toast("Please fill in name and email"); return; }
+  var code = selectedRole==="cgl" ? clientGroupCode(group, email) : "";
+  cfg = {name,email,role:selectedRole,group,code,done:true};
+  try{localStorage.setItem(CKEY, JSON.stringify(cfg));}catch(e){}
+  document.getElementById("setupModal").style.display = "none";
+  startApp();
+}
+
+function startApp(){
+  document.getElementById("app").style.display = "block";
+  document.getElementById("leaderNameDisplay").textContent = cfg.name + " · " + (cfg.role==="yp"?"Youth Pastor":"Connect Group Leader");
+  document.getElementById("roleBadgeDisplay").textContent = cfg.role==="yp" ? "Youth Pastor" : "CGL";
+  if (cfg.role === "yp") {
+    // YP gets Groups tab instead of just Students
+    document.getElementById("tab-students").textContent = "🏘️ Groups";
+  }
+  renderTab("overview");
+}
+
+// ── DATA HELPERS ──
+function getMyRows(){
+  if (cfg.role==="yp") return rows;
+  return rows.filter(function(r){
+    if (r.leaderEmail && cfg.email) return r.leaderEmail.toLowerCase()===cfg.email.toLowerCase();
+    if (r.groupCode && cfg.code) return r.groupCode===cfg.code;
+    return true; // include untagged if CGL (they may have old data)
+  });
+}
+
+function getUniqueStudents(data){
+  var seen={}, out=[];
+  data.forEach(function(r){
+    if (!seen[r.name]){ seen[r.name]=true; out.push(r.name); }
+  });
+  return out;
+}
+
+function getStudentRows(name, data){ return (data||rows).filter(function(r){return r.name===name;}); }
+
+function getGroupsByLeader(){
+  var groups={};
+  rows.forEach(function(r){
+    var key = (r.leaderEmail||r.leaderName||"Unassigned");
+    if (!groups[key]) groups[key]={leaderName:r.leaderName||r.leaderEmail||"Unassigned",leaderEmail:r.leaderEmail||"",members:{}};
+    if (!groups[key].members[r.name]) groups[key].members[r.name]=[];
+    groups[key].members[r.name].push(r);
+  });
+  return groups;
+}
+
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function completionPct(daysCompleted){
+  if (!daysCompleted||!daysCompleted.length) return 0;
+  return Math.round(daysCompleted.length/84*100);
+}
+
+function latestRow(name, data){
+  var rs = getStudentRows(name, data);
+  return rs.sort(function(a,b){ return Number(b.week)-Number(a.week); })[0]||null;
+}
+
+// ── TABS ──
+function renderTab(tab){
+  activeTab = tab;
+  document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
+  var el = document.getElementById("tab-"+tab);
+  if (el) el.classList.add("active");
+  var c = document.getElementById("mainContent");
+  if (tab==="overview") c.innerHTML = cfg.role==="yp" ? renderYPOverview() : renderCGLOverview();
+  else if (tab==="students") c.innerHTML = cfg.role==="yp" ? renderYPGroups() : renderCGLStudents();
+  else if (tab==="prayer") c.innerHTML = renderPrayer();
+  else if (tab==="trends") c.innerHTML = renderTrends();
+}
+
+// ── CGL OVERVIEW ──
+function renderCGLOverview(){
+  var data = getMyRows();
+  var students = getUniqueStudents(data);
+  var totalDays = 0, totalRows = 0, onTrack = 0;
+  students.forEach(function(name){
+    var lr = latestRow(name, data);
+    if (!lr) return;
+    var pct = completionPct(lr.daysCompleted);
+    totalDays += (lr.daysCompleted||[]).length;
+    totalRows++;
+    if (pct >= 60) onTrack++;
+  });
+  var avgDays = totalRows ? Math.round(totalDays/totalRows) : 0;
+
+  var html = "";
+  if (window._ptfImport) {
+    html += '<div class="import-banner"><div style="font-size:24px;">✅</div><div><div style="font-weight:800;font-size:14px;">'+esc(window._ptfImport.name)+" imported!</div><div style='font-size:12px;opacity:.8;'>Week "+window._ptfImport.week+" check-in received.</div></div></div>";
+  }
+
+  html += '<div class="stat-row">'
+    +'<div class="stat-box"><div class="stat-num">'+students.length+'</div><div class="stat-label">Students</div></div>'
+    +'<div class="stat-box"><div class="stat-num">'+avgDays+'</div><div class="stat-label">Avg Days</div></div>'
+    +'<div class="stat-box"><div class="stat-num">'+onTrack+'</div><div class="stat-label">On Track</div></div>'
+    +'</div>';
+
+  // Gamification stats
+  var onFire=0, noStreak=0;
+  var leaderboard=[];
+  students.forEach(function(name){
+    var lr=latestRow(name,data);
+    var streak=lr&&lr.streak?Number(lr.streak):0;
+    var xp=lr&&lr.xp?Number(lr.xp):0;
+    if(streak>=7) onFire++;
+    if(streak===0) noStreak++;
+    leaderboard.push({name:name,streak:streak,xp:xp,level:lr&&lr.level||''});
+  });
+  leaderboard.sort(function(a,b){return b.streak-a.streak;});
+  var top5=leaderboard.slice(0,5);
+  var rankEmoji=["🥇","🥈","🥉","4️⃣","5️⃣"];
+  if(students.length>0&&(onFire>0||noStreak>0)){
+    html += '<div class="stat-row">'
+      +'<div class="stat-box"><div class="stat-num" style="color:#ff6b35;">'+onFire+'</div><div class="stat-label">🔥 On Fire</div></div>'
+      +'<div class="stat-box"><div class="stat-num" style="color:#e91e63;">'+noStreak+'</div><div class="stat-label">⚠️ No Streak</div></div>'
+      +'</div>';
+  }
+  if(top5.length>0&&top5[0].streak>0){
+    html += '<div class="card"><div class="card-title">🏆 Streak Leaderboard</div>';
+    top5.forEach(function(s,i){
+      if(!s.streak) return;
+      html += '<div class="leaderboard-row">'
+        +'<div class="lb-rank">'+rankEmoji[i]+'</div>'
+        +'<div class="lb-name">'+esc(s.name)+(s.level?'<br><span style="font-size:10px;color:var(--muted);font-weight:400;">'+esc(s.level)+'</span>':'')+'</div>'
+        +'<div style="text-align:right;">'
+          +'<div class="lb-streak">'+s.streak+' <span style="font-size:16px;">🔥</span></div>'
+          +'<div style="font-size:10px;color:var(--muted);">day streak</div>'
+          +(s.xp?'<div style="font-size:10px;color:var(--muted);">'+s.xp+' XP</div>':'')
+        +'</div></div>';
+    });
+    html += '</div>';
+  }
+  if (!students.length){
+    html += '<div class="empty"><div class="empty-icon">📬</div><div class="empty-text">No students yet</div><div class="empty-sub">Students send you their check-in link after completing each week\'s assessment. When they tap "Send to My Leader," their data will appear here.<br><br>You can also paste a student link anywhere on this page.</div></div>';
+    return html;
+  }
+
+  html += '<div class="card"><div class="card-title">📊 Student Progress</div>';
+  students.forEach(function(name){
+    var lr = latestRow(name, data);
+    var pct = completionPct(lr&&lr.daysCompleted);
+    var days = (lr&&lr.daysCompleted)||[];
+    var rowStreak=lr&&lr.streak?Number(lr.streak):0;
+    var rowXp=lr&&lr.xp?Number(lr.xp):0;
+    html += '<div class="student-row">'
+      +'<div class="student-avatar">'+esc(name[0]||"?")+'</div>'
+      +'<div style="flex:1;">'
+      +'<div class="student-name">'+esc(name)+'</div>'
+      +'<div class="student-meta">'+days.length+' / 84 days • '+pct+'% complete</div>'
+      +'<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div>'
+      +'<div class="chip-row">'
+        +(rowStreak>0?'<span class="streak-chip">🔥 '+rowStreak+' streak</span>':'<span class="at-risk-tag">No Streak</span>')
+        +(rowXp>0?'<span class="xp-chip">⚡ '+rowXp+' XP</span>':'')
+        +(rowStreak>=7?'<span class="on-fire-tag">On Fire!</span>':'')
+      +'</div>'
+      +'</div><div style="font-size:20px;">'+(pct>=80?"🌟":pct>=50?"🔥":pct>0?"📖":"⏳")+'</div>'
+      +'</div>';
+  });
+  html += '</div>';
+
+  // Latest prayer requests
+  var prayers = data.filter(function(r){ return r.prayer; }).slice(-3).reverse();
+  if (prayers.length){
+    html += '<div class="card"><div class="card-title">🙏 Latest Prayer Requests</div>';
+    prayers.forEach(function(r){
+      html += '<div class="prayer-card"><div class="prayer-name">'+esc(r.name)+'<span style="font-weight:400;color:#7a5a00;"> · Week '+r.week+'</span></div><div class="prayer-text">'+esc(r.prayer)+'</div></div>';
+    });
+    html += '</div>';
+  }
+
+  return html;
+}
+
+// ── CGL STUDENTS ──
+function renderCGLStudents(){
+  var data = getMyRows();
+  var students = getUniqueStudents(data);
+  if (!students.length) return '<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">No students yet</div><div class="empty-sub">Students will appear here after they send you their assessment link.</div></div>';
+
+  var html = "";
+  students.forEach(function(name){
+    var allRows = getStudentRows(name, data).sort(function(a,b){return Number(a.week)-Number(b.week);});
+    var lr = allRows[allRows.length-1];
+    var days = (lr&&lr.daysCompleted)||[];
+    var pct = completionPct(lr&&lr.daysCompleted);
+
+    var cardStreak=lr&&lr.streak?Number(lr.streak):0;
+    var cardXp=lr&&lr.xp?Number(lr.xp):0;
+    html += '<div class="card">';
+    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
+      +'<div class="student-avatar">'+esc(name[0])+'</div>'
+      +'<div style="flex:1;"><div class="student-name">'+esc(name)+'</div>'
+      +'<div class="student-meta">'+(lr&&lr.age?lr.age+' yrs • ':'')+esc((lr&&lr.group)||"")+'</div>'
+      +'<div class="chip-row">'
+        +(cardStreak>0?'<span class="streak-chip">🔥 '+cardStreak+' streak</span>':'<span class="at-risk-tag">No Streak</span>')
+        +(cardXp>0?'<span class="xp-chip">⚡ '+cardXp+' XP</span>':'')
+        +(lr&&lr.level?'<span class="badge-chip">'+esc(lr.level)+'</span>':'')
+        +(lr&&lr.badges?'<span class="badge-chip">🏅 '+lr.badges+' badges</span>':'')
+        +(cardStreak>=7?'<span class="on-fire-tag">On Fire!</span>':'')
+      +'</div></div>'
+      +'<div style="text-align:right;"><div style="font-size:22px;font-weight:900;color:var(--teal-dark);">'+pct+'%</div><div style="font-size:10px;color:var(--muted);">complete</div></div>'
+      +'</div>';
+
+    // Day grid (84 days, 12 weeks × 7)
+    html += '<div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;">📅 Daily Reading Progress</div>';
+    html += '<div class="day-grid">';
+    for (var i=0;i<84;i++){
+      var done = days.indexOf(i)>=0;
+      var weekNum = Math.floor(i/7)+1;
+      if (i%7===0) html += '<div style="width:100%;font-size:9px;color:var(--muted);font-weight:700;padding:2px 0;">W'+weekNum+'</div>';
+      html += '<div class="day-dot'+(done?" done":"")+'" title="Day '+(i+1)+'">'+(done?"✓":"")+'</div>';
+    }
+    html += '</div>';
+
+    // Assessment responses by week
+    allRows.forEach(function(r){
+      html += '<div class="assess-card"><div class="assess-label">Week '+r.week+' Check-In • '+esc(r.date||"")+'</div>';
+      var fields = [
+        ["Growth Stage",r.growth||r.growth_now],["Hopes",r.hope],["Prayer Request",r.prayer],
+        ["Quiet Time",r.qt?r.qt+"/10":null],["Hearing Jesus",r.hear?r.hear+"/10":null],
+        ["Growing Closer",r.grow?r.grow+"/10":null],["Group Connection",r.group_close?r.group_close+"/10":null],
+        ["Trust in Group",r.trust?r.trust+"/10":null],["Leader Qualities",r.ldr_qualities?r.ldr_qualities+"/10":null],
+        ["Likely to Finish",r.likely?r.likely+"/10":null],["Big Win",r.issue],
+        ["Tri 2 Sign-up",r.tri2]
+      ];
+      fields.forEach(function(f){
+        if (!f[1]) return;
+        html += '<div class="assess-row"><span class="assess-key">'+f[0]+'</span><span class="assess-val">'+esc(f[1])+'</span></div>';
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  return html;
+}
+
+// ── YP OVERVIEW ──
+function renderYPOverview(){
+  var groups = getGroupsByLeader();
+  var groupKeys = Object.keys(groups);
+  var totalStudents = 0, totalComplete = 0;
+  groupKeys.forEach(function(k){
+    var members = Object.keys(groups[k].members);
+    totalStudents += members.length;
+    members.forEach(function(name){
+      var rs = groups[k].members[name];
+      var lr = rs.sort(function(a,b){return Number(b.week)-Number(a.week);})[0];
+      if (completionPct(lr&&lr.daysCompleted)>=80) totalComplete++;
+    });
+  });
+
+  var html = "";
+  if (window._ptfImport) {
+    html += '<div class="import-banner"><div style="font-size:24px;">✅</div><div><div style="font-weight:800;font-size:14px;">'+esc(window._ptfImport.name)+" imported!</div><div style='font-size:12px;opacity:.8;'>Week "+window._ptfImport.week+" from group: "+esc(window._ptfImport.leaderName||"Unknown group")+"</div></div></div>";
+  }
+
+  html += '<div class="stat-row">'
+    +'<div class="stat-box"><div class="stat-num">'+groupKeys.length+'</div><div class="stat-label">Groups</div></div>'
+    +'<div class="stat-box"><div class="stat-num">'+totalStudents+'</div><div class="stat-label">Students</div></div>'
+    +'<div class="stat-box"><div class="stat-num">'+totalComplete+'</div><div class="stat-label">80%+ Done</div></div>'
+    +'</div>';
+
+  if (!groupKeys.length){
+    html += '<div class="empty"><div class="empty-icon">🏘️</div><div class="empty-text">No data yet</div><div class="empty-sub">As students send their check-ins to their Connect Group Leaders, and leaders share links with you, all groups will appear here organized by leader.</div></div>';
+    return html;
+  }
+
+  // Group summary cards
+  html += '<div class="card"><div class="card-title">🏘️ Groups Summary</div>';
+  groupKeys.forEach(function(k){
+    var g = groups[k];
+    var members = Object.keys(g.members);
+    var avgPct = 0;
+    members.forEach(function(name){
+      var lr = g.members[name].sort(function(a,b){return Number(b.week)-Number(a.week);})[0];
+      avgPct += completionPct(lr&&lr.daysCompleted);
+    });
+    avgPct = members.length ? Math.round(avgPct/members.length) : 0;
+    html += '<div class="student-row">'
+      +'<div class="student-avatar" style="background:linear-gradient(135deg,#0c3b53,#06222f);">👥</div>'
+      +'<div style="flex:1;"><div class="student-name">'+esc(g.leaderName)+'\'s Group</div>'
+      +'<div class="student-meta">'+members.length+' students · '+avgPct+'% avg completion</div>'
+      +'<div class="progress-bar"><div class="progress-fill" style="width:'+avgPct+'%"></div></div>'
+      +'</div></div>';
+  });
+  html += '</div>';
+
+  // All prayer requests
+  var prayers = [];
+  rows.forEach(function(r){ if (r.prayer) prayers.push(r); });
+  if (prayers.length){
+    html += '<div class="card"><div class="card-title">🙏 All Prayer Requests</div>';
+    prayers.slice(-5).reverse().forEach(function(r){
+      html += '<div class="prayer-card"><div class="prayer-name">'+esc(r.name)+'<span style="font-weight:400;color:#7a5a00;"> · '+(r.leaderName||"Unknown Group")+'</span></div><div class="prayer-text">'+esc(r.prayer)+'</div><div class="prayer-week">Week '+r.week+'</div></div>';
+    });
+    html += '</div>';
+  }
+
+  return html;
+}
+
+// ── YP GROUPS ──
+function renderYPGroups(){
+  var groups = getGroupsByLeader();
+  var groupKeys = Object.keys(groups);
+  if (!groupKeys.length) return '<div class="empty"><div class="empty-icon">🏘️</div><div class="empty-text">No groups yet</div><div class="empty-sub">Data will appear here as students share their check-in links with their leaders, who forward them to you.</div></div>';
+
+  var html = "";
+  groupKeys.forEach(function(k, gi){
+    var g = groups[k];
+    var members = Object.keys(g.members);
+    var id = "grp-"+gi;
+
+    html += '<div class="group-section">';
+    html += '<div class="group-hdr" onclick="toggleGroup(\''+id+'\')">'
+      +'<div style="font-size:22px;">👥</div>'
+      +'<div style="flex:1;"><div class="group-hdr-name">'+esc(g.leaderName||"Unassigned")+'</div>'
+      +'<div class="group-hdr-meta">'+members.length+' students'+(g.leaderEmail?' · '+esc(g.leaderEmail):'')+'</div>'
+      +'</div><div class="group-hdr-arrow" id="'+id+'-arr">▼</div>'
+      +'</div>';
+    html += '<div class="group-body" id="'+id+'">';
+
+    members.forEach(function(name){
+      var allRows = g.members[name].sort(function(a,b){return Number(a.week)-Number(b.week);});
+      var lr = allRows[allRows.length-1];
+      var days = (lr&&lr.daysCompleted)||[];
+      var pct = completionPct(lr&&lr.daysCompleted);
+
+      html += '<div class="card">';
+      html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
+        +'<div class="student-avatar">'+esc(name[0])+'</div>'
+        +'<div style="flex:1;"><div class="student-name">'+esc(name)+'</div>'
+        +'<div class="student-meta">'+(lr&&lr.age?lr.age+' yrs · ':'')+esc((lr&&lr.group)||"")+'</div></div>'
+        +'<div style="text-align:right;"><div style="font-size:20px;font-weight:900;color:var(--teal-dark);">'+pct+'%</div></div>'
+        +'</div>';
+
+      // Day grid
+      html += '<div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;">📅 Reading Progress ('+days.length+'/84 days)</div>';
+      html += '<div class="day-grid">';
+      for (var i=0;i<84;i++){
+        var done = days.indexOf(i)>=0;
+        if (i%7===0) html += '<div style="width:100%;font-size:9px;color:var(--muted);font-weight:700;padding:2px 0;">W'+(Math.floor(i/7)+1)+'</div>';
+        html += '<div class="day-dot'+(done?" done":"")+'" title="Day '+(i+1)+'">'+(done?"✓":"")+'</div>';
+      }
+      html += '</div>';
+
+      // All assessment responses
+      allRows.forEach(function(r){
+        html += '<div class="assess-card"><div class="assess-label">Week '+r.week+' Check-In · '+esc(r.date||"")+'</div>';
+        var fields = [
+          ["Growth Stage",r.growth||r.growth_now],["Hopes",r.hope],["Prayer Request",r.prayer],
+          ["Quiet Time",r.qt?r.qt+"/10":null],["Hearing Jesus",r.hear?r.hear+"/10":null],
+          ["Growing Closer",r.grow?r.grow+"/10":null],["Group Connection",r.group_close?r.group_close+"/10":null],
+          ["Trust in Group",r.trust?r.trust+"/10":null],["Leader Qualities",r.ldr_qualities?r.ldr_qualities+"/10":null],
+          ["Likely to Finish",r.likely?r.likely+"/10":null],["Big Win",r.issue],["Tri 2",r.tri2]
+        ];
+        fields.forEach(function(f){
+          if (!f[1]) return;
+          html += '<div class="assess-row"><span class="assess-key">'+f[0]+'</span><span class="assess-val">'+esc(f[1])+'</span></div>';
+        });
+        html += '</div>';
+      });
+      html += '</div>'; // card
+    });
+
+    html += '</div>'; // group-body
+    html += '</div>'; // group-section
+  });
+  return html;
+}
+
+function toggleGroup(id){
+  var el = document.getElementById(id);
+  var arr = document.getElementById(id+"-arr");
+  if (!el) return;
+  var open = el.classList.toggle("open");
+  if (arr) arr.textContent = open ? "▲" : "▼";
+}
+
+// ── PRAYER ──
+function renderPrayer(){
+  var data = cfg.role==="yp" ? rows : getMyRows();
+  var prayers = data.filter(function(r){ return r.prayer; });
+  if (!prayers.length) return '<div class="empty"><div class="empty-icon">🙏</div><div class="empty-text">No prayer requests yet</div><div class="empty-sub">Prayer requests from student check-ins will appear here.</div></div>';
+
+  // Group by week
+  var byWeek = {};
+  prayers.forEach(function(r){
+    var wk = "Week "+r.week;
+    if (!byWeek[wk]) byWeek[wk]=[];
+    byWeek[wk].push(r);
+  });
+  var html = "";
+  Object.keys(byWeek).sort().reverse().forEach(function(wk){
+    html += '<div class="week-section"><div class="week-label">'+wk+'</div>';
+    byWeek[wk].forEach(function(r){
+      html += '<div class="prayer-card">'
+        +'<div class="prayer-name">'+esc(r.name)+(cfg.role==="yp"&&r.leaderName?'<span style="font-weight:400;color:#7a5a00;"> · '+esc(r.leaderName)+'</span>':'')+'</div>'
+        +'<div class="prayer-text">'+esc(r.prayer)+'</div>'
+        +'<div class="prayer-week">'+esc(r.date||"")+'</div>'
+        +'</div>';
+    });
+    html += '</div>';
+  });
+  return html;
+}
+
+// ── TRENDS ──
+function renderTrends(){
+  var data = cfg.role==="yp" ? rows : getMyRows();
+  var students = getUniqueStudents(data);
+  if (!students.length) return '<div class="empty"><div class="empty-icon">📈</div><div class="empty-text">No trend data yet</div><div class="empty-sub">Charts will appear as students submit their weekly check-ins.</div></div>';
+
+  // Completion by week
+  var weekCompletion = {1:0,4:0,8:0,12:0};
+  var weekCount = {1:0,4:0,8:0,12:0};
+  data.forEach(function(r){
+    var wk = Number(r.week);
+    if (weekCompletion[wk]!==undefined){
+      if (r.likely) weekCompletion[wk]+=Number(r.likely);
+      weekCount[wk]++;
+    }
+  });
+
+  var html = '<div class="card"><div class="card-title">📊 Completion by Week</div>';
+
+  // Completion heat
+  var wks = [1,4,8,12];
+  wks.forEach(function(wk){
+    var count = data.filter(function(r){return Number(r.week)===wk;}).length;
+    var pct = students.length ? Math.round(count/students.length*100) : 0;
+    html += '<div style="margin-bottom:12px;">'
+      +'<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">'
+      +'<span style="font-weight:700;color:#06222f;">Week '+wk+' Check-In</span>'
+      +'<span style="color:var(--muted);">'+count+' / '+students.length+'</span>'
+      +'</div>'
+      +'<div class="progress-bar" style="height:10px;"><div class="progress-fill" style="width:'+pct+'%;height:100%;"></div></div>'
+      +'</div>';
+  });
+  html += '</div>';
+
+  // Avg motivation across weeks
+  html += '<div class="card"><div class="card-title">💪 Avg Motivation to Finish (by week)</div>';
+  wks.forEach(function(wk){
+    var wkRows = data.filter(function(r){return Number(r.week)===wk&&r.likely;});
+    if (!wkRows.length){ html += '<div style="color:var(--muted);font-size:13px;padding:4px 0;">Week '+wk+': no data</div>'; return; }
+    var avg = wkRows.reduce(function(s,r){return s+Number(r.likely);},0)/wkRows.length;
+    var pct = avg/10*100;
+    html += '<div style="margin-bottom:12px;">'
+      +'<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">'
+      +'<span style="font-weight:700;color:#06222f;">Week '+wk+'</span>'
+      +'<span style="color:var(--muted);">'+avg.toFixed(1)+' / 10</span>'
+      +'</div>'
+      +'<div class="progress-bar" style="height:10px;"><div class="progress-fill" style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,#d9a857,#bb8a3f);"></div></div>'
+      +'</div>';
+  });
+  html += '</div>';
+
+  // Growth stages
+  var growthCounts = {};
+  data.forEach(function(r){ if(r.growth){growthCounts[r.growth]=(growthCounts[r.growth]||0)+1;} });
+  var gkeys = Object.keys(growthCounts);
+  if (gkeys.length){
+    html += '<div class="card"><div class="card-title">🌱 Growth Stages at Start</div>';
+    gkeys.forEach(function(g){
+      var cnt = growthCounts[g];
+      var pct = Math.round(cnt/data.length*100);
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">'
+        +'<span style="font-size:13px;color:#06222f;font-weight:600;">'+esc(g)+'</span>'
+        +'<span style="font-size:13px;color:var(--muted);">'+cnt+' ('+pct+'%)</span>'
+        +'</div>';
+    });
+    html += '</div>';
+  }
+
+  return html;
+}
+
+// ── SETTINGS ──
+function openSettings(){
+  var o = document.getElementById("settingsOverlay");
+  o.style.display = "flex";
+  document.getElementById("settingsName").textContent = cfg.name||"—";
+  document.getElementById("settingsEmail").textContent = cfg.email||"—";
+  document.getElementById("settingsRole").textContent = cfg.role==="yp"?"Role: Youth Pastor":"Role: Connect Group Leader"+(cfg.group?" ("+cfg.group+")":"");
+  var codeWrap = document.getElementById("settingsCodeWrap");
+  if (cfg.role==="yp"){
+    codeWrap.style.display="none";
+  } else {
+    codeWrap.style.display="block";
+    document.getElementById("settingsCode").textContent = cfg.code||"——";
+  }
+}
+function closeSettings(e){
+  if (!e||e.target===document.getElementById("settingsOverlay"))
+    document.getElementById("settingsOverlay").style.display="none";
+}
+function copyCode(){
+  if (!cfg.code){ toast("No code yet"); return; }
+  navigator.clipboard.writeText(cfg.code).then(function(){ toast("Code copied! "+cfg.code); });
+}
+function resetAll(){
+  if (!confirm("Reset all data? This cannot be undone.")) return;
+  localStorage.removeItem(CKEY); localStorage.removeItem(DKEY);
+  location.reload();
+}
+
+function toast(msg){
+  var t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(function(){ t.classList.remove("show"); }, 2800);
+}
+</script>
+</body>
+</html>
