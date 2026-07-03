@@ -503,62 +503,107 @@ function latestRow(name, data){
 // ── TABS ──
 // ── MEDIA AUDIT ──
 function renderMediaAudit(container) {
-  // Data already loaded in global rows[] via existing onSnapshot
-  var maRows = rows.filter(function(r){ return r.type === 'media_audit' && r.program === 'ptf7'; });
-  (function(rows) {
-    if (!rows.length) {
-      container.innerHTML = '<div style="padding:24px;text-align:center;color:#888;">No media audit data yet.<br>Students submit on Day 7 of each week.</div>';
-      return;
-    }
-    var cats = [{key:'tv',label:'📺 TV/Streaming'},{key:'yt',label:'▶️ YouTube'},{key:'social',label:'📲 Social Media'},{key:'games',label:'🎮 Games'}];
-    var colors = {tv:'#e74c3c',yt:'#e67e22',social:'#3498db',games:'#9b59b6'};
-    var html = '<div style="padding:12px;">';
-    html += '<h2 style="margin:0 0 4px;font-size:17px;">📱 Media Audit — Tri 7</h2>';
-    html += '<p style="color:#888;font-size:12px;margin:0 0 14px;">Each student\'s daily media hours by week · dashed = goal</p>';
-    rows.sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
-    rows.forEach(function(r) {
-      var weeks = r.weeks || {};
-      var goals = r.goals || {};
-      var weekNums = Object.keys(weeks).map(Number).sort(function(a,b){return a-b;});
-      if (!weekNums.length) return;
-      html += '<div style="background:#fff;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,.1);padding:14px;margin-bottom:14px;">';
-      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
-      html += '<strong style="font-size:14px;">' + (r.name||'Unknown') + '</strong>';
-      html += '<span style="font-size:11px;color:#888;">' + weekNums.length + '/12 weeks logged</span></div>';
-      // Goal summary
-      if (Object.keys(goals).length) {
-        html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">';
-        cats.forEach(function(cat) {
-          var g = goals[cat.key]||0;
-          if (g > 0) html += '<span style="background:#f0f0f0;border-radius:6px;padding:2px 8px;font-size:11px;">' + cat.label + ' goal: <strong>' + g + 'h</strong></span>';
-        });
-        html += '</div>';
+  container.innerHTML = '<div style="padding:24px;text-align:center;color:#888;">Loading media audits…</div>';
+  try {
+    // Try direct Firestore query first
+    if (_db) {
+      var q;
+      if (cfg.role === 'admin') {
+        q = _db.collection('ptf_checkins').where('type','==','media_audit');
+      } else if (cfg.role === 'yp') {
+        q = _db.collection('ptf_checkins').where('pastorEmail','==',cfg.email).where('type','==','media_audit');
+      } else {
+        q = _db.collection('ptf_checkins').where('leaderEmail','==',cfg.email).where('type','==','media_audit');
       }
-      // Week-by-week bars
-      html += '<div style="overflow-x:auto;">';
-      html += '<table style="border-collapse:collapse;width:100%;font-size:11px;">';
-      html += '<tr><th style="text-align:left;padding:2px 6px;color:#888;">Category</th>';
-      weekNums.forEach(function(w){ html += '<th style="padding:2px 6px;color:#888;text-align:center;">Wk '+w+'</th>'; });
+      q.get().then(function(snap) {
+        var maRows = snap.docs.map(function(d){ return d.data(); });
+        // Also check already-loaded rows as fallback
+        if (!maRows.length) {
+          maRows = rows.filter(function(r){ return r.type === 'media_audit'; });
+        }
+        _renderMediaAuditHtml(container, maRows);
+      }).catch(function(err) {
+        // Firestore query failed - fall back to in-memory rows
+        var maRows = rows.filter(function(r){ return r.type === 'media_audit'; });
+        if (maRows.length) {
+          _renderMediaAuditHtml(container, maRows);
+        } else {
+          container.innerHTML = '<div style="padding:24px;text-align:center;color:#888;">'
+            + '<div style="font-size:28px;margin-bottom:8px;">📱</div>'
+            + 'No media audit data found.<br><small style="color:#bbb;">Error: ' + (err&&err.message||'unknown') + '</small></div>';
+        }
+      });
+    } else {
+      var maRows = rows.filter(function(r){ return r.type === 'media_audit'; });
+      _renderMediaAuditHtml(container, maRows);
+    }
+  } catch(e) {
+    container.innerHTML = '<div style="padding:24px;color:red;">Error: ' + e.message + '</div>';
+  }
+}
+
+function _renderMediaAuditHtml(container, maRows) {
+  if (!maRows.length) {
+    container.innerHTML = '<div style="padding:32px;text-align:center;color:#888;line-height:1.7">'
+      + '<div style="font-size:32px;margin-bottom:8px;">📱</div>'
+      + '<strong>No media audit data yet.</strong><br>'
+      + 'Students submit on Day 7 of each week in the Tri 7 app.<br>'
+      + '<small style="color:#bbb;">(' + rows.length + ' total rows loaded from Firestore)</small></div>';
+    return;
+  }
+  var cats = [
+    {key:'tv',    label:'📺 TV/Streaming', color:'#e74c3c'},
+    {key:'yt',    label:'▶️ YouTube',       color:'#e67e22'},
+    {key:'social',label:'📲 Social Media',  color:'#3498db'},
+    {key:'games', label:'🎮 Games',          color:'#9b59b6'}
+  ];
+  maRows.sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
+  var html = '<div style="padding:12px;">';
+  html += '<h2 style="margin:0 0 4px;font-size:17px;">📱 Media Audit — Tri 7</h2>';
+  html += '<p style="color:#888;font-size:12px;margin:0 0 14px;">' + maRows.length + ' student(s) · Green = under goal, Red = over goal</p>';
+  maRows.forEach(function(r) {
+    var weeks = r.weeks || {};
+    var goals = r.goals || {};
+    var weekNums = Object.keys(weeks).map(Number).sort(function(a,b){return a-b;});
+    html += '<div style="background:#fff;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,.1);padding:14px;margin-bottom:14px;">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+    html += '<strong style="font-size:14px;">' + (r.name||'Unknown') + '</strong>';
+    html += '<span style="font-size:11px;color:#888;">' + weekNums.length + ' of 12 weeks logged</span></div>';
+    if (Object.keys(goals).length) {
+      html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
+      cats.forEach(function(cat) {
+        var g = goals[cat.key]||0;
+        if (g > 0) html += '<span style="background:#f5f5f5;border-radius:6px;padding:2px 8px;font-size:11px;color:' + cat.color + ';">' + cat.label + ': goal <strong>' + g + 'h/day</strong></span>';
+      });
+      html += '</div>';
+    }
+    if (!weekNums.length) {
+      html += '<p style="color:#bbb;font-size:12px;">No weeks logged yet.</p>';
+    } else {
+      html += '<div style="overflow-x:auto;"><table style="border-collapse:collapse;width:100%;font-size:12px;">';
+      html += '<tr><th style="text-align:left;padding:4px 8px;color:#888;border-bottom:2px solid #eee;">Category</th>';
+      weekNums.forEach(function(w){ html += '<th style="padding:4px 8px;color:#888;text-align:center;border-bottom:2px solid #eee;">Wk ' + w + '</th>'; });
       html += '</tr>';
       cats.forEach(function(cat) {
         html += '<tr>';
-        html += '<td style="padding:3px 6px;color:'+colors[cat.key]+';font-weight:600;">' + cat.label + '</td>';
+        html += '<td style="padding:5px 8px;color:' + cat.color + ';font-weight:600;white-space:nowrap;">' + cat.label + '</td>';
         weekNums.forEach(function(w) {
-          var val = (weeks[w]||{})[cat.key] || 0;
-          var goal = goals[cat.key] || 0;
+          var val = (weeks[w]||{})[cat.key];
+          if (val === undefined || val === null) { html += '<td style="text-align:center;padding:5px 8px;color:#ccc;">—</td>'; return; }
+          var goal = goals[cat.key]||0;
           var over = goal > 0 && val > goal;
-          var bg = over ? '#ffeaea' : '#eafff0';
-          var clr = over ? '#c0392b' : '#27ae60';
-          html += '<td style="text-align:center;padding:3px 6px;background:'+bg+';border-radius:4px;color:'+clr+';font-weight:600;">' + val + 'h</td>';
+          var bg  = over ? '#ffeaea' : (goal > 0 ? '#eafff0' : '#f9f9f9');
+          var clr = over ? '#c0392b' : (goal > 0 ? '#27ae60' : '#555');
+          html += '<td style="text-align:center;padding:5px 8px;background:' + bg + ';border-radius:4px;color:' + clr + ';font-weight:700;">' + val + 'h</td>';
         });
         html += '</tr>';
       });
       html += '</table></div>';
-      html += '</div>';
-    });
+    }
     html += '</div>';
-    container.innerHTML = html;
   });
+  html += '</div>';
+  container.innerHTML = html;
 }
 
 
