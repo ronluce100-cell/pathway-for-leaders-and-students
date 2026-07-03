@@ -1841,11 +1841,9 @@ function submitDailyPrayer() {
     week: 'pray'+dateKey,
     type: 'daily_prayer'
   };
-  try {
-    _db.collection('ptf_checkins').doc(lid+'_'+nid+'_'+prog+'_prayer_'+dateKey).set(data);
-    input.value = '';
-    toast('Prayer sent to your leader! 🙏');
-  } catch(e) { toast('Error sending prayer.'); }
+  _db.collection('ptf_checkins').doc(lid+'_'+nid+'_'+prog+'_prayer_'+dateKey).set(data)
+    .then(function(){ input.value=''; toast('Prayer sent to your leader! 🙏'); })
+    .catch(function(e){ console.error('Prayer write failed:', e); toast('Could not send prayer: ' + (e.code||e.message||'unknown error')); });
 }
 
 </script>
