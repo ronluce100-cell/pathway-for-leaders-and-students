@@ -191,33 +191,7 @@ button{cursor:pointer;font-family:inherit;}
 .reminder-status{font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px;}
 </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js">
-function submitDailyPrayer() {
-  var input = document.getElementById('dailyPrayerInput');
-  var text = input ? input.value.trim() : '';
-  if (!text) { toast('Please write a prayer request first.'); return; }
-  var prof = S.profile || {};
-  var lid = ptfSanitize(prof.leaderEmail||prof.groupCode||'anon');
-  var nid = ptfSanitize(prof.name||'unknown');
-  var prog = 'ptl4';
-  var dateKey = new Date().toISOString().slice(0,10).replace(/-/g,'');
-  var data = {
-    name: prof.name||'', prayer: text,
-    leaderEmail: prof.leaderEmail||'', pastorEmail: prof.pastorEmail||'',
-    groupCode: prof.groupCode||'', program: prog,
-    date: new Date().toLocaleDateString(),
-    day: (S.day||0)+1,
-    week: String(Math.floor((S.day||0)/7)+1),
-    type: 'daily_prayer'
-  };
-  try {
-    _db.collection('ptf_checkins').doc(lid+'_'+nid+'_'+prog+'_prayer_'+dateKey).set(data);
-    input.value = '';
-    toast('Prayer sent to your leader! 🙏');
-  } catch(e) { toast('Error sending prayer.'); }
-}
-
-</script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -1560,4 +1534,42 @@ loadState();
 // Login streak
 var today2 = new Date().toDateString();
 if (S.lastLogin !== today2) {
-  S.lastLogin 
+  S.lastLogin = today2;
+  S.loginStreak = (S.loginStreak || 0) + 1;
+  saveState();
+}
+
+// Show profile setup on first launch
+if (!S.profile || !S.profile.name) {
+  openProfile();
+}
+renderToday();
+
+function submitDailyPrayer() {
+  var input = document.getElementById('dailyPrayerInput');
+  var text = input ? input.value.trim() : '';
+  if (!text) { toast('Please write a prayer request first.'); return; }
+  var prof = S.profile || {};
+  var lid = ptfSanitize(prof.leaderEmail||prof.groupCode||'anon');
+  var nid = ptfSanitize(prof.name||'unknown');
+  var prog = 'ptl4';
+  var dateKey = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  var data = {
+    name: prof.name||'', prayer: text,
+    leaderEmail: prof.leaderEmail||'', pastorEmail: prof.pastorEmail||'',
+    groupCode: prof.groupCode||'', program: prog,
+    date: new Date().toLocaleDateString(),
+    day: (S.day||0)+1,
+    week: 'pray'+dateKey,
+    type: 'daily_prayer'
+  };
+  try {
+    _db.collection('ptf_checkins').doc(lid+'_'+nid+'_'+prog+'_prayer_'+dateKey).set(data);
+    input.value = '';
+    toast('Prayer sent to your leader! 🙏');
+  } catch(e) { toast('Error sending prayer.'); }
+}
+
+</script>
+</body>
+</html>

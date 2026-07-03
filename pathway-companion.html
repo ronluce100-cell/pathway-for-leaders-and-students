@@ -1838,7 +1838,7 @@ function submitDailyPrayer() {
     groupCode: prof.groupCode||'', program: prog,
     date: new Date().toLocaleDateString(),
     day: (S.day||0)+1,
-    week: String(Math.floor((S.day||0)/7)+1),
+    week: 'pray'+dateKey,
     type: 'daily_prayer'
   };
   try {
