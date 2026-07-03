@@ -236,6 +236,8 @@ button{cursor:pointer;font-family:inherit;}
     <input type="email" id="p_email" placeholder="you@email.com"/>
     <label class="form-label">Leader's Email</label>
     <input type="email" id="p_leaderEmail" placeholder="leader@email.com"/>
+    <label class="form-label">Youth Pastor's Email</label>
+    <input type="email" id="p_pastorEmail" placeholder="pastor@email.com"/>
     <label class="form-label">Why do you want to be a leader?</label>
     <textarea id="p_why" placeholder="Share your heart..."></textarea>
     <label class="form-label">Daily Appointment with Jesus — Time</label>
@@ -1422,6 +1424,7 @@ function openProfile() {
     document.getElementById('p_name').value = S.profile.name || '';
     document.getElementById('p_email').value = S.profile.email || '';
     document.getElementById('p_leaderEmail').value = S.profile.leaderEmail || '';
+    document.getElementById('p_pastorEmail').value = S.profile.pastorEmail || '';
     document.getElementById('p_why').value = S.profile.why || '';
     document.getElementById('p_apptTime').value = S.profile.apptTime || '07:00';
     document.getElementById('p_apptPlace').value = S.profile.apptPlace || '';
@@ -1444,6 +1447,7 @@ function saveProfile() {
     name: document.getElementById('p_name').value.trim(),
     email: document.getElementById('p_email').value.trim(),
     leaderEmail: document.getElementById('p_leaderEmail').value.trim(),
+    pastorEmail: document.getElementById('p_pastorEmail').value.trim(),
     why: document.getElementById('p_why').value.trim(),
     apptTime: document.getElementById('p_apptTime').value,
     apptPlace: document.getElementById('p_apptPlace').value.trim(),

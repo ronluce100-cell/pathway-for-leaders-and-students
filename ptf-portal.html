@@ -53,6 +53,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   <div class="profile-row">
     <div><label class="field-label">Leader Email</label>
       <input type="email" id="p_leader" placeholder="leader@church.com"></div>
+    <div><label class="field-label">Youth Pastor Email</label>
+      <input type="email" id="p_pastor" placeholder="pastor@church.com"></div>
+  </div>
+  <div class="profile-row">
     <div><label class="field-label">Group Code</label>
       <input type="text" id="p_group" placeholder="From your leader"></div>
   </div>
@@ -95,10 +99,12 @@ function loadProfile(){try{var sp=JSON.parse(localStorage.getItem('ptf_shared_pr
 if(sp){if(sp.name)document.getElementById('p_name').value=sp.name;
 if(sp.email)document.getElementById('p_email').value=sp.email;
 if(sp.leaderEmail)document.getElementById('p_leader').value=sp.leaderEmail;
+if(sp.pastorEmail)document.getElementById('p_pastor').value=sp.pastorEmail;
 if(sp.group)document.getElementById('p_group').value=sp.group;}}catch(e){}}
 function saveProfile(){var sp={name:document.getElementById('p_name').value.trim(),
 email:document.getElementById('p_email').value.trim(),
 leaderEmail:document.getElementById('p_leader').value.trim(),
+pastorEmail:document.getElementById('p_pastor').value.trim(),
 group:document.getElementById('p_group').value.trim()};
 localStorage.setItem('ptf_shared_profile',JSON.stringify(sp));
 var m=document.getElementById('savedMsg');m.style.display='block';
