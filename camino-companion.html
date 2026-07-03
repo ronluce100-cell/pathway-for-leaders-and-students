@@ -545,7 +545,13 @@ textarea { resize: vertical; min-height: 80px; }
     <button class="btn btn-primary" id="completeBtn" onclick="markComplete()">Marcar como Completo ✓</button>
     <button class="btn btn-outline" onclick="changeDia(1)">Siguiente →</button>
   </div>
-  <div class="reminder-note">
+  <div class="card" style="margin-top:12px;">
+  <div class="card-label">Petición de Oración</div>
+  <p style="font-size:13px;color:var(--muted);margin:4px 0 10px;">Comparte algo con tu líder para orar hoy.</p>
+  <textarea id="dailyPrayerInput" rows="3" placeholder="¿Por qué quieres que ore tu líder?" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;resize:vertical;box-sizing:border-box;"></textarea>
+  <button class="btn" style="margin-top:8px;width:100%;background:var(--teal);color:#fff;" onclick="submitDailyPrayer()">Enviar a mi Líder 🙏</button>
+</div>
+<div class="reminder-note">
     <div class="card-label">🔔 Recordatorios Diarios</div>
     <div class="reminder-status" id="reminderStatus">Toca abajo para activar recordatorios diarios — aparecerán como notificaciones en la app a la hora que elijas.</div>
     <button class="btn btn-primary" style="margin-top:10px;" onclick="activateReminders()">Activar Recordatorios</button>
@@ -1768,6 +1774,32 @@ function renderBadges() {
     +S.badges.length+' de '+ALL_BADGES.length+' insignias desbloqueadas</div>';
 }
 // ══ END GAMIFICATION ══
+
+
+function submitDailyPrayer() {
+  var input = document.getElementById('dailyPrayerInput');
+  var text = input ? input.value.trim() : '';
+  if (!text) { toast('Por favor escribe una petición primero.'); return; }
+  var prof = S.profile || {};
+  var lid = ptfSanitize(prof.leaderEmail||prof.groupCode||'anon');
+  var nid = ptfSanitize(prof.name||'unknown');
+  var prog = 'ptf1_es';
+  var dateKey = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  var data = {
+    name: prof.name||'', prayer: text,
+    leaderEmail: prof.leaderEmail||'', pastorEmail: prof.pastorEmail||'',
+    groupCode: prof.groupCode||'', program: prog,
+    date: new Date().toLocaleDateString(),
+    day: (S.day||0)+1,
+    week: String(Math.floor((S.day||0)/7)+1),
+    type: 'daily_prayer'
+  };
+  try {
+    _db.collection('ptf_checkins').doc(lid+'_'+nid+'_'+prog+'_prayer_'+dateKey).set(data);
+    input.value = '';
+    toast('Oración enviada a tu líder 🙏');
+  } catch(e) { toast('Error sending prayer.'); }
+}
 
 </script>
 

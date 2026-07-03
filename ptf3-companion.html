@@ -563,7 +563,13 @@ textarea { resize: vertical; min-height: 80px; }
     <button class="btn btn-primary" id="completeBtn" onclick="markComplete()">Mark Complete ✓</button>
     <button class="btn btn-outline" onclick="changeDay(1)">Next →</button>
   </div>
-  <div class="reminder-note">
+  <div class="card" style="margin-top:12px;">
+  <div class="card-label">🙏 Prayer Request</div>
+  <p style="font-size:13px;color:var(--muted);margin:4px 0 10px;">Share something with your leader to pray for today.</p>
+  <textarea id="dailyPrayerInput" rows="3" placeholder="What would you like your leader to pray for?" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;resize:vertical;box-sizing:border-box;"></textarea>
+  <button class="btn" style="margin-top:8px;width:100%;background:var(--teal);color:#fff;" onclick="submitDailyPrayer()">Send to Leader 🙏</button>
+</div>
+<div class="reminder-note">
     <div class="card-label">🔔 Daily Reminders</div>
     <div class="reminder-status" id="reminderStatus">Set up reminders to stay on track with your devotional journey.</div>
 
@@ -1779,6 +1785,32 @@ window.addEventListener('load',()=>{
 });
 
 
+
+
+function submitDailyPrayer() {
+  var input = document.getElementById('dailyPrayerInput');
+  var text = input ? input.value.trim() : '';
+  if (!text) { toast('Please write a prayer request first.'); return; }
+  var prof = S.profile || {};
+  var lid = ptfSanitize(prof.leaderEmail||prof.groupCode||'anon');
+  var nid = ptfSanitize(prof.name||'unknown');
+  var prog = 'ptf3';
+  var dateKey = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  var data = {
+    name: prof.name||'', prayer: text,
+    leaderEmail: prof.leaderEmail||'', pastorEmail: prof.pastorEmail||'',
+    groupCode: prof.groupCode||'', program: prog,
+    date: new Date().toLocaleDateString(),
+    day: (S.day||0)+1,
+    week: String(Math.floor((S.day||0)/7)+1),
+    type: 'daily_prayer'
+  };
+  try {
+    _db.collection('ptf_checkins').doc(lid+'_'+nid+'_'+prog+'_prayer_'+dateKey).set(data);
+    input.value = '';
+    toast('Prayer sent to your leader! 🙏');
+  } catch(e) { toast('Error sending prayer.'); }
+}
 
 </script>
 
