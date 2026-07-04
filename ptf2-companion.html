@@ -849,12 +849,17 @@ let S = JSON.parse(localStorage.getItem("ptf2_v1") || "null") || {
     }
   } catch(e) {}
 })();
-// Migrate pastorEmail into existing profiles that were set before portal had the field
+// Migrate missing email fields into existing profiles from portal profile
 (function(){
   try {
-    if (S.profile && !S.profile.pastorEmail) {
+    if (S.profile && (!S.profile.pastorEmail || !S.profile.leaderEmail)) {
       var sp2 = JSON.parse(localStorage.getItem('ptf_shared_profile') || 'null');
-      if (sp2 && sp2.pastorEmail) { S.profile.pastorEmail = sp2.pastorEmail; save(); }
+      if (sp2) {
+        var changed = false;
+        if (!S.profile.pastorEmail && sp2.pastorEmail) { S.profile.pastorEmail = sp2.pastorEmail; changed = true; }
+        if (!S.profile.leaderEmail && sp2.leaderEmail) { S.profile.leaderEmail = sp2.leaderEmail; changed = true; }
+        if (changed) save();
+      }
     }
   } catch(e) {}
 })();
@@ -1837,7 +1842,22 @@ function submitDailyPrayer() {
   var input = document.getElementById('dailyPrayerInput');
   var text = input ? input.value.trim() : '';
   if (!text) { toast('Please write a prayer request first.'); return; }
-  var prof = S.profile || {};
+  var prof = S.profile ? Object.assign({}, S.profile) : {};
+  // Pull any missing email fields from shared portal profile right now
+  try {
+    var _sp = JSON.parse(localStorage.getItem('ptf_shared_profile') || 'null');
+    if (_sp) {
+      if (!prof.leaderEmail && _sp.leaderEmail) prof.leaderEmail = _sp.leaderEmail;
+      if (!prof.pastorEmail && _sp.pastorEmail) prof.pastorEmail = _sp.pastorEmail;
+      // Persist so future prayers also have it
+      if (S.profile) { S.profile.leaderEmail = prof.leaderEmail; S.profile.pastorEmail = prof.pastorEmail; save(); }
+    }
+  } catch(e) {}
+  if (!prof.leaderEmail) {
+    toast('⚠️ Add your Connect Group Leader\'s email in your profile first!');
+    setTimeout(openProfile, 1200);
+    return;
+  }
   var lid = ptfSanitize(prof.leaderEmail||prof.groupCode||'anon');
   var nid = ptfSanitize(prof.name||'unknown');
   var prog = 'ptf2';
