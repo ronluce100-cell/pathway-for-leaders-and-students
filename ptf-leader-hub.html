@@ -210,6 +210,7 @@ textarea{min-height:80px;resize:vertical;}
     <button class="tab" onclick="renderTab('trends')" id="tab-trends">📈 Trends</button>
     <button class="tab" onclick="renderTab('trimester')" id="tab-trimester">🗂️ By Trimester</button>
     <button class="tab" onclick="renderTab('media')" id="tab-media">📱 Media Audit</button>
+    <button class="tab" onclick="renderTab('scores')" id="tab-scores">📊 Avg Scores</button>
   </div>
 
   <div class="content" id="mainContent"></div>
@@ -619,6 +620,7 @@ function renderTab(tab){
   else if (tab==="trends") c.innerHTML = renderTrends();
   else if (tab==="trimester") c.innerHTML = renderByTrimester();
   else if (tab==="media") renderMediaAudit(c);
+  else if (tab==="scores") c.innerHTML = renderScores();
 }
 
 
@@ -879,7 +881,7 @@ function renderCGLStudents(){
   html += programCountsHtml(data);
   students.forEach(function(name){
     var allRows = getStudentRows(name, data).sort(function(a,b){return Number(a.week)-Number(b.week);});
-    var lr = allRows[allRows.length-1];
+    var lr = latestRow(name, data);
     var days = (lr&&lr.daysCompleted)||[];
     var pct = completionPct(lr&&lr.daysCompleted);
 
@@ -912,8 +914,8 @@ function renderCGLStudents(){
     }
     html += '</div>';
 
-    // Assessment responses by week
-    allRows.forEach(function(r){
+    // Assessment responses by week (exclude daily prayer submissions)
+    allRows.filter(function(r){ return r.type !== 'daily_prayer' && Number(r.week) > 0; }).forEach(function(r){
       html += '<div class="assess-card"><div class="assess-label">'+programInfo(r.program).short+' • Week '+r.week+' Check-In • '+esc(r.date||"")+'</div>';
       var fields = [
         ["Growth Stage",r.growth||r.growth_now],["Hopes",r.hope],["Prayer Request",r.prayer],
@@ -1028,7 +1030,7 @@ function renderYPGroups(){
 
     members.forEach(function(name){
       var allRows = g.members[name].sort(function(a,b){return Number(a.week)-Number(b.week);});
-      var lr = allRows[allRows.length-1];
+      var lr = latestRow(name, g.members[name]);
       var days = (lr&&lr.daysCompleted)||[];
       var pct = completionPct(lr&&lr.daysCompleted);
 
@@ -1051,8 +1053,8 @@ function renderYPGroups(){
       }
       html += '</div>';
 
-      // All assessment responses
-      allRows.forEach(function(r){
+      // All assessment responses (exclude daily prayer submissions)
+      allRows.filter(function(r){ return r.type !== 'daily_prayer' && Number(r.week) > 0; }).forEach(function(r){
         html += '<div class="assess-card"><div class="assess-label">'+programInfo(r.program).short+' • Week '+r.week+' Check-In · '+esc(r.date||"")+'</div>';
         var fields = [
           ["Growth Stage",r.growth||r.growth_now],["Hopes",r.hope],["Prayer Request",r.prayer],
@@ -1231,6 +1233,28 @@ function renderAdminGroups(){
         if (lr&&lr.prayer) {
           html += '<div class="prayer-card" style="margin-top:4px;"><div class="prayer-name">🙏 Prayer Request</div><div class="prayer-text">'+esc(lr.prayer)+'</div></div>';
         }
+        // Full assessment responses
+        allRows.filter(function(r){ return r.type !== 'daily_prayer' && Number(r.week) > 0; })
+          .sort(function(a,b){ return Number(a.week)-Number(b.week); })
+          .forEach(function(r){
+          html += '<div class="assess-card"><div class="assess-label">'+programInfo(r.program).short+' • Week '+r.week+' Check-In • '+esc(r.date||"")+'</div>';
+          var fields = [
+            ["Growth Stage",r.growth||r.growth_now],["Hopes",r.hope],["Prayer Request",r.prayer],
+            ["Quiet Time",r.qt?r.qt+"/10":null],["Hearing Jesus",r.hear?r.hear+"/10":null],
+            ["Growing Closer",r.grow?r.grow+"/10":null],["Group Connection",r.group_close?r.group_close+"/10":null],
+            ["Trust in Group",r.trust?r.trust+"/10":null],["Leader Qualities",r.ldr_qualities?r.ldr_qualities+"/10":null],
+            ["Likely to Finish",r.likely?r.likely+"/10":null],["Big Win",r.issue],["Tri 2 Sign-up",r.tri2],
+            ["Understanding",r.understand?r.understand+"/10":null],["Self-Awareness",r.self?r.self+"/10":null],
+            ["Insight",r.insight],["Servant Leadership",r.servant?r.servant+"/10":null],
+            ["Known by Group",r.known?r.known+"/10":null],["Word",r.word],
+            ["Readiness",r.ready],["Love",r.love],["Transformation",r.transform],["Leading Others",r.lead]
+          ];
+          fields.forEach(function(f){
+            if (!f[1]) return;
+            html += '<div class="assess-row"><span class="assess-key">'+f[0]+'</span><span class="assess-val">'+esc(f[1])+'</span></div>';
+          });
+          html += '</div>';
+        });
         html += '</div>';
       });
 
@@ -1414,6 +1438,90 @@ function renderTrends(){
     html += '</div>';
   }
 
+  return html;
+}
+
+// ── AVG SCORES ──
+function renderScores(){
+  var data = (cfg.role==='yp'||cfg.role==='admin') ? rows : getMyRows();
+  var SCORE_FIELDS = [
+    {key:'qt',           label:'Quiet Time'},
+    {key:'hear',         label:'Hearing Jesus'},
+    {key:'grow',         label:'Growing Closer'},
+    {key:'group_close',  label:'Group Connection'},
+    {key:'trust',        label:'Trust in Group'},
+    {key:'ldr_qualities',label:'Leader Qualities'},
+    {key:'likely',       label:'Likely to Finish'},
+    {key:'understand',   label:'Understanding'},
+    {key:'self',         label:'Self-Awareness'},
+    {key:'servant',      label:'Servant Leadership'},
+    {key:'known',        label:'Known by Group'}
+  ];
+  var WEEKS = [1,4,8,12];
+
+  // Only real assessment rows (not daily prayer, not progress docs)
+  var assessRows = data.filter(function(r){
+    return r.type !== 'daily_prayer' && WEEKS.indexOf(Number(r.week)) >= 0;
+  });
+
+  if (!assessRows.length) return '<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">No assessment data yet</div><div class="empty-sub">Average scores appear here as students complete week 1, 4, 8, and 12 check-ins.</div></div>';
+
+  // Group by program → by week
+  var byProg = {};
+  assessRows.forEach(function(r){
+    var prog = r.program || 'ptf1';
+    if (!byProg[prog]) byProg[prog] = {};
+    var wk = Number(r.week);
+    if (!byProg[prog][wk]) byProg[prog][wk] = [];
+    byProg[prog][wk].push(r);
+  });
+
+  var html = '<div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Average scores (1–10) per assessment week, by trimester. Color: 🟢 ≥8 · 🟡 6–7.9 · 🔴 &lt;6</div>';
+
+  var knownOrder = Object.keys(PROGRAMS);
+  Object.keys(byProg).sort(function(a,b){
+    var ia=knownOrder.indexOf(a), ib=knownOrder.indexOf(b);
+    return (ia<0?999:ia)-(ib<0?999:ib);
+  }).forEach(function(prog){
+    var p = programInfo(prog);
+    var weeks = byProg[prog];
+    var availWeeks = WEEKS.filter(function(w){ return weeks[w] && weeks[w].length; });
+    if (!availWeeks.length) return;
+
+    html += '<div class="card" style="margin-bottom:16px;">';
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">'
+      +'<span class="badge-chip" style="background:'+p.color+';color:#fff;border:none;font-size:12px;">'+esc(p.short)+'</span>'
+      +'<span style="font-size:12px;color:var(--muted);">'+esc(p.label)+'</span>'
+      +'</div>';
+    html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:13px;">';
+    html += '<thead><tr>'
+      +'<th style="text-align:left;padding:6px 8px;color:var(--muted);font-weight:600;border-bottom:2px solid var(--border);">Question</th>';
+    availWeeks.forEach(function(w){
+      html += '<th style="text-align:center;padding:6px 8px;color:var(--muted);font-weight:600;border-bottom:2px solid var(--border);">Wk '+w+'<br><span style="font-weight:400;font-size:11px;">n='+weeks[w].length+'</span></th>';
+    });
+    html += '</tr></thead><tbody>';
+
+    SCORE_FIELDS.forEach(function(f){
+      var hasData = availWeeks.some(function(w){
+        return weeks[w].some(function(r){ return r[f.key] != null && r[f.key] !== ''; });
+      });
+      if (!hasData) return;
+
+      html += '<tr><td style="padding:6px 8px;border-bottom:1px solid var(--border);">'+esc(f.label)+'</td>';
+      availWeeks.forEach(function(w){
+        var vals = weeks[w].map(function(r){ return Number(r[f.key]); }).filter(function(v){ return !isNaN(v) && v > 0; });
+        if (!vals.length) { html += '<td style="text-align:center;padding:6px 8px;color:#ccc;border-bottom:1px solid var(--border);">—</td>'; return; }
+        var avg = vals.reduce(function(a,b){return a+b;},0)/vals.length;
+        var rounded = Math.round(avg*10)/10;
+        var bg  = avg>=8 ? '#eafff0' : avg>=6 ? '#fffbe6' : '#ffeaea';
+        var clr = avg>=8 ? '#1a7a3a' : avg>=6 ? '#7a5a00' : '#c0392b';
+        html += '<td style="text-align:center;padding:6px 8px;background:'+bg+';border-radius:4px;color:'+clr+';font-weight:700;border-bottom:1px solid var(--border);">'+rounded+'</td>';
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div></div>';
+  });
   return html;
 }
 
