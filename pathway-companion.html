@@ -539,6 +539,16 @@ textarea { resize: vertical; min-height: 80px; }
     <div class="card-label">📚 Daily Bible Reading</div>
     <div style="font-size:14px;color:var(--text);" id="bibleReading"></div>
   </div>
+  <div id="videoLink" style="display:none;margin-bottom:12px;border-radius:14px;overflow:hidden;border:1.5px solid #e03030;">
+    <div style="background:#e03030;padding:8px 14px;display:flex;align-items:center;gap:8px;">
+      <span style="color:#fff;font-size:15px;">▶</span>
+      <div style="font-size:12px;font-weight:700;color:#fff;letter-spacing:.5px;text-transform:uppercase;">Watch Today's Video</div>
+    </div>
+    <div id="videoTitle" style="font-size:13px;font-weight:700;color:#1a1a2e;padding:8px 14px 4px;"></div>
+    <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">
+      <iframe id="videoIframe" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+    </div>
+  </div>
   <div id="apptCardWrap"></div>
   <div class="btn-row">
     <button class="btn btn-outline" onclick="changeDay(-1)">← Prev</button>
@@ -806,7 +816,7 @@ function save() { localStorage.setItem("ptf_v3", JSON.stringify(S)); }
 // ── DEVOTIONAL DATA ──
 const W = [
 {title:"What It Means to Live for Jesus",theme:"love, commitment, living for God",id:"I am someone who loves God above everything else — with my whole heart, soul, and mind.",days:[
-{t:"The Greatest Commandment",v:"\"Love the Lord your God with all your heart and with all your soul and with all your mind.\" This is the first and greatest commandment. And the second is like it: \"Love your neighbor as yourself.\"",r:"Matthew 22:37-40",teach:"If you have made the decision to follow Jesus, you no longer live for the world — you live for God. The most important thing you can do with your life is to love him with your whole heart. Think about the things you love most: if you really love something, you put your energy into it, you invest your time, you become consumed with it. Jesus calls us to that same passionate pursuit of him.",act:["Think honestly: does anything — a relationship, social media, sports, money — have more priority than Jesus?","Ask God to become the most important thing in your life today.","Choose to love Jesus more than the things you have loved in the past."],read:"Matthew 1"},
+{t:"The Greatest Commandment",v:"\"Love the Lord your God with all your heart and with all your soul and with all your mind.\" This is the first and greatest commandment. And the second is like it: \"Love your neighbor as yourself.\"",r:"Matthew 22:37-40",teach:"If you have made the decision to follow Jesus, you no longer live for the world — you live for God. The most important thing you can do with your life is to love him with your whole heart. Think about the things you love most: if you really love something, you put your energy into it, you invest your time, you become consumed with it. Jesus calls us to that same passionate pursuit of him.",act:["Think honestly: does anything — a relationship, social media, sports, money — have more priority than Jesus?","Ask God to become the most important thing in your life today.","Choose to love Jesus more than the things you have loved in the past."],read:"Matthew 1",video:"https://www.youtube.com/watch?v=o1-u9QIxBUM&t=2s",videoTitle:"Pathway to Freedom Trimester 1 Intro"},
 {t:"He Loved You First",v:"God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",r:"John 3:16",teach:"God loves us so much that he gave his only Son. He did not send an angel or an Instagram post from heaven — he sent Jesus, his very best. We love him because he loved us first (1 John 4:19). The best response to such incredible love is to love him back with everything we have. That is what being a follower of Christ is all about.",act:["Meditate on John 3:16 all day — say it aloud, write it where you can see it.","Write down ways you can give God your best today.","Give your very best to God because he gave his very best for you."],read:"Matthew 2"},
 {t:"Love God with Your Whole Being",v:"See what great love the Father has lavished on us, that we should be called children of God! And that is what we are!",r:"1 John 3:1",teach:"God has lavished his love on you — he did not have to, but he chose to. He calls you his child. The woman who washed Jesus feet with her tears shows us what it looks like to respond to that love: extravagant, wholehearted devotion. Someone who is forgiven much loves much. How much have you been forgiven?",act:["Write out 1 John 3:1 in your own words.","Write a prayer of thanks to God for his love and forgiveness.","Ask him to help you love him back extravagantly."],read:"Matthew 3"},
 {t:"Do You Love the World?",v:"Do not love the world or anything in the world. If anyone loves the world, love for the Father is not in them. The world and its desires pass away, but whoever does the will of God lives forever.",r:"1 John 2:15-17",teach:"Our lives get caught up in this craze or that fad. Many things we crave end up placing us in sinful situations. A lot of the music, movies, and things the world loves are anti-God — they drown out our love for him. Loving the world waters down our love for God.",act:["List things the world loves that are clearly traps to distract people from God.","Make a list of things you need to remove from your life.","Pray over that list and decide to walk away from those things."],read:"Matthew 4"},
@@ -963,7 +973,21 @@ function renderToday() {
   document.getElementById('actionSteps').innerHTML = day.act.map(a=>
     '<div class="action-item"><div class="action-dot"></div><div class="action-text">'+esc(a)+'</div></div>'
   ).join('');
-  document.getElementById('bibleReading').textContent = 'Read '+day.read+' today. What is God speaking to you from that passage?';
+  document.getElementById('bibleReading').textContent = day.read ? 'Read '+day.read+' today. What is God speaking to you from that passage?' : '';
+  var vWrap = document.getElementById('videoLink');
+  var vIframe = document.getElementById('videoIframe');
+  var vTitle = document.getElementById('videoTitle');
+  if (vWrap && vIframe && vTitle) {
+    if (day.video) {
+      var vidMatch = day.video.match(/[?&]v=([^&]+)/);
+      vIframe.src = vidMatch ? 'https://www.youtube.com/embed/'+vidMatch[1] : day.video;
+      vTitle.textContent = day.videoTitle || 'Watch Video';
+      vWrap.style.display = 'block';
+    } else {
+      vIframe.src = '';
+      vWrap.style.display = 'none';
+    }
+  }
 
   const cb = document.getElementById('completeBtn');
   const done = S.done.includes(S.day);
