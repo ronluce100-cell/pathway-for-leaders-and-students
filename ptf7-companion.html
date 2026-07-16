@@ -678,6 +678,16 @@ textarea { resize: vertical; min-height: 80px; }
     <div class="card-label">📚 Daily Bible Reading</div>
     <div style="font-size:14px;color:var(--text);" id="bibleReading"></div>
   </div>
+  <div id="videoLink" style="display:none;margin-bottom:12px;border-radius:14px;overflow:hidden;border:1.5px solid #e03030;">
+    <div style="background:#e03030;padding:8px 14px;display:flex;align-items:center;gap:8px;">
+      <span style="color:#fff;font-size:15px;">▶</span>
+      <div style="font-size:12px;font-weight:700;color:#fff;letter-spacing:.5px;text-transform:uppercase;">Watch Today's Video</div>
+    </div>
+    <div id="videoTitle" style="font-size:13px;font-weight:700;color:#1a1a2e;padding:8px 14px 4px;"></div>
+    <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">
+      <iframe id="videoIframe" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+    </div>
+  </div>
   <div id="apptCardWrap"></div>
   <div class="btn-row">
     <button class="btn btn-outline" onclick="changeDay(-1)">← Prev</button>
@@ -965,7 +975,7 @@ function save() { localStorage.setItem("ptf7_v1", JSON.stringify(S)); }
 const W = [
 
 {title:'The Power of Distraction',theme:'The Power of Distraction',id:'I choose to be present. I give God my full attention, not a distracted glance.',days:[
-{t:'Distracted by What?',v:'There is only one thing worth being concerned about. Mary has discovered it, and it will not be taken away from her.',r:'Luke 10:41–42',teach:'Jesus visited Mary and Martha. Martha was distracted by busyness while Mary sat at Jesus\' feet. God is in the room with you every single day — waiting. But distraction keeps us from hearing Him. We have all become Martha.',act:[],read:''},
+{t:'Distracted by What?',v:'There is only one thing worth being concerned about. Mary has discovered it, and it will not be taken away from her.',r:'Luke 10:41–42',teach:'Jesus visited Mary and Martha. Martha was distracted by busyness while Mary sat at Jesus\' feet. God is in the room with you every single day — waiting. But distraction keeps us from hearing Him. We have all become Martha.',act:[],read:'',video:'https://www.youtube.com/watch?v=78hHEZ4J8-o',videoTitle:'Invasion of Culture Zombies'},
 {t:'Continuous Partial Attention',v:'Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight.',r:'Proverbs 3:5–6',teach:'Continuous partial attention means never being fully present — always half-listening, half-scrolling. This fragments our mind and heart. God calls us to trust Him with our WHOLE heart. You cannot do that with a divided mind.',act:[],read:''},
 {t:'We Are All Pavlov\'s Dogs',v:'Do not conform to the pattern of this world, but be transformed by the renewing of your mind.',r:'Romans 12:2',teach:'Pavlov trained dogs to salivate at a bell. Tech companies have trained us to reach for our phones at every ping. Our brains have been conditioned. But God says we can be transformed by renewing our minds. You are not stuck.',act:[],read:''},
 {t:'How the World Profits by Distracting Us',v:'Do not love the world or anything in the world. If anyone loves the world, love for the Father is not in them.',r:'1 John 2:15',teach:'Social media platforms make billions by keeping your attention as long as possible. Every scroll, every like, every click is someone else\'s profit. You are the product. God calls you to be aware of who is shaping you — and why.',act:[],read:''},
@@ -1123,7 +1133,22 @@ function renderToday() {
   document.getElementById('actionSteps').innerHTML = day.act.map(a=>
     '<div class="action-item"><div class="action-dot"></div><div class="action-text">'+esc(a)+'</div></div>'
   ).join('');
-  document.getElementById('bibleReading').textContent = 'Read '+day.read+' today. What is God speaking to you from that passage?';
+  document.getElementById('bibleReading').textContent = day.read ? 'Read '+day.read+' today. What is God speaking to you from that passage?' : '';
+  // Video link for days that have one
+  var vWrap = document.getElementById('videoLink');
+  var vIframe = document.getElementById('videoIframe');
+  var vTitle = document.getElementById('videoTitle');
+  if (vWrap && vIframe && vTitle) {
+    if (day.video) {
+      var vidMatch = day.video.match(/[?&]v=([^&]+)/);
+      vIframe.src = vidMatch ? 'https://www.youtube.com/embed/'+vidMatch[1] : day.video;
+      vTitle.textContent = day.videoTitle || 'Watch Video';
+      vWrap.style.display = 'block';
+    } else {
+      vIframe.src = '';
+      vWrap.style.display = 'none';
+    }
+  }
 
   const cb = document.getElementById('completeBtn');
   const done = S.done.includes(S.day);
