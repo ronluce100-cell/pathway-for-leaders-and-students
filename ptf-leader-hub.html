@@ -153,6 +153,11 @@ textarea{min-height:80px;resize:vertical;}
     <label class="form-label">Your Group Name</label>
     <input type="text" id="sGroup" placeholder="e.g. Fire Squad, Tuesday Night..."/>
   </div>
+  <div id="churchNameWrap" style="display:none;">
+    <label class="form-label">Your Church Name</label>
+    <input type="text" id="sChurch" placeholder="e.g. Grace Community Church"/>
+    <div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5;">Used to organize your groups in the network overview.</div>
+  </div>
   <div id="nlPastorsWrap" style="display:none;">
     <label class="form-label">Youth Pastor Emails You Oversee</label>
     <textarea id="sNLPastors" placeholder="One per line or comma-separated&#10;pastor1@church.com&#10;pastor2@church.com" style="min-height:90px;font-size:13px;"></textarea>
@@ -244,6 +249,7 @@ var selectedRole = "cgl";
 var activeTab = "overview";
 var isAdminMode = (new URLSearchParams(window.location.search)).get("admin")==="1";
 var _networkLeaders = {}; // email -> {name, email, pastorEmails:[]}
+var _ypProfiles = {};     // pastorEmail -> {name, email, church}
 
 // PROGRAM REGISTRY -- every companion app tags its check-ins with a "program"
 // code. Add a new trimester here any time (label/short/color) -- or do
@@ -316,15 +322,19 @@ function startFirestoreListener(){
     renderTab(activeTab);
   }
 
-  // Super Admin (and legacy admin): load ALL documents
+  // Super Admin (and legacy admin): load ALL documents + yp_profiles for church mapping
   if (cfg.role === "admin" || cfg.role === "superadmin") {
-    var unsub = _db.collection('ptf_checkins').onSnapshot(function(snap){
+    var unsubYP = _db.collection('yp_profiles').onSnapshot(function(snap){
+      snap.docs.forEach(function(d){ _ypProfiles[d.id] = d.data(); });
+      renderTab(activeTab);
+    }, function(err){ console.warn('YP profiles err', err); });
+    var unsubCI = _db.collection('ptf_checkins').onSnapshot(function(snap){
       _mergeAll(snap.docs.map(function(d){return d.data();}));
     }, function(err){
       console.warn('SuperAdmin FS err — check Firestore rules', err);
       renderTab(activeTab);
     });
-    _unsubFS = unsub;
+    _unsubFS = function(){ try{unsubCI(); unsubYP();}catch(e){} };
     return;
   }
 
@@ -462,6 +472,7 @@ function selectRole(r){
   var sa = document.getElementById("roleSuperAdmin");
   if (sa) sa.classList.toggle("selected", r==="superadmin");
   document.getElementById("groupNameWrap").style.display = r==="cgl" ? "block" : "none";
+  document.getElementById("churchNameWrap").style.display = r==="yp" ? "block" : "none";
   document.getElementById("nlPastorsWrap").style.display = r==="nl" ? "block" : "none";
   document.getElementById("superAdminNoteWrap").style.display = r==="superadmin" ? "block" : "none";
 }
@@ -482,7 +493,14 @@ function startSetup(){
   if (!name||!email){ toast("Please fill in name and email"); return; }
   var code = selectedRole==="cgl" ? clientGroupCode(group, email) : "";
   if (selectedRole==="admin"||selectedRole==="superadmin"||selectedRole==="nl") { group=""; code=""; }
-  cfg = {name:name,email:email,role:selectedRole,group:group,code:code,done:true};
+  var church = (selectedRole==="yp" && document.getElementById("sChurch")) ? document.getElementById("sChurch").value.trim() : (cfg.church||"");
+  cfg = {name:name,email:email,role:selectedRole,group:group,code:code,done:true,church:church};
+  // For Youth Pastor: save their church name to Firestore so Super Admin can build church hierarchy
+  if (selectedRole==="yp" && _db) {
+    _db.collection('yp_profiles').doc(email.toLowerCase()).set({
+      name: name, email: email.toLowerCase(), church: church, updatedAt: new Date().toISOString()
+    }).catch(function(err){ console.warn('YP profile save err', err); });
+  }
   // For Network Leader: parse & save their pastor email list
   if (selectedRole==="nl") {
     var pastorText = document.getElementById("sNLPastors").value.trim();
@@ -512,7 +530,8 @@ function startApp(){
     : cfg.role==="nl" ? "🏢 Network Leader"
     : "CGL";
   if (cfg.role === "yp") document.getElementById("tab-students").textContent = "🏘️ Groups";
-  if (isWide || cfg.role==="nl") document.getElementById("tab-students").textContent = "🏛️ All Groups";
+  if (cfg.role === "nl") document.getElementById("tab-students").textContent = "🏛️ All Groups";
+  if (isWide) document.getElementById("tab-students").textContent = "⛪ Churches";
   renderTab("overview");
   startFirestoreListener();
 }
@@ -700,9 +719,9 @@ function renderTab(tab){
   var el = document.getElementById("tab-"+tab);
   if (el) el.classList.add("active");
   var c = document.getElementById("mainContent");
-  var _wide = cfg.role==="admin"||cfg.role==="superadmin";
-  if (tab==="overview") c.innerHTML = _wide ? renderAdminOverview() : cfg.role==="nl" ? renderNLOverview() : cfg.role==="yp" ? renderYPOverview() : renderCGLOverview();
-  else if (tab==="students") c.innerHTML = _wide ? renderAdminGroups() : cfg.role==="nl" ? renderNLGroups() : cfg.role==="yp" ? renderYPGroups() : renderCGLStudents();
+  var _isSA = cfg.role==="admin"||cfg.role==="superadmin";
+  if (tab==="overview") c.innerHTML = _isSA ? renderSuperAdminOverview() : cfg.role==="nl" ? renderNLOverview() : cfg.role==="yp" ? renderYPOverview() : renderCGLOverview();
+  else if (tab==="students") c.innerHTML = _isSA ? renderSuperAdminGroups() : cfg.role==="nl" ? renderNLGroups() : cfg.role==="yp" ? renderYPGroups() : renderCGLStudents();
   else if (tab==="prayer") c.innerHTML = renderPrayer();
   else if (tab==="trends") c.innerHTML = renderTrends();
   else if (tab==="trimester") c.innerHTML = renderByTrimester();
@@ -1180,12 +1199,204 @@ function toggleGroup(id){
 
 
 // ── NETWORK LEADER OVERVIEW / GROUPS ──
-// rows are already pre-filtered for NL's pastors via the Firestore listener,
-// so we reuse the same Admin render functions which show Pastor → Group → Student.
 function renderNLOverview(){ return renderAdminOverview(); }
 function renderNLGroups(){ return renderAdminGroups(); }
 
-// ── ADMIN (SUPER ADMIN) OVERVIEW ──
+// ── CHURCH HIERARCHY HELPERS (Super Admin) ──
+// Organises ALL rows as Church → Pastor → CGL → Student using _ypProfiles for church lookup
+function getByChurch(){
+  var churches = {};
+  rows.forEach(function(r){
+    var pastorKey = r.pastorEmail || r.pastorName || "no-pastor";
+    var yp = _ypProfiles[pastorKey] || _ypProfiles[(pastorKey||'').toLowerCase()] || {};
+    var churchName = yp.church || (r.pastorName ? r.pastorName+"'s Church" : "Unknown Church");
+    var churchKey = churchName.trim().toLowerCase();
+    if (!churches[churchKey]) churches[churchKey] = {name:churchName, pastors:{}};
+    var pastorLabel = yp.name || r.pastorName || r.pastorEmail || "Unknown Pastor";
+    if (!churches[churchKey].pastors[pastorKey])
+      churches[churchKey].pastors[pastorKey] = {name:pastorLabel, email:r.pastorEmail||"", groups:{}};
+    var groupKey = r.leaderEmail || r.leaderName || "Unassigned";
+    var groupLabel = r.leaderName || r.leaderEmail || "Unassigned";
+    if (!churches[churchKey].pastors[pastorKey].groups[groupKey])
+      churches[churchKey].pastors[pastorKey].groups[groupKey] = {name:groupLabel, email:r.leaderEmail||"", members:{}};
+    if (!churches[churchKey].pastors[pastorKey].groups[groupKey].members[r.name])
+      churches[churchKey].pastors[pastorKey].groups[groupKey].members[r.name] = [];
+    churches[churchKey].pastors[pastorKey].groups[groupKey].members[r.name].push(r);
+  });
+  return churches;
+}
+
+// ── SUPER ADMIN OVERVIEW — Church-level summary cards ──
+function renderSuperAdminOverview(){
+  if (!rows.length) return '<div class="empty"><div class="empty-icon">⛪</div><div class="empty-text">No network data yet</div><div class="empty-sub">Youth pastors set up their church on this hub, then students appear here as they complete check-ins.</div></div>';
+  var churches = getByChurch();
+  var churchKeys = Object.keys(churches);
+  var totalStudents = getUniqueStudents(rows).length;
+  var totalPastors = 0, totalGroups = 0;
+  churchKeys.forEach(function(ck){
+    var pastorKeys = Object.keys(churches[ck].pastors);
+    totalPastors += pastorKeys.length;
+    pastorKeys.forEach(function(pk){ totalGroups += Object.keys(churches[ck].pastors[pk].groups).length; });
+  });
+
+  var html = renderKingdomStats();
+  html += programCountsHtml(rows);
+  html += '<div class="stat-row">'
+    +'<div class="stat-box"><div class="stat-num">'+churchKeys.length+'</div><div class="stat-label">Churches</div></div>'
+    +'<div class="stat-box"><div class="stat-num">'+totalPastors+'</div><div class="stat-label">Youth Pastors</div></div>'
+    +'<div class="stat-box"><div class="stat-num">'+totalStudents+'</div><div class="stat-label">Students</div></div>'
+    +'<div class="stat-box"><div class="stat-num">'+totalGroups+'</div><div class="stat-label">Groups</div></div>'
+    +'</div>';
+
+  html += '<div style="font-size:12px;font-weight:800;color:var(--teal-dark);margin:18px 0 10px;text-transform:uppercase;letter-spacing:1px;">⛪ Churches</div>';
+
+  churchKeys.sort().forEach(function(ck, ci){
+    var church = churches[ck];
+    var pastorKeys = Object.keys(church.pastors);
+    var churchStudents = 0, churchRows = [];
+    pastorKeys.forEach(function(pk){
+      Object.keys(church.pastors[pk].groups).forEach(function(gk){
+        var m = Object.keys(church.pastors[pk].groups[gk].members);
+        churchStudents += m.length;
+        m.forEach(function(nm){ churchRows = churchRows.concat(church.pastors[pk].groups[gk].members[nm]); });
+      });
+    });
+    var cAvg = churchRows.length ? Math.round(churchRows.reduce(function(s,r){return s+completionPct(r.daysCompleted);},0)/churchRows.length) : 0;
+    var cId = "church-"+ci;
+
+    html += '<div class="group-section" style="margin-bottom:12px;">';
+    html += '<div class="group-hdr" style="background:linear-gradient(135deg,#003d4d,#005f6e);color:white;" onclick="toggleGroup(\''+cId+'\')">'
+      +'<div class="group-hdr-name" style="color:white;font-size:15px;">⛪ '+esc(church.name)+'</div>'
+      +'<div class="group-hdr-meta" style="color:rgba(255,255,255,.75);">'+pastorKeys.length+' pastor'+(pastorKeys.length!==1?'s':'')+' · '+churchStudents+' students · '+cAvg+'% avg</div>'
+      +'<div class="group-hdr-arrow" style="color:white;" id="'+cId+'-arr">▼</div>'
+      +'</div>';
+    html += '<div class="group-body" id="'+cId+'">';
+
+    // Pastor summary cards inside each church
+    pastorKeys.forEach(function(pk){
+      var pastor = church.pastors[pk];
+      var groupKeys = Object.keys(pastor.groups);
+      var pStudents = 0, pRows = [];
+      groupKeys.forEach(function(gk){
+        var m = Object.keys(pastor.groups[gk].members);
+        pStudents += m.length;
+        m.forEach(function(nm){ pRows = pRows.concat(pastor.groups[gk].members[nm]); });
+      });
+      var pAvg = pRows.length ? Math.round(pRows.reduce(function(s,r){return s+completionPct(r.daysCompleted);},0)/pRows.length) : 0;
+
+      html += '<div class="card" style="padding:12px 14px;margin-bottom:8px;">';
+      html += '<div style="display:flex;align-items:center;gap:10px;">'
+        +'<span style="font-size:20px;">🏛️</span>'
+        +'<div style="flex:1;">'
+          +'<div style="font-size:14px;font-weight:800;color:var(--teal-deeper);">'+esc(pastor.name)+'</div>'
+          +(pastor.email?'<div style="font-size:11px;color:var(--muted);">'+esc(pastor.email)+'</div>':'')
+          +'<div style="font-size:11px;color:var(--muted);">'+groupKeys.length+' group'+(groupKeys.length!==1?'s':'')+' · '+pStudents+' student'+(pStudents!==1?'s':'')+'</div>'
+        +'</div>'
+        +'<div style="text-align:right;"><div style="font-size:18px;font-weight:900;color:var(--teal-dark);">'+pAvg+'%</div><div style="font-size:9px;color:var(--muted);">avg</div></div>'
+        +'</div>';
+      // Prayer preview
+      var pPrayers = pRows.filter(function(r){return r.prayer;});
+      if (pPrayers.length){
+        var pr = pPrayers[pPrayers.length-1];
+        html += '<div class="prayer-card" style="margin-top:8px;"><div class="prayer-name">🙏 '+esc(pr.name)+'</div><div class="prayer-text">'+esc(pr.prayer)+'</div></div>';
+      }
+      html += '</div>';
+    });
+    html += '</div></div>'; // group-body + group-section
+  });
+  return html;
+}
+
+// ── SUPER ADMIN GROUPS — Church → Pastor → CGL → Student drill-down ──
+function renderSuperAdminGroups(){
+  if (!rows.length) return '<div class="empty"><div class="empty-icon">⛪</div><div class="empty-text">No churches yet</div></div>';
+  var churches = getByChurch();
+  var churchKeys = Object.keys(churches).sort();
+  var html = "";
+
+  churchKeys.forEach(function(ck, ci){
+    var church = churches[ck];
+    var pastorKeys = Object.keys(church.pastors);
+    var cId = "sa-church-"+ci;
+
+    // Church header (dark teal gradient)
+    html += '<div class="group-section">';
+    html += '<div class="group-hdr" style="background:linear-gradient(135deg,#003d4d,#005f6e);color:white;" onclick="toggleGroup(\''+cId+'\')">'
+      +'<div class="group-hdr-name" style="color:white;font-size:15px;">⛪ '+esc(church.name)+'</div>'
+      +'<div class="group-hdr-meta" style="color:rgba(255,255,255,.75);">'+pastorKeys.length+' pastor'+(pastorKeys.length!==1?'s':'')+'</div>'
+      +'<div class="group-hdr-arrow" style="color:white;" id="'+cId+'-arr">▼</div>'
+      +'</div>';
+    html += '<div class="group-body open" id="'+cId+'">';
+
+    pastorKeys.forEach(function(pk, pi){
+      var pastor = church.pastors[pk];
+      var groupKeys = Object.keys(pastor.groups);
+      var pId = cId+"-pastor-"+pi;
+
+      // Pastor sub-header
+      html += '<div style="margin-bottom:10px;">';
+      html += '<div style="background:var(--teal-deeper);color:white;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="toggleGroup(\''+pId+'\')">'
+        +'<span style="font-size:18px;">🏛️</span>'
+        +'<div style="flex:1;">'
+          +'<div style="font-size:13px;font-weight:800;color:white;">'+esc(pastor.name)+'</div>'
+          +(pastor.email?'<div style="font-size:11px;color:rgba(255,255,255,.7);">'+esc(pastor.email)+'</div>':'')
+        +'</div>'
+        +'<div style="font-size:12px;color:rgba(255,255,255,.7);">'+groupKeys.length+' group'+(groupKeys.length!==1?'s':'')+'</div>'
+        +'<div class="group-hdr-arrow" style="color:rgba(255,255,255,.7);" id="'+pId+'-arr">▼</div>'
+        +'</div>';
+      html += '<div class="group-body open" id="'+pId+'">';
+
+      groupKeys.forEach(function(gk, gi){
+        var grp = pastor.groups[gk];
+        var memberNames = Object.keys(grp.members);
+        var gId = pId+"-grp-"+gi;
+
+        // CGL sub-header
+        html += '<div style="margin-bottom:8px;">';
+        html += '<div style="background:#e8f4f5;border-radius:10px;padding:8px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="toggleGroup(\''+gId+'\')">'
+          +'<span style="font-size:16px;">👥</span>'
+          +'<div style="flex:1;"><div style="font-size:13px;font-weight:800;color:var(--teal-dark);">'+esc(grp.name)+'</div>'
+          +(grp.email?'<div style="font-size:11px;color:var(--muted);">'+esc(grp.email)+'</div>':'')
+          +'</div>'
+          +'<div style="font-size:12px;color:var(--muted);">'+memberNames.length+' student'+(memberNames.length!==1?'s':'')+'</div>'
+          +'<div class="group-hdr-arrow" id="'+gId+'-arr">▼</div>'
+          +'</div>';
+        html += '<div class="group-body" id="'+gId+'">';
+
+        memberNames.forEach(function(name){
+          var allRows = grp.members[name];
+          var lr = latestRow(name, allRows);
+          var pct = completionPct(lr&&lr.daysCompleted);
+          var cardStreak = lr&&lr.streak ? Number(lr.streak) : 0;
+          html += '<div class="card" style="margin-bottom:8px;">';
+          html += '<div style="display:flex;align-items:center;gap:10px;">'
+            +'<div class="student-avatar">'+esc(name[0])+'</div>'
+            +'<div style="flex:1;">'
+              +'<div class="student-name">'+esc(name)+'</div>'
+              +'<div class="student-meta">'+(lr&&lr.age?lr.age+' yrs · ':'')+esc((lr&&lr.group)||"")+'</div>'
+              +'<div class="chip-row">'
+                +(cardStreak>0?'<span class="streak-chip">🔥 '+cardStreak+'</span>':'')
+                +programBadge(lr&&lr.program)
+                +'<span style="font-size:11px;color:var(--muted);">Wk '+((lr&&lr.week)||"–")+'</span>'
+              +'</div>'
+            +'</div>'
+            +'<div style="text-align:right;"><div style="font-size:20px;font-weight:900;color:var(--teal-dark);">'+pct+'%</div><div style="font-size:10px;color:var(--muted);">complete</div></div>'
+            +'</div>';
+          if (lr&&lr.prayer){
+            html += '<div class="prayer-card" style="margin-top:6px;"><div class="prayer-name">🙏 Prayer Request</div><div class="prayer-text">'+esc(lr.prayer)+'</div></div>';
+          }
+          html += '</div>';
+        });
+        html += '</div></div>'; // group-body + grp div
+      });
+      html += '</div></div>'; // pastor group-body + pastor div
+    });
+    html += '</div></div>'; // church group-body + church section
+  });
+  return html;
+}
+
+// ── ADMIN (NETWORK DIRECTOR/NL) OVERVIEW ──
 function renderAdminOverview(){
   var pastors = getByPastor();
   var pastorKeys = Object.keys(pastors);
@@ -1665,7 +1876,7 @@ function openSettings(){
   document.getElementById("settingsRole").textContent =
     (cfg.role==="admin"||cfg.role==="superadmin") ? "Role: Super Admin (All Access)"
     : cfg.role==="nl" ? "Role: Network Leader"+(cfg.nlPastorEmails&&cfg.nlPastorEmails.length?" ("+cfg.nlPastorEmails.length+" pastors)":"")
-    : cfg.role==="yp" ? "Role: Youth Pastor"
+    : cfg.role==="yp" ? "Role: Youth Pastor"+(cfg.church?" · "+cfg.church:"")
     : "Role: Connect Group Leader"+(cfg.group?" ("+cfg.group+")":"");
   var codeWrap = document.getElementById("settingsCodeWrap");
   if (cfg.role==="yp"||cfg.role==="admin"||cfg.role==="superadmin"||cfg.role==="nl"){
@@ -1688,6 +1899,7 @@ function changeRole(){
   document.getElementById("sName").value = cfg.name || "";
   document.getElementById("sEmail").value = cfg.email || "";
   if (document.getElementById("sGroup")) document.getElementById("sGroup").value = cfg.group || "";
+  if (document.getElementById("sChurch")) document.getElementById("sChurch").value = cfg.church || "";
   if (document.getElementById("sNLPastors") && cfg.nlPastorEmails && cfg.nlPastorEmails.length) {
     document.getElementById("sNLPastors").value = cfg.nlPastorEmails.join("\n");
   }
