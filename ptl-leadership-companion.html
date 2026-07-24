@@ -244,7 +244,93 @@ button{cursor:pointer;font-family:inherit;}
     <input type="time" id="p_apptTime" value="07:00"/>
     <label class="form-label">Where will you meet with Jesus?</label>
     <input type="text" id="p_apptPlace" placeholder="My room, coffee shop..."/>
-    <label class="form-label">Group Code (from your leader)</label>
+
+<div id="alarmWrap" style="display:none;margin-top:12px;padding:12px 14px;background:#e8f8f0;border-radius:10px;border:1px solid #b2dfc7;">
+  <div style="font-size:13px;font-weight:800;color:#1a6b3a;margin-bottom:4px;">&#9200; Wake-up alarm</div>
+  <p style="font-size:12px;color:#2e7d52;margin:0 0 10px;line-height:1.5;">Get a heads-up before your quiet time. How early?</p>
+  <div style="display:flex;gap:6px;margin-bottom:10px;">
+    <button id="alarm15btn" onclick="selectAlarm(15)" style="flex:1;padding:8px 4px;border-radius:8px;border:2px solid #cce8d8;background:white;font-size:12px;font-weight:800;color:#1a6b3a;cursor:pointer;">15 min early</button>
+    <button id="alarm30btn" onclick="selectAlarm(30)" style="flex:1;padding:8px 4px;border-radius:8px;border:2px solid #cce8d8;background:white;font-size:12px;font-weight:800;color:#1a6b3a;cursor:pointer;">30 min early</button>
+    <button id="alarm0btn" onclick="selectAlarm(0)" style="flex:1;padding:8px 4px;border-radius:8px;border:2px solid #cce8d8;background:white;font-size:12px;font-weight:800;color:#888;cursor:pointer;">Off</button>
+  </div>
+  <div id="alarmSetBtn" style="display:none;">
+    <div id="alarmTimeDisplay" style="font-size:14px;font-weight:800;color:#1a6b3a;margin-bottom:8px;text-align:center;"></div>
+    <a id="alarmAndroidLink" href="#" style="display:block;text-align:center;background:#1a6b3a;color:white;padding:10px;border-radius:8px;font-size:13px;font-weight:800;text-decoration:none;margin-bottom:6px;" onclick="setAlarmNative(event)">&#128242; Open Clock app &amp; set alarm</a>
+    <div id="alarmIOSNote" style="font-size:12px;color:#2e7d52;text-align:center;line-height:1.5;display:none;">On iPhone: open your <b>Clock app</b> and set an alarm for the time shown above.</div>
+  </div>
+</div>
+<script>
+(function(){
+  var _isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+  window.selectAlarm=function(m){
+    var btns=[{id:'alarm15btn',v:15},{id:'alarm30btn',v:30},{id:'alarm0btn',v:0}];
+    btns.forEach(function(b){
+      var el=document.getElementById(b.id);
+      if(!el)return;
+      el.style.background=b.v===m?'#1a6b3a':'white';
+      el.style.color=b.v===m?'white':(b.v===0?'#888':'#1a6b3a');
+      el.style.borderColor=b.v===m?'#1a6b3a':'#cce8d8';
+    });
+    try{localStorage.setItem('ptf_alarm_min',String(m));}catch(e){}
+    _updateAlarmDisplay(m);
+  };
+  function _updateAlarmDisplay(m){
+    var tw=document.getElementById('alarmSetBtn');
+    if(!tw)return;
+    if(m===0){tw.style.display='none';return;}
+    var pt=document.getElementById('p_apptTime');
+    if(!pt||!pt.value){tw.style.display='none';return;}
+    var parts=pt.value.split(':');
+    var h=parseInt(parts[0]),mn=parseInt(parts[1])-m;
+    if(mn<0){mn+=60;h-=1;} if(h<0)h+=24;
+    var hh=h%12||12,ampm=h<12?'AM':'PM';
+    var ts=hh+':'+(mn<10?'0':'')+mn+' '+ampm;
+    var td=document.getElementById('alarmTimeDisplay');
+    if(td)td.textContent='Alarm will ring at '+ts;
+    var al=document.getElementById('alarmAndroidLink');
+    if(al){al.setAttribute('data-h',h);al.setAttribute('data-m',mn);}
+    var ios=document.getElementById('alarmIOSNote');
+    if(_isIOS){
+      if(ios)ios.style.display='block';
+      if(al)al.style.display='none';
+      if(td)td.textContent='Set your Clock app alarm for '+ts;
+    } else {
+      if(ios)ios.style.display='none';
+      if(al)al.style.display='block';
+    }
+    tw.style.display='block';
+  }
+  window.setAlarmNative=function(ev){
+    ev.preventDefault();
+    var al=document.getElementById('alarmAndroidLink');
+    if(!al)return;
+    var h=al.getAttribute('data-h'),m=al.getAttribute('data-m');
+    window.location.href='intent://alarm#Intent;action=android.intent.action.SET_ALARM;i.android.intent.extra.alarm.HOUR='+h+';i.android.intent.extra.alarm.MINUTES='+m+';S.android.intent.extra.alarm.MESSAGE=Quiet+Time+Prep;i.android.intent.extra.alarm.SKIP_UI=0;end';
+  };
+  function _restoreAlarm(){
+    try{
+      var saved=parseInt(localStorage.getItem('ptf_alarm_min')||'0');
+      if(saved===15||saved===30){selectAlarm(saved);}
+    }catch(e){}
+  }
+  var pt=document.getElementById('p_apptTime');
+  if(pt){
+    pt.addEventListener('change',function(){
+      var w=document.getElementById('alarmWrap');
+      if(w)w.style.display=this.value?'block':'none';
+      if(this.value)_restoreAlarm();
+    });
+  }
+  setTimeout(function(){
+    var pt2=document.getElementById('p_apptTime');
+    if(pt2&&pt2.value){
+      var w=document.getElementById('alarmWrap');
+      if(w)w.style.display='block';
+      _restoreAlarm();
+    }
+  },350);
+})();
+</script>    <label class="form-label">Group Code (from your leader)</label>
     <input type="text" id="p_groupCode" placeholder="e.g. LEAD2024" style="text-transform:uppercase;"/>
     <label class="form-label">Commitment level (1–10) &nbsp;<span id="p_commitVal" style="font-weight:900;color:var(--navy);">8</span>/10</label>
     <div class="range-row"><span style="font-size:11px;color:var(--muted);">1</span><input type="range" id="p_commit" min="1" max="10" value="8" oninput="document.getElementById('p_commitVal').textContent=this.value"/><span style="font-size:11px;color:var(--muted);">10</span></div>
@@ -1604,7 +1690,8 @@ function submitDailyPrayer() {
     <input type="url" id="wQuickUrl" placeholder="Paste YouTube or Spotify playlist link..." style="flex:1;padding:8px 12px;border-radius:10px;border:none;font-size:13px;" oninput="wSaveUrl(this)"/>
     <button onclick="wCloseSetup()" style="background:rgba(255,255,255,.15);border:none;color:white;border-radius:10px;padding:8px 12px;font-size:12px;cursor:pointer;">Done</button>
   </div>
-  <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:6px;">Tip: You can also set this in your Profile settings.</div>
+  <div id="wUrlHint" style="display:none;font-size:11px;color:#ffb347;margin-top:6px;line-height:1.5;"></div>
+  <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:4px;">Paste a YouTube playlist or Spotify playlist link. (Channel links won't work — use a playlist.)</div>
 </div>
 <script>
 (function(){
@@ -1615,10 +1702,13 @@ function submitDailyPrayer() {
     if(lm)return'https://www.youtube.com/embed/videoseries?list='+lm[1]+'&rel=0&modestbranding=1';
     var vm=u.match(/(?:youtu\.be\/|[?&]v=)([A-Za-z0-9_-]{11})/);
     if(vm)return'https://www.youtube.com/embed/'+vm[1]+'?rel=0&modestbranding=1';
+    var cm=u.match(/youtube\.com\/channel\/(UC[A-Za-z0-9_-]+)/);
+    if(cm)return'https://www.youtube.com/embed/videoseries?list='+cm[1].replace(/^UC/,'UU')+'&rel=0&modestbranding=1';
     var sm=u.match(/open\.spotify\.com\/(playlist|album|artist|track)\/([A-Za-z0-9]+)/);
     if(sm)return'https://open.spotify.com/embed/'+sm[1]+'/'+sm[2]+'?theme=0';
     return'';
   }
+  function _isYTCh(u){return/youtube\.com\/(@|c\/|user\/)/.test(u);}
   function _get(){try{return localStorage.getItem(WU)||'';}catch(e){return'';}}
   window.wOpen=function(){
     var e=_emb(_get());
@@ -1661,11 +1751,25 @@ function submitDailyPrayer() {
     if(qi&&qi!==el)qi.value=u;
     var pi=document.getElementById('pWorshipUrl');
     if(pi&&pi!==el)pi.value=u;
+    var he=document.getElementById('wUrlHint');
     if(u){
-      var sb=document.getElementById('worshipSetupBar');
-      if(sb)sb.style.display='none';
-      var pb=document.getElementById('worshipBar');
-      if(pb){pb.style.display='block';document.body.style.paddingBottom='54px';}
+      var e=_emb(u);
+      if(e){
+        if(he)he.style.display='none';
+        var sb=document.getElementById('worshipSetupBar');
+        if(sb)sb.style.display='none';
+        var pb=document.getElementById('worshipBar');
+        if(pb){pb.style.display='block';document.body.style.paddingBottom='54px';}
+      } else {
+        if(he){
+          he.style.display='block';
+          if(_isYTCh(u)){
+            he.textContent='YouTube channel links can't embed directly. Open that channel \u2192 tap Playlists \u2192 copy a playlist link and paste it here.';
+          } else {
+            he.textContent='Link not recognized. Paste a YouTube playlist link (youtube.com/playlist?list=...) or a Spotify playlist link.';
+          }
+        }
+      }
     }
   };
   window.wFillInput=function(){

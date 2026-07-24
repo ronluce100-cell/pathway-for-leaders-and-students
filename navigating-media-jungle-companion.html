@@ -1450,7 +1450,8 @@ function renderProgress(c){
     <input type="url" id="wQuickUrl" placeholder="Paste YouTube or Spotify playlist link..." style="flex:1;padding:8px 12px;border-radius:10px;border:none;font-size:13px;" oninput="wSaveUrl(this)"/>
     <button onclick="wCloseSetup()" style="background:rgba(255,255,255,.15);border:none;color:white;border-radius:10px;padding:8px 12px;font-size:12px;cursor:pointer;">Done</button>
   </div>
-  <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:6px;">Tip: You can also set this in your Profile settings.</div>
+  <div id="wUrlHint" style="display:none;font-size:11px;color:#ffb347;margin-top:6px;line-height:1.5;"></div>
+  <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:4px;">Paste a YouTube playlist or Spotify playlist link. (Channel links won't work — use a playlist.)</div>
 </div>
 <script>
 (function(){
@@ -1461,10 +1462,13 @@ function renderProgress(c){
     if(lm)return'https://www.youtube.com/embed/videoseries?list='+lm[1]+'&rel=0&modestbranding=1';
     var vm=u.match(/(?:youtu\.be\/|[?&]v=)([A-Za-z0-9_-]{11})/);
     if(vm)return'https://www.youtube.com/embed/'+vm[1]+'?rel=0&modestbranding=1';
+    var cm=u.match(/youtube\.com\/channel\/(UC[A-Za-z0-9_-]+)/);
+    if(cm)return'https://www.youtube.com/embed/videoseries?list='+cm[1].replace(/^UC/,'UU')+'&rel=0&modestbranding=1';
     var sm=u.match(/open\.spotify\.com\/(playlist|album|artist|track)\/([A-Za-z0-9]+)/);
     if(sm)return'https://open.spotify.com/embed/'+sm[1]+'/'+sm[2]+'?theme=0';
     return'';
   }
+  function _isYTCh(u){return/youtube\.com\/(@|c\/|user\/)/.test(u);}
   function _get(){try{return localStorage.getItem(WU)||'';}catch(e){return'';}}
   window.wOpen=function(){
     var e=_emb(_get());
@@ -1507,11 +1511,25 @@ function renderProgress(c){
     if(qi&&qi!==el)qi.value=u;
     var pi=document.getElementById('pWorshipUrl');
     if(pi&&pi!==el)pi.value=u;
+    var he=document.getElementById('wUrlHint');
     if(u){
-      var sb=document.getElementById('worshipSetupBar');
-      if(sb)sb.style.display='none';
-      var pb=document.getElementById('worshipBar');
-      if(pb){pb.style.display='block';document.body.style.paddingBottom='54px';}
+      var e=_emb(u);
+      if(e){
+        if(he)he.style.display='none';
+        var sb=document.getElementById('worshipSetupBar');
+        if(sb)sb.style.display='none';
+        var pb=document.getElementById('worshipBar');
+        if(pb){pb.style.display='block';document.body.style.paddingBottom='54px';}
+      } else {
+        if(he){
+          he.style.display='block';
+          if(_isYTCh(u)){
+            he.textContent='YouTube channel links can't embed directly. Open that channel \u2192 tap Playlists \u2192 copy a playlist link and paste it here.';
+          } else {
+            he.textContent='Link not recognized. Paste a YouTube playlist link (youtube.com/playlist?list=...) or a Spotify playlist link.';
+          }
+        }
+      }
     }
   };
   window.wFillInput=function(){
