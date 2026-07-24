@@ -1955,8 +1955,10 @@ function submitDailyPrayer() {
     if(vm)return'https://www.youtube.com/embed/'+vm[1]+'?autoplay=1&rel=0&modestbranding=1';
     var cm=u.match(/youtube\.com\/channel\/(UC[A-Za-z0-9_-]+)/);
     if(cm)return'https://www.youtube.com/embed/videoseries?list='+cm[1].replace(/^UC/,'UU')+'&autoplay=1&rel=0&modestbranding=1';
-    var sm=u.match(/open\.spotify\.com\/(playlist|album|artist|track)\/([A-Za-z0-9]+)/);
+    var sm=u.match(/open\.spotify\.com\/(playlist|album|artist|track)\/([A-Za-z0-9_-]+)/);
     if(sm)return'https://open.spotify.com/embed/'+sm[1]+'/'+sm[2]+'?theme=0&autoplay=1';
+    var spUri=u.match(/^spotify:(playlist|album|artist|track):([A-Za-z0-9]+)/);
+    if(spUri)return'https://open.spotify.com/embed/'+spUri[1]+'/'+spUri[2]+'?theme=0&autoplay=1';
     return'';
   }
   function _isYTCh(u){return/youtube\.com\/(@|c\/|user\/)/.test(u);}
@@ -2013,7 +2015,7 @@ function submitDailyPrayer() {
         if(pb){pb.style.display='block';document.body.style.paddingBottom='54px';}
         setTimeout(function(){wOpen();},150);
       } else {
-        var _msg=_isYTCh(u)?"YouTube channel links can't play here. Open that channel \u2192 tap Playlists \u2192 copy a playlist URL and paste it.":"Link not recognized. Use a YouTube playlist link or Spotify playlist link.";
+        var _msg=_isYTCh(u)?"YouTube channel links can't play here. Open that channel \u2192 tap Playlists \u2192 copy a playlist URL and paste it.":/spotify\.link\//.test(u)?"Spotify shortened this link. Open it in Safari first, then copy the URL from the browser address bar (it should start with open.spotify.com).":"Link not recognized. Paste a YouTube playlist link or open.spotify.com playlist link.";
         if(he){he.style.display='block';he.textContent=_msg;}
         var ph=document.getElementById('pWorshipHint');
         if(ph){ph.style.display='block';ph.textContent=_msg;}
