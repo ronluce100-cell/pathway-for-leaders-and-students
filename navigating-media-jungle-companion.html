@@ -198,7 +198,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </table>
       </div>
 
-      <button class="submit-btn" onclick="saveProfile()">Start My Journey 🌿</button>
+      <div style="border-top:1px solid #e8f4f5;margin-top:14px;padding-top:14px;">
+  <div style="font-size:15px;font-weight:900;color:#005f6e;margin-bottom:4px;">🎵 Worship Music</div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;">Paste a YouTube or Spotify playlist link — your worship music will auto-load every time you open this app.</p>
+  <label class="form-label">Worship Playlist URL</label>
+  <input type="url" id="pWorshipUrl" placeholder="https://www.youtube.com/playlist?list=..." style="font-size:13px;" oninput="if(typeof wSaveUrl==='function')wSaveUrl(this)" onfocus="if(typeof wFillInput==='function')wFillInput()"/>
+</div>
+<button class="submit-btn" onclick="saveProfile()">Start My Journey 🌿</button>
     </div>
   </div>
 
@@ -1419,5 +1425,124 @@ function renderProgress(c){
   c.innerHTML=html;
 }
 </script>
+
+<!-- WORSHIP PLAYER -->
+<div id="worshipBar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#001f2e;box-shadow:0 -3px 18px rgba(0,0,0,.5);font-family:inherit;">
+  <div id="wBar-mini" style="display:flex;align-items:center;padding:10px 16px;gap:12px;">
+    <span style="font-size:20px;">&#127925;</span>
+    <div style="flex:1;color:white;font-size:13px;font-weight:700;">Worship Music</div>
+    <button onclick="wOpen()" style="background:rgba(255,255,255,.2);border:none;color:white;border-radius:22px;padding:6px 16px;font-size:12px;font-weight:800;cursor:pointer;">&#9654; PLAY</button>
+    <button onclick="wClose()" style="background:transparent;border:none;color:rgba(255,255,255,.4);font-size:20px;line-height:1;cursor:pointer;padding:0 2px;">&#10005;</button>
+  </div>
+  <div id="wBar-full" style="display:none;">
+    <div style="display:flex;align-items:center;padding:8px 16px 4px;gap:10px;">
+      <span style="font-size:16px;">&#127925;</span>
+      <div style="flex:1;color:white;font-size:13px;font-weight:700;">Worship Music</div>
+      <button onclick="wMinimize()" style="background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.8);border-radius:18px;padding:4px 12px;font-size:11px;cursor:pointer;">&#9660; Minimize</button>
+      <button onclick="wClose()" style="background:transparent;border:none;color:rgba(255,255,255,.4);font-size:18px;line-height:1;cursor:pointer;padding:0 2px;">&#10005;</button>
+    </div>
+    <iframe id="wFrame" style="width:100%;height:152px;border:none;display:block;" allowfullscreen allow="autoplay; encrypted-media; clipboard-write; picture-in-picture"></iframe>
+  </div>
+</div>
+<div id="worshipSetupBar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#003d4d;box-shadow:0 -3px 18px rgba(0,0,0,.5);padding:12px 16px;font-family:inherit;">
+  <div style="color:white;font-size:13px;font-weight:700;margin-bottom:8px;">&#127925; Add Worship Music</div>
+  <div style="display:flex;gap:8px;">
+    <input type="url" id="wQuickUrl" placeholder="Paste YouTube or Spotify playlist link..." style="flex:1;padding:8px 12px;border-radius:10px;border:none;font-size:13px;" oninput="wSaveUrl(this)"/>
+    <button onclick="wCloseSetup()" style="background:rgba(255,255,255,.15);border:none;color:white;border-radius:10px;padding:8px 12px;font-size:12px;cursor:pointer;">Done</button>
+  </div>
+  <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:6px;">Tip: You can also set this in your Profile settings.</div>
+</div>
+<script>
+(function(){
+  var WU='ptf_worship_url';
+  function _emb(u){
+    if(!u)return'';
+    var lm=u.match(/[?&]list=([A-Za-z0-9_-]+)/);
+    if(lm)return'https://www.youtube.com/embed/videoseries?list='+lm[1]+'&rel=0&modestbranding=1';
+    var vm=u.match(/(?:youtu\.be\/|[?&]v=)([A-Za-z0-9_-]{11})/);
+    if(vm)return'https://www.youtube.com/embed/'+vm[1]+'?rel=0&modestbranding=1';
+    var sm=u.match(/open\.spotify\.com\/(playlist|album|artist|track)\/([A-Za-z0-9]+)/);
+    if(sm)return'https://open.spotify.com/embed/'+sm[1]+'/'+sm[2]+'?theme=0';
+    return'';
+  }
+  function _get(){try{return localStorage.getItem(WU)||'';}catch(e){return'';}}
+  window.wOpen=function(){
+    var e=_emb(_get());
+    if(!e){
+      document.getElementById('worshipBar').style.display='none';
+      var sb=document.getElementById('worshipSetupBar');
+      if(sb){sb.style.display='block';document.body.style.paddingBottom='110px';}
+      return;
+    }
+    var f=document.getElementById('wFrame');
+    if(f&&!f.src)f.src=e;
+    document.getElementById('wBar-mini').style.display='none';
+    document.getElementById('wBar-full').style.display='block';
+    document.body.style.paddingBottom='214px';
+  };
+  window.wMinimize=function(){
+    document.getElementById('wBar-mini').style.display='flex';
+    document.getElementById('wBar-full').style.display='none';
+    document.body.style.paddingBottom='54px';
+  };
+  window.wClose=function(){
+    var b=document.getElementById('worshipBar');
+    if(b)b.style.display='none';
+    document.body.style.paddingBottom='0';
+  };
+  window.wCloseSetup=function(){
+    var b=document.getElementById('worshipSetupBar');
+    if(b)b.style.display='none';
+    document.body.style.paddingBottom='0';
+    var u=_get();
+    if(u){
+      var pb=document.getElementById('worshipBar');
+      if(pb){pb.style.display='block';document.body.style.paddingBottom='54px';}
+    }
+  };
+  window.wSaveUrl=function(el){
+    var u=(el.value||'').trim();
+    try{localStorage.setItem(WU,u);}catch(e){}
+    var qi=document.getElementById('wQuickUrl');
+    if(qi&&qi!==el)qi.value=u;
+    var pi=document.getElementById('pWorshipUrl');
+    if(pi&&pi!==el)pi.value=u;
+    if(u){
+      var sb=document.getElementById('worshipSetupBar');
+      if(sb)sb.style.display='none';
+      var pb=document.getElementById('worshipBar');
+      if(pb){pb.style.display='block';document.body.style.paddingBottom='54px';}
+    }
+  };
+  window.wFillInput=function(){
+    var u=_get();
+    var el=document.getElementById('pWorshipUrl');
+    if(el)el.value=u;
+    var qi=document.getElementById('wQuickUrl');
+    if(qi)qi.value=u;
+  };
+  function _dndToast(){
+    var d=document.createElement('div');
+    d.innerHTML='&#128263; Silence your phone for your time with Jesus';
+    d.style.cssText='position:fixed;top:22px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.88);color:#fff;padding:12px 22px;border-radius:28px;font-size:13px;font-weight:700;z-index:99999;pointer-events:none;transition:opacity .7s ease;max-width:88vw;text-align:center;';
+    document.body.appendChild(d);
+    setTimeout(function(){d.style.opacity='0';setTimeout(function(){try{d.remove();}catch(e){}},750);},4000);
+  }
+  function _init(){
+    var u=_get();
+    if(u){
+      var b=document.getElementById('worshipBar');
+      if(b){b.style.display='block';document.body.style.paddingBottom='54px';}
+    } else {
+      var sb=document.getElementById('worshipSetupBar');
+      if(sb){sb.style.display='block';document.body.style.paddingBottom='110px';}
+    }
+    setTimeout(_dndToast,1200);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(_init,500);});
+  else setTimeout(_init,500);
+})();
+</script>
+
 </body>
 </html>
