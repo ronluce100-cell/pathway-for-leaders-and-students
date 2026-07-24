@@ -321,7 +321,8 @@ textarea { resize: vertical; min-height: 80px; }
   <div id="alarmSetBtn" style="display:none;">
     <div id="alarmTimeDisplay" style="font-size:14px;font-weight:800;color:#1a6b3a;margin-bottom:8px;text-align:center;"></div>
     <a id="alarmAndroidLink" href="#" style="display:block;text-align:center;background:#1a6b3a;color:white;padding:10px;border-radius:8px;font-size:13px;font-weight:800;text-decoration:none;margin-bottom:6px;" onclick="setAlarmNative(event)">&#128242; Open Clock app &amp; set alarm</a>
-    <div id="alarmIOSNote" style="font-size:12px;color:#2e7d52;text-align:center;line-height:1.5;display:none;">On iPhone: open your <b>Clock app</b> and set an alarm for the time shown above.</div>
+    <button id="alarmICSBtn" onclick="downloadAlarmICS()" style="display:none;width:100%;background:#1a6b3a;color:white;padding:10px;border-radius:8px;font-size:13px;font-weight:800;border:none;cursor:pointer;margin-bottom:6px;">&#128197; Add daily alarm to Calendar</button>
+    <div id="alarmIOSNote" style="font-size:11px;color:#2e7d52;text-align:center;line-height:1.5;display:none;">Tap above &#8594; Calendar opens &#8594; tap <b>Add</b> &#8594; you get a daily wake-up notification.</div>
   </div>
 </div>
 <script>
@@ -355,12 +356,15 @@ textarea { resize: vertical; min-height: 80px; }
     var al=document.getElementById('alarmAndroidLink');
     if(al){al.setAttribute('data-h',h);al.setAttribute('data-m',mn);}
     var ios=document.getElementById('alarmIOSNote');
+    var icsBtn=document.getElementById('alarmICSBtn');
     if(_isIOS){
       if(ios)ios.style.display='block';
       if(al)al.style.display='none';
-      if(td)td.textContent='Set your Clock app alarm for '+ts;
+      if(icsBtn)icsBtn.style.display='block';
+      if(td)td.textContent='Daily alarm at '+ts;
     } else {
       if(ios)ios.style.display='none';
+      if(icsBtn)icsBtn.style.display='block';
       if(al)al.style.display='block';
     }
     tw.style.display='block';
@@ -1942,13 +1946,13 @@ function submitDailyPrayer() {
   function _emb(u){
     if(!u)return'';
     var lm=u.match(/[?&]list=([A-Za-z0-9_-]+)/);
-    if(lm)return'https://www.youtube.com/embed/videoseries?list='+lm[1]+'&rel=0&modestbranding=1';
+    if(lm)return'https://www.youtube.com/embed/videoseries?list='+lm[1]+'&autoplay=1&rel=0&modestbranding=1';
     var vm=u.match(/(?:youtu\.be\/|[?&]v=)([A-Za-z0-9_-]{11})/);
-    if(vm)return'https://www.youtube.com/embed/'+vm[1]+'?rel=0&modestbranding=1';
+    if(vm)return'https://www.youtube.com/embed/'+vm[1]+'?autoplay=1&rel=0&modestbranding=1';
     var cm=u.match(/youtube\.com\/channel\/(UC[A-Za-z0-9_-]+)/);
-    if(cm)return'https://www.youtube.com/embed/videoseries?list='+cm[1].replace(/^UC/,'UU')+'&rel=0&modestbranding=1';
+    if(cm)return'https://www.youtube.com/embed/videoseries?list='+cm[1].replace(/^UC/,'UU')+'&autoplay=1&rel=0&modestbranding=1';
     var sm=u.match(/open\.spotify\.com\/(playlist|album|artist|track)\/([A-Za-z0-9]+)/);
-    if(sm)return'https://open.spotify.com/embed/'+sm[1]+'/'+sm[2]+'?theme=0';
+    if(sm)return'https://open.spotify.com/embed/'+sm[1]+'/'+sm[2]+'?theme=0&autoplay=1';
     return'';
   }
   function _isYTCh(u){return/youtube\.com\/(@|c\/|user\/)/.test(u);}
@@ -1962,7 +1966,7 @@ function submitDailyPrayer() {
       return;
     }
     var f=document.getElementById('wFrame');
-    if(f&&!f.src)f.src=e;
+    if(f)f.src=e;
     document.getElementById('wBar-mini').style.display='none';
     document.getElementById('wBar-full').style.display='block';
     document.body.style.paddingBottom='214px';
@@ -2003,6 +2007,7 @@ function submitDailyPrayer() {
         if(sb)sb.style.display='none';
         var pb=document.getElementById('worshipBar');
         if(pb){pb.style.display='block';document.body.style.paddingBottom='54px';}
+        setTimeout(function(){wOpen();},150);
       } else {
         if(he){
           he.style.display='block';
@@ -2038,7 +2043,18 @@ function submitDailyPrayer() {
       var sb=document.getElementById('worshipSetupBar');
       if(sb){sb.style.display='block';document.body.style.paddingBottom='110px';}
     }
+    window._ptfDndToast=_dndToast;
     setTimeout(_dndToast,1200);
+    setTimeout(function(){
+      var hdr=document.getElementById('hdrDay')||document.getElementById('dayHeader')||document.getElementById('dayNum');
+      if(hdr){
+        var _ld='';
+        new MutationObserver(function(){
+          var t=(hdr.textContent||'').trim();
+          if(t&&t!==_ld){_ld=t;setTimeout(_dndToast,500);}
+        }).observe(hdr,{childList:true,subtree:true,characterData:true});
+      }
+    },1800);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(_init,500);});
   else setTimeout(_init,500);
