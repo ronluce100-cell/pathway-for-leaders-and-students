@@ -202,7 +202,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div style="font-size:15px;font-weight:900;color:#005f6e;margin-bottom:4px;">🎵 Worship Music</div>
   <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;">Paste a YouTube or Spotify playlist link — your worship music will auto-load every time you open this app.</p>
   <label class="form-label">Worship Playlist URL</label>
-  <input type="url" id="pWorshipUrl" placeholder="https://www.youtube.com/playlist?list=..." style="font-size:13px;" oninput="if(typeof wSaveUrl==='function')wSaveUrl(this)" onfocus="if(typeof wFillInput==='function')wFillInput()"/>
+  <input type="url" id="pWorshipUrl" placeholder="https://www.youtube.com/playlist?list=..." style="font-size:13px;" oninput="if(typeof wSaveUrl==='function')wSaveUrl(this)" onchange="if(typeof wSaveUrl==='function')wSaveUrl(this)" onpaste="var _pw=this;setTimeout(function(){if(typeof wSaveUrl==='function')wSaveUrl(_pw);},80)" onfocus="if(typeof wFillInput==='function')wFillInput()"/>
+      <div id="pWorshipHint" style="display:none;font-size:11px;color:#e05a00;margin-top:5px;line-height:1.5;padding:6px 10px;background:#fff4e6;border-radius:6px;"></div>
 </div>
 <button class="submit-btn" onclick="saveProfile()">Start My Journey 🌿</button>
     </div>
@@ -1447,7 +1448,7 @@ function renderProgress(c){
 <div id="worshipSetupBar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#003d4d;box-shadow:0 -3px 18px rgba(0,0,0,.5);padding:12px 16px;font-family:inherit;">
   <div style="color:white;font-size:13px;font-weight:700;margin-bottom:8px;">&#127925; Add Worship Music</div>
   <div style="display:flex;gap:8px;">
-    <input type="url" id="wQuickUrl" placeholder="Paste YouTube or Spotify playlist link..." style="flex:1;padding:8px 12px;border-radius:10px;border:none;font-size:13px;" oninput="wSaveUrl(this)"/>
+    <input type="url" id="wQuickUrl" placeholder="Paste YouTube playlist or Spotify link..." style="flex:1;padding:8px 12px;border-radius:10px;border:none;font-size:13px;" oninput="wSaveUrl(this)" onchange="wSaveUrl(this)" onpaste="var _q=this;setTimeout(function(){wSaveUrl(_q);},80)"/>
     <button onclick="wCloseSetup()" style="background:rgba(255,255,255,.15);border:none;color:white;border-radius:10px;padding:8px 12px;font-size:12px;cursor:pointer;">Done</button>
   </div>
   <div id="wUrlHint" style="display:none;font-size:11px;color:#ffb347;margin-top:6px;line-height:1.5;"></div>
@@ -1522,14 +1523,10 @@ function renderProgress(c){
         if(pb){pb.style.display='block';document.body.style.paddingBottom='54px';}
         setTimeout(function(){wOpen();},150);
       } else {
-        if(he){
-          he.style.display='block';
-          if(_isYTCh(u)){
-            he.textContent='YouTube channel links can't embed directly. Open that channel \u2192 tap Playlists \u2192 copy a playlist link and paste it here.';
-          } else {
-            he.textContent='Link not recognized. Paste a YouTube playlist link (youtube.com/playlist?list=...) or a Spotify playlist link.';
-          }
-        }
+        var _msg=_isYTCh(u)?"YouTube channel links can't play here. Open that channel \u2192 tap Playlists \u2192 copy a playlist URL and paste it.":"Link not recognized. Use a YouTube playlist link or Spotify playlist link.";
+        if(he){he.style.display='block';he.textContent=_msg;}
+        var ph=document.getElementById('pWorshipHint');
+        if(ph){ph.style.display='block';ph.textContent=_msg;}
       }
     }
   };
@@ -1558,16 +1555,13 @@ function renderProgress(c){
     }
     window._ptfDndToast=_dndToast;
     setTimeout(_dndToast,1200);
-    setTimeout(function(){
-      var hdr=document.getElementById('hdrDay')||document.getElementById('dayHeader')||document.getElementById('dayNum');
-      if(hdr){
-        var _ld='';
-        new MutationObserver(function(){
-          var t=(hdr.textContent||'').trim();
-          if(t&&t!==_ld){_ld=t;setTimeout(_dndToast,500);}
-        }).observe(hdr,{childList:true,subtree:true,characterData:true});
-      }
-    },1800);
+    var _dndPollDay='';
+    setInterval(function(){
+      var ids=['hdrDay','dayHeader','dayNum','dayTitle'];
+      var t='';
+      for(var i=0;i<ids.length;i++){var el=document.getElementById(ids[i]);if(el){t=(el.textContent||'').trim();break;}}
+      if(t&&t!==_dndPollDay){_dndPollDay=t;if(_dndPollDay)setTimeout(_dndToast,500);}
+    },2000);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(_init,500);});
   else setTimeout(_init,500);
