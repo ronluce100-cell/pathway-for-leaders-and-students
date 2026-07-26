@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PTF for Parents">
+<title>Pathway for Parents</title>
+<style>
+:root {
+  --teal: #00B5C5;
+  --teal-dark: #007d8c;
+  --teal-deeper: #005f6e;
+  --gold: #E8C87A;
+  --bg: #e4f6f9;
+  --card: #ffffff;
+  --muted: #5a8a92;
+  --border: #b8e4ea;
+  --text: #1a2e33;
+  --green: #2e7d6a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── HEADER ── */
+.app-hdr {
+  background: linear-gradient(160deg, #00c8da 0%, #00a0b0 55%, var(--teal-dark) 100%);
+  color: white; padding: 16px 56px 18px; position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 3px 14px rgba(0,100,120,0.35); text-align: center; min-height: 72px;
+}
+.hdr-pre { font-size: 9px; letter-spacing: 5px; text-transform: uppercase; opacity: .75; margin-bottom: 3px; }
+.hdr-title { font-size: 20px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; font-family: Georgia, serif; line-height: 1; }
+.hdr-sub { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; opacity: .65; margin-top: 4px; }
+.hdr-settings { position: absolute; top: 18px; right: 14px; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35); color: white; border-radius: 50%; width: 34px; height: 34px; font-size: 15px; cursor: pointer; display: none; align-items: center; justify-content: center; }
+
+/* ── VIEWS ── */
+.view { display: none; padding: 18px 16px 40px; max-width: 500px; margin: 0 auto; }
+
+/* ── CARDS ── */
+.card { background: var(--card); border-radius: 16px; padding: 20px 18px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
+.card-title { font-size: 17px; font-weight: 900; color: var(--teal-deeper); margin-bottom: 8px; font-family: Georgia, serif; }
+.card-sub { font-size: 13px; color: var(--muted); line-height: 1.65; margin-bottom: 16px; }
+
+/* ── FORM ── */
+.form-label { font-size: 11px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 1px; display: block; margin: 14px 0 5px; }
+.form-label:first-child { margin-top: 0; }
+input[type=email], input[type=text] {
+  width: 100%; padding: 13px 15px; border: 2px solid var(--border); border-radius: 12px;
+  font-size: 15px; color: var(--text); background: #f8fdfe; font-family: inherit;
+  -webkit-appearance: none;
+}
+input:focus { outline: none; border-color: var(--teal); }
+.field-note { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+.input-error { font-size: 12px; color: #e05a00; margin-top: 5px; display: none; padding: 6px 10px; background: #fff4e6; border-radius: 8px; }
+
+/* ── BUTTONS ── */
+.btn-primary {
+  display: block; width: 100%; padding: 15px; margin-top: 16px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+  color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 800;
+  cursor: pointer; font-family: inherit; transition: opacity .15s; letter-spacing: .3px;
+}
+.btn-primary:active { opacity: .82; }
+.btn-secondary {
+  display: block; width: 100%; padding: 13px; margin-top: 10px;
+  background: transparent; color: var(--teal-dark); border: 2px solid var(--border);
+  border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.btn-secondary:active { background: #f0fafb; }
+.btn-sm { padding: 9px 16px; font-size: 13px; border-radius: 10px; }
+
+/* ── PAYWALL ── */
+.paywall-hero {
+  background: linear-gradient(145deg, #00c8da 0%, var(--teal-dark) 100%);
+  border-radius: 18px; padding: 26px 22px; text-align: center; margin-bottom: 16px;
+  color: white; box-shadow: 0 4px 20px rgba(0,140,160,.32);
+}
+.price-big { font-size: 46px; font-weight: 900; line-height: 1; letter-spacing: -1px; }
+.price-unit { font-size: 14px; opacity: .8; margin-top: 5px; }
+.feature-list { list-style: none; text-align: left; margin-top: 18px; }
+.feature-list li { font-size: 14px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.18); display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+.feature-list li:last-child { border-bottom: none; }
+.feat-check { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── STATS GRID ── */
+.stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+.stat-box { background: var(--card); border-radius: 14px; padding: 14px 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.stat-num { font-size: 28px; font-weight: 900; color: var(--teal-dark); line-height: 1.1; }
+.stat-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-top: 4px; }
+
+/* ── TABS ── */
+.tab-bar { display: flex; background: white; border-bottom: 2px solid var(--border); margin: 0 -16px 14px; sticky: top 72px; }
+.tab-btn { flex: 1; padding: 11px 4px; font-size: 11px; font-weight: 700; color: var(--muted); cursor: pointer; border: none; background: none; border-bottom: 3px solid transparent; text-align: center; transition: all .15s; white-space: nowrap; }
+.tab-btn.active { color: var(--teal-dark); border-bottom-color: var(--teal); }
+
+/* ── PROGRAM CARDS ── */
+.prog-card { background: var(--card); border-radius: 14px; overflow: hidden; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.prog-hdr { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; }
+.prog-label { font-size: 12px; font-weight: 800; color: white; }
+.prog-days { font-size: 11px; color: rgba(255,255,255,.88); font-weight: 700; }
+.prog-body { padding: 10px 14px 14px; }
+.pbar-wrap { height: 6px; background: #e0f0f2; border-radius: 3px; margin-bottom: 7px; }
+.pbar-fill { height: 100%; border-radius: 3px; transition: width .5s ease; }
+.prog-meta { font-size: 11px; color: var(--muted); margin-bottom: 10px; line-height: 1.6; }
+
+/* ── DAY DOTS ── */
+.day-dots { display: flex; flex-wrap: wrap; gap: 2px; }
+.d-dot { width: 16px; height: 16px; border-radius: 3px; background: #e0f0f2; font-size: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--muted); }
+.d-dot.done { background: var(--teal); color: white; }
+.d-dot.today { background: var(--gold); color: #3a2800; }
+
+/* ── BADGES ── */
+.badge-chip { display: inline-flex; align-items: center; gap: 3px; background: #fffbee; border: 1.5px solid var(--gold); border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 700; color: #7a5c00; margin: 3px 2px; }
+.chip-wrap { display: flex; flex-wrap: wrap; padding: 6px 0; }
+
+/* ── ACTIVITY ── */
+.activity-row { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.activity-row:last-child { border-bottom: none; }
+.activity-badge { font-size: 10px; font-weight: 800; color: white; border-radius: 6px; padding: 3px 7px; white-space: nowrap; flex-shrink: 0; }
+.activity-info { flex: 1; }
+.activity-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.activity-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── SPINNER ── */
+.spinner-wrap { text-align: center; padding: 60px 20px; }
+.spinner { width: 38px; height: 38px; border: 4px solid var(--border); border-top-color: var(--teal); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin-msg { font-size: 15px; font-weight: 800; color: var(--teal-dark); }
+.spin-sub { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.6; max-width: 320px; margin-left: auto; margin-right: auto; }
+
+/* ── PROFILE SHEET ── */
+.sheet-overlay { display: none; position: fixed; inset: 0; background: rgba(0,60,75,.6); z-index: 300; align-items: flex-end; justify-content: center; }
+.sheet-panel { background: white; border-radius: 22px 22px 0 0; padding: 24px 20px 48px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+.sheet-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.sheet-title { font-size: 18px; font-weight: 900; color: var(--teal-deeper); }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 40px 16px; }
+.empty-icon { font-size: 52px; margin-bottom: 12px; }
+.empty-title { font-size: 16px; font-weight: 800; color: var(--teal-deeper); margin-bottom: 8px; }
+.empty-sub { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #003d4d; color: white; padding: 12px 22px; border-radius: 22px; font-size: 14px; font-weight: 700; z-index: 400; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; max-width: 90vw; text-align: center; }
+.toast.show { opacity: 1; }
+
+/* ── SETUP SUCCESS BANNER ── */
+.success-banner { background: linear-gradient(135deg, #e8f8f0, #d4f0e0); border: 1.5px solid #b2dfc7; border-radius: 14px; padding: 16px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+.success-icon { font-size: 28px; flex-shrink: 0; }
+.success-text { font-size: 14px; font-weight: 700; color: #1a6b3a; line-height: 1.5; }
+
+/* ── DASHBOARD HEADER ROW ── */
+.dash-hdr { display: flex; align-items: flex-end; justify-content: space-between; padding: 14px 0 10px; }
+.dash-greeting { font-size: 20px; font-weight: 900; color: var(--teal-deeper); font-family: Georgia, serif; }
+.dash-child { font-size: 14px; color: var(--teal-dark); font-weight: 700; margin-top: 3px; }
+.refresh-btn { background: var(--card); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 12px; font-size: 12px; font-weight: 700; color: var(--teal-dark); cursor: pointer; white-space: nowrap; }
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="app-hdr">
+  <div class="hdr-pre">Pathway to Freedom</div>
+  <div class="hdr-title">🕊️ Parent Companion</div>
+  <div class="hdr-sub" id="hdrSub">Walk the Journey Together</div>
+  <button class="hdr-settings" id="hdrSettingsBtn" onclick="editProfile()">⚙️</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- VIEW 1 — EMAIL ENTRY                               -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="view" id="view-email" style="display:block;">
+  <div style="text-align:center;padding:28px 0 18px;">
+    <div style="font-size:52px;margin-bottom:10px;">🕊️</div>
+    <div style="font-size:22px;font-weight:900;color:var(--teal-deeper);font-family:Georgia,serif;margin-bottom:8px;">Welcome, Parent!</div>
+    <div style="font-size:14px;color:var(--muted);line-height:1.7;max-width:340px;margin:0 auto;">Track your child's daily devotional progress and walk this spiritual journey alongside them.</div>
+  </div>
+  <div class="card">
+    <label class="form-label">Your Email Address</label>
+    <input type="email" id="emailInput" placeholder="your@email.com" autocomplete="email"
+      onkeydown="if(event.key==='Enter')continueWithEmail()"/>
+    <div class="input-error" id="emailError"></div>
+    <button class="btn-primary" onclick="continueWithEmail()">Continue →</button>
+  </div>
+  <div style="text-align:center;font-size:12px;color:var(--muted);line-height:1.7;padding:0 10px;">
+    Access requires a monthly subscription. After entering your email you'll be taken to a secure Stripe checkout.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- VIEW 2 — CHECKING / LOADING                        -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="view" id="view-checking">
+  <div class="spinner-wrap">
+    <div class="spinner"></div>
+    <div class="spin-msg" id="checkingTitle">Checking your account…</div>
+    <div class="spin-sub" id="checkingMsg"></div>
+    <button class="btn-secondary btn-sm" style="margin-top:20px;width:auto;display:inline-block;" onclick="showView('view-email')">← Use a different email</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- VIEW 3 — PAYWALL                                   -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="view" id="view-paywall">
+  <div class="paywall-hero">
+    <div style="font-size:40px;margin-bottom:14px;">🕊️</div>
+    <div style="font-size:18px;font-weight:900;letter-spacing:2px;text-transform:uppercase;font-family:Georgia,serif;margin-bottom:18px;">Pathway for Parents</div>
+    <div class="price-big" id="priceDisplay">$7.99</div>
+    <div class="price-unit">per month &nbsp;·&nbsp; cancel anytime</div>
+    <ul class="feature-list">
+      <li><span class="feat-check">✓</span><span>See your child's daily devotional progress in real time</span></li>
+      <li><span class="feat-check">✓</span><span>Track streaks, XP points, badges &amp; days completed</span></li>
+      <li><span class="feat-check">✓</span><span>View progress across all Pathway &amp; Leadership trimesters</span></li>
+      <li><span class="feat-check">✓</span><span>Stay connected to their spiritual journey</span></li>
+    </ul>
+  </div>
+  <button class="btn-primary" onclick="goToStripe()" style="font-size:17px;padding:17px;">
+    Subscribe for $7.99/mo →
+  </button>
+  <button class="btn-secondary" onclick="recheckSubscription()">
+    ✅ I already subscribed — verify access
+  </button>
+  <button class="btn-secondary" onclick="logout()">← Use a different email</button>
+  <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:14px;line-height:1.7;">
+    Secure payment via Stripe. You won't be charged twice if you're already subscribed.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- VIEW 4 — SETUP (subscribed, no child yet)          -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="view" id="view-setup">
+  <div class="success-banner">
+    <div class="success-icon">🎉</div>
+    <div class="success-text">You're subscribed! Let's set up your profile to start tracking your child.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Your Profile</div>
+    <label class="form-label">Your Name</label>
+    <input type="text" id="setupParentName" placeholder="First and last name" autocomplete="name"/>
+    <label class="form-label">Your Child's Name</label>
+    <input type="text" id="setupChildName" placeholder="Exactly as entered in the companion app"/>
+    <div class="field-note">⚠️ This must match the name your child uses in the Pathway app — it's how we find their data.</div>
+    <label class="form-label">Your Child's Email <span style="font-weight:400;color:var(--muted);text-transform:none;">(optional)</span></label>
+    <input type="email" id="setupChildEmail" placeholder="child@email.com" autocomplete="off"/>
+    <div class="field-note">If your child enters their email in the app, adding it here improves match accuracy.</div>
+    <button class="btn-primary" onclick="saveSetup()">Start Tracking My Child →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- VIEW 5 — DASHBOARD                                 -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="view" id="view-dashboard">
+
+  <div class="dash-hdr">
+    <div>
+      <div class="dash-greeting" id="dashGreeting">Hi, Parent!</div>
+      <div class="dash-child">Following: <span id="dashChildName">—</span></div>
+    </div>
+    <button class="refresh-btn" onclick="loadDashboard()">🔄 Refresh</button>
+  </div>
+
+  <!-- STAT BOXES -->
+  <div class="stats-grid">
+    <div class="stat-box"><div class="stat-num" id="statDays">—</div><div class="stat-lbl">Days Done</div></div>
+    <div class="stat-box"><div class="stat-num" id="statStreak">—</div><div class="stat-lbl">Best Streak</div></div>
+    <div class="stat-box"><div class="stat-num" id="statXP">—</div><div class="stat-lbl">XP Earned</div></div>
+    <div class="stat-box"><div class="stat-num" id="statBadges">—</div><div class="stat-lbl">Badges</div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-btn-progress" onclick="switchTab('progress')">📖 Progress</button>
+    <button class="tab-btn" id="tab-btn-badges" onclick="switchTab('badges')">🏅 Badges</button>
+    <button class="tab-btn" id="tab-btn-activity" onclick="switchTab('activity')">📋 Activity</button>
+  </div>
+
+  <!-- PROGRESS TAB -->
+  <div class="tab-panel" id="tab-panel-progress">
+    <div id="progsContainer">
+      <div class="spinner-wrap"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- BADGES TAB -->
+  <div class="tab-panel" id="tab-panel-badges" style="display:none;">
+    <div class="card">
+      <div class="card-title">🏅 Badges Earned</div>
+      <div class="chip-wrap" id="badgesContainer">
+        <div style="font-size:13px;color:var(--muted);padding:8px 0;">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY TAB -->
+  <div class="tab-panel" id="tab-panel-activity" style="display:none;">
+    <div class="card">
+      <div class="card-title">📋 Recent Assessments</div>
+      <div id="activityContainer">
+        <div style="font-size:13px;color:var(--muted);padding:8px 0;">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- PROFILE / SETTINGS SHEET                          -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="sheet-overlay" id="profileSheet" onclick="if(event.target===this)closeProfile()">
+  <div class="sheet-panel">
+    <div class="sheet-hdr">
+      <div class="sheet-title">⚙️ Settings</div>
+      <button class="btn-sm" style="background:#e8f4f5;color:#005f6e;border:none;cursor:pointer;font-weight:700;" onclick="closeProfile()">Done</button>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">
+      Account: <strong id="settingsEmailDisplay">—</strong>
+    </div>
+    <label class="form-label">Your Name</label>
+    <input type="text" id="editParentName" placeholder="Your name"/>
+    <label class="form-label">Child's Name</label>
+    <input type="text" id="editChildName" placeholder="Must match name in companion app"/>
+    <label class="form-label">Child's Email <span style="font-weight:400;color:var(--muted);text-transform:none;">(optional)</span></label>
+    <input type="email" id="editChildEmail" placeholder="child@email.com"/>
+    <button class="btn-primary" onclick="saveEditProfile()">Save Changes</button>
+    <button class="btn-secondary" style="margin-top:10px;color:#c0392b;border-color:#fcd5d5;" onclick="confirmLogout()">Sign Out</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  CONFIGURATION — Ron: replace with your Stripe Payment
+//  Link URL after creating it in the Stripe dashboard.
+//  Example: https://buy.stripe.com/test_XXXXXXXXXXXX
+// ═══════════════════════════════════════════════════════
+var STRIPE_LINK = 'https://buy.stripe.com/REPLACE_WITH_YOUR_STRIPE_PAYMENT_LINK';
+
+// ── Firebase (same project as all other PTF apps) ──
+if (!firebase.apps.length) firebase.initializeApp({
+  apiKey:            "AIzaSyA4u3QQgC39uxTAIXuzexTg0Pz889YovoI",
+  authDomain:        "pathway-to-freedom.firebaseapp.com",
+  projectId:         "pathway-to-freedom",
+  storageBucket:     "pathway-to-freedom.firebasestorage.app",
+  messagingSenderId: "542778457653",
+  appId:             "1:542778457653:web:9b937f54c4bbe850adbb7c"
+});
+var _db = firebase.firestore();
+
+// ── Helpers ──
+function san(s) { return (s||'').toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,60); }
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Local State ──
+var PKEY = 'ptf_parent_v1';
+var P = {};
+try { P = JSON.parse(localStorage.getItem(PKEY)||'{}'); } catch(e){}
+function save() { try { localStorage.setItem(PKEY, JSON.stringify(P)); } catch(e){} }
+
+// ── View management ──
+function showView(id) {
+  document.querySelectorAll('.view').forEach(function(v){ v.style.display='none'; });
+  var el = document.getElementById(id);
+  if (el) el.style.display = 'block';
+  var btn = document.getElementById('hdrSettingsBtn');
+  if (btn) btn.style.display = (id === 'view-dashboard') ? 'flex' : 'none';
+}
+
+// ── Toast ──
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3500);
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+window.onload = function() {
+  // Stripe redirects back with ?subscribed=1
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('subscribed') === '1') {
+    history.replaceState(null, '', window.location.pathname);
+    if (P.email) {
+      showView('view-checking');
+      document.getElementById('checkingTitle').textContent = 'Activating your subscription…';
+      document.getElementById('checkingMsg').textContent = 'Please wait — this usually takes just a few seconds.';
+      pollSubscription(0);
+      return;
+    }
+  }
+
+  if (P.email) {
+    if (P.subscribed && P.childName) {
+      showView('view-dashboard');
+      populateDashboardHeader();
+      loadDashboard();
+    } else if (P.subscribed) {
+      showView('view-setup');
+    } else {
+      showView('view-checking');
+      document.getElementById('checkingTitle').textContent = 'Checking your account…';
+      checkSubscription();
+    }
+  } else {
+    showView('view-email');
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+//  EMAIL STEP
+// ═══════════════════════════════════════════════════════
+function continueWithEmail() {
+  var email = (document.getElementById('emailInput').value||'').trim().toLowerCase();
+  var errEl = document.getElementById('emailError');
+  if (!email || !email.includes('@') || !email.includes('.')) {
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  P.email = email;
+  save();
+  showView('view-checking');
+  document.getElementById('checkingTitle').textContent = 'Checking your account…';
+  document.getElementById('checkingMsg').textContent = '';
+  checkSubscription();
+}
+
+// ═══════════════════════════════════════════════════════
+//  SUBSCRIPTION CHECK
+// ═══════════════════════════════════════════════════════
+function checkSubscription() {
+  var sid = san(P.email||'');
+  if (!sid) { showView('view-email'); return; }
+
+  _db.collection('ptf_parents').doc(sid).get()
+    .then(function(doc) {
+      if (doc.exists) {
+        var d = doc.data();
+        if (d.subscribed) P.subscribed = true;
+        if (d.name) P.name = d.name;
+        if (d.childName) P.childName = d.childName;
+        if (d.childEmail) P.childEmail = d.childEmail;
+        save();
+      }
+      routeAfterCheck();
+    })
+    .catch(function(err) {
+      console.warn('Firestore check error:', err);
+      // Fall back to local state
+      routeAfterCheck();
+    });
+}
+
+function recheckSubscription() {
+  showView('view-checking');
+  document.getElementById('checkingTitle').textContent = 'Verifying subscription…';
+  document.getElementById('checkingMsg').textContent = '';
+  checkSubscription();
+}
+
+function routeAfterCheck() {
+  if (P.subscribed && P.childName) {
+    showView('view-dashboard');
+    populateDashboardHeader();
+    loadDashboard();
+  } else if (P.subscribed) {
+    showView('view-setup');
+  } else {
+    showView('view-paywall');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  POLL AFTER STRIPE REDIRECT
+// ═══════════════════════════════════════════════════════
+function pollSubscription(count) {
+  var sid = san(P.email||'');
+  _db.collection('ptf_parents').doc(sid).get()
+    .then(function(doc) {
+      if (doc.exists && doc.data().subscribed) {
+        var d = doc.data();
+        P.subscribed = true;
+        if (d.name) P.name = d.name;
+        if (d.childName) P.childName = d.childName;
+        if (d.childEmail) P.childEmail = d.childEmail;
+        save();
+        routeAfterCheck();
+      } else if (count < 15) {
+        document.getElementById('checkingMsg').textContent =
+          'Confirming with Stripe… (' + (count+1) + ' of 15)';
+        setTimeout(function(){ pollSubscription(count+1); }, 2000);
+      } else {
+        // Timed out
+        document.getElementById('checkingTitle').textContent = 'Still processing…';
+        document.getElementById('checkingMsg').textContent =
+          'Your payment is being confirmed. This can take 1–2 minutes. ' +
+          'You can close this page and come back, or tap the button below.';
+      }
+    })
+    .catch(function() {
+      if (count < 15) setTimeout(function(){ pollSubscription(count+1); }, 2000);
+    });
+}
+
+// ═══════════════════════════════════════════════════════
+//  STRIPE
+// ═══════════════════════════════════════════════════════
+function goToStripe() {
+  var email = encodeURIComponent(P.email||'');
+  // Stripe Payment Links support ?prefilled_email= for pre-filling checkout
+  var url = STRIPE_LINK + '?prefilled_email=' + email;
+  window.location.href = url;
+}
+
+// ═══════════════════════════════════════════════════════
+//  SETUP (first time after subscribing)
+// ═══════════════════════════════════════════════════════
+function saveSetup() {
+  var name = (document.getElementById('setupParentName').value||'').trim();
+  var childName = (document.getElementById('setupChildName').value||'').trim();
+  var childEmail = (document.getElementById('setupChildEmail').value||'').trim().toLowerCase();
+
+  if (!name) { toast('Please enter your name.'); return; }
+  if (!childName) { toast('Please enter your child\'s name.'); return; }
+
+  P.name = name;
+  P.childName = childName;
+  if (childEmail) P.childEmail = childEmail;
+  save();
+
+  // Write profile to Firestore
+  var sid = san(P.email||'');
+  _db.collection('ptf_parents').doc(sid).set({
+    email: P.email,
+    name: P.name,
+    childName: P.childName,
+    childEmail: P.childEmail || '',
+    subscribed: true,
+    updatedAt: new Date().toISOString()
+  }, { merge: true }).catch(function(e){ console.warn(e); });
+
+  showView('view-dashboard');
+  populateDashboardHeader();
+  loadDashboard();
+}
+
+// ═══════════════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════════════
+function logout() {
+  P = {};
+  save();
+  showView('view-email');
+}
+
+function confirmLogout() {
+  if (confirm('Sign out of ' + (P.email||'your account') + '?')) {
+    closeProfile();
+    logout();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  PROFILE SHEET
+// ═══════════════════════════════════════════════════════
+function editProfile() {
+  document.getElementById('settingsEmailDisplay').textContent = P.email||'';
+  document.getElementById('editParentName').value = P.name||'';
+  document.getElementById('editChildName').value = P.childName||'';
+  document.getElementById('editChildEmail').value = P.childEmail||'';
+  document.getElementById('profileSheet').style.display = 'flex';
+}
+
+function closeProfile() {
+  document.getElementById('profileSheet').style.display = 'none';
+}
+
+function saveEditProfile() {
+  var n  = (document.getElementById('editParentName').value||'').trim();
+  var cn = (document.getElementById('editChildName').value||'').trim();
+  var ce = (document.getElementById('editChildEmail').value||'').trim().toLowerCase();
+
+  if (!n) { toast('Name can\'t be empty.'); return; }
+  if (!cn) { toast('Child\'s name can\'t be empty.'); return; }
+
+  P.name = n;
+  P.childName = cn;
+  P.childEmail = ce || P.childEmail || '';
+  save();
+
+  var sid = san(P.email||'');
+  _db.collection('ptf_parents').doc(sid).set({
+    name: P.name, childName: P.childName, childEmail: P.childEmail,
+    updatedAt: new Date().toISOString()
+  }, { merge: true }).catch(function(e){ console.warn(e); });
+
+  closeProfile();
+  populateDashboardHeader();
+  loadDashboard();
+  toast('Profile saved!');
+}
+
+function populateDashboardHeader() {
+  document.getElementById('dashGreeting').textContent = 'Hi, ' + (P.name||'Parent') + '!';
+  document.getElementById('dashChildName').textContent = P.childName||'—';
+  document.getElementById('hdrSub').textContent = (P.childName || 'Your Child') + '\'s Journey';
+}
+
+// ═══════════════════════════════════════════════════════
+//  PROGRAMS REGISTRY
+// ═══════════════════════════════════════════════════════
+var PROGRAMS = {
+  ptf1:    { label:'Pathway to Freedom — Tri 1',    short:'PTF Tri 1',    color:'#00B5C5' },
+  ptf1_es: { label:'Camino a la Libertad — Tri 1',  short:'Camino Tri 1', color:'#0090a0' },
+  ptf2:    { label:'Pathway to Freedom — Tri 2',    short:'PTF Tri 2',    color:'#2a9d6f' },
+  ptf3:    { label:'Pathway to Freedom — Tri 3',    short:'PTF Tri 3',    color:'#7a6fbd' },
+  ptl4:    { label:'Pathway to Leadership — Tri 4', short:'Leader Tri 4', color:'#c9a227' },
+  ptl5:    { label:'Pathway to Leadership — Tri 5', short:'Leader Tri 5', color:'#e96b01' },
+  ptf5:    { label:'Pathway to Freedom — Tri 5',    short:'PTF Tri 5',    color:'#bd3f6f' },
+  ptf6:    { label:'Pathway to Freedom — Tri 6',    short:'PTF Tri 6',    color:'#3f8fbd' },
+  ptf7:    { label:'Pathway to Freedom — Tri 7',    short:'PTF Tri 7',    color:'#6f8f3f' },
+  nmj:     { label:'Navigating the Media Jungle',   short:'Media Jungle', color:'#8b5cf6' },
+  sl:      { label:'Shoreline: Jesus Follower',     short:'Shoreline',    color:'#0ea5e9' }
+};
+
+function progInfo(code) {
+  return PROGRAMS[code] || { label: code||'Pathway', short: code||'PTF', color: '#7a8a90' };
+}
+
+// ═══════════════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════════════
+var _allRows = {};
+var _loadTimer = null;
+
+function loadDashboard() {
+  document.getElementById('progsContainer').innerHTML =
+    '<div class="spinner-wrap"><div class="spinner"></div><div class="spin-msg" style="font-size:14px;">Loading ' + esc(P.childName||'') + '\'s data…</div></div>';
+
+  _allRows = {};
+  clearTimeout(_loadTimer);
+
+  function merge(rows) {
+    rows.forEach(function(r) {
+      var k = (r.name||'') + '|' + (r.program||'ptf1') + '|' + (r.week||'0');
+      if (!_allRows[k] || (r.lastUpdated||'') > (_allRows[k].lastUpdated||'')) {
+        _allRows[k] = r;
+      }
+    });
+    renderDashboard(Object.values(_allRows));
+  }
+
+  // 1) Query by parentEmail field (populated after student apps are updated)
+  if (P.email) {
+    _db.collection('ptf_checkins').where('parentEmail','==',P.email).get()
+      .then(function(snap){ merge(snap.docs.map(function(d){ return d.data(); })); })
+      .catch(function(){});
+  }
+
+  // 2) Query by child name (primary method today)
+  if (P.childName) {
+    _db.collection('ptf_checkins').where('name','==',P.childName).get()
+      .then(function(snap){ merge(snap.docs.map(function(d){ return d.data(); })); })
+      .catch(function(){});
+  }
+
+  // 3) Query by child email if provided
+  if (P.childEmail) {
+    _db.collection('ptf_checkins').where('email','==',P.childEmail).get()
+      .then(function(snap){ merge(snap.docs.map(function(d){ return d.data(); })); })
+      .catch(function(){});
+  }
+
+  // Fallback: render empty state after 6s if nothing found
+  _loadTimer = setTimeout(function(){
+    if (Object.keys(_allRows).length === 0) renderDashboard([]);
+  }, 6000);
+}
+
+function renderDashboard(rows) {
+  clearTimeout(_loadTimer);
+
+  var progRows    = rows.filter(function(r){ return String(r.week) === '0'; });
+  var checkinRows = rows.filter(function(r){ return String(r.week) !== '0'; });
+
+  // Aggregate across all programs
+  var totalDays = 0, maxStreak = 0, totalXP = 0, allBadges = [];
+  var programMap = {};
+
+  progRows.forEach(function(r) {
+    var prog = r.program || 'ptf1';
+    var days = Array.isArray(r.daysCompleted) ? r.daysCompleted : [];
+    totalDays += days.length;
+    if ((r.streak||0) > maxStreak) maxStreak = r.streak||0;
+    totalXP += (r.xp||0);
+    if (Array.isArray(r.badges)) allBadges = allBadges.concat(r.badges);
+    if (!programMap[prog] || (r.lastUpdated||'') > (programMap[prog].lastUpdated||'')) {
+      programMap[prog] = r;
+    }
+  });
+
+  // Deduplicate badges
+  allBadges = allBadges.filter(function(v,i,a){ return a.indexOf(v)===i; });
+
+  // Update stat boxes
+  document.getElementById('statDays').textContent    = totalDays;
+  document.getElementById('statStreak').textContent  = maxStreak > 0 ? maxStreak + ' 🔥' : '0';
+  document.getElementById('statXP').textContent      = totalXP;
+  document.getElementById('statBadges').textContent  = allBadges.length;
+
+  // ── Progress tab ──
+  var progsHtml = '';
+  var progKeys = Object.keys(programMap);
+
+  if (progKeys.length === 0) {
+    progsHtml =
+      '<div class="empty-state">' +
+        '<div class="empty-icon">📖</div>' +
+        '<div class="empty-title">No progress yet</div>' +
+        '<div class="empty-sub">' +
+          esc(P.childName||'Your child') + ' hasn\'t started a devotional app yet, or their name in the app might be spelled differently.<br><br>' +
+          'Progress will appear here as soon as they check in. Make sure the name above matches exactly what they entered in the companion app.' +
+        '</div>' +
+      '</div>';
+  } else {
+    progKeys.sort().forEach(function(prog) {
+      var r = programMap[prog];
+      var p = progInfo(prog);
+      var days = Array.isArray(r.daysCompleted) ? r.daysCompleted : [];
+      var pct  = Math.min(100, Math.round((days.length / 84) * 100));
+      var metaParts = [pct + '% complete'];
+      if (r.streak)   metaParts.push('🔥 ' + r.streak + ' day streak');
+      if (r.xp)       metaParts.push(r.xp + ' XP');
+      if (r.day)      metaParts.push('Currently on Day ' + r.day);
+
+      progsHtml +=
+        '<div class="prog-card">' +
+          '<div class="prog-hdr" style="background:' + p.color + ';">' +
+            '<span class="prog-label">' + esc(p.label) + '</span>' +
+            '<span class="prog-days">' + days.length + ' / 84 days</span>' +
+          '</div>' +
+          '<div class="prog-body">' +
+            '<div class="pbar-wrap"><div class="pbar-fill" style="width:' + pct + '%;background:' + p.color + ';"></div></div>' +
+            '<div class="prog-meta">' + metaParts.join(' &nbsp;·&nbsp; ') + '</div>' +
+            buildDayDots(days, r.day) +
+          '</div>' +
+        '</div>';
+    });
+  }
+  document.getElementById('progsContainer').innerHTML = progsHtml;
+
+  // ── Badges tab ──
+  var badgesHtml = '';
+  if (allBadges.length === 0) {
+    badgesHtml = '<div class="empty-sub" style="padding:12px 0;">No badges yet — they appear as ' + esc(P.childName||'your child') + ' reaches milestones!</div>';
+  } else {
+    allBadges.forEach(function(b){ badgesHtml += '<span class="badge-chip">' + esc(b) + '</span>'; });
+  }
+  document.getElementById('badgesContainer').innerHTML = badgesHtml;
+
+  // ── Activity tab ──
+  var recent = checkinRows.sort(function(a,b){
+    return (b.lastUpdated||b.date||'') > (a.lastUpdated||a.date||'') ? 1 : -1;
+  }).slice(0, 12);
+
+  var actHtml = '';
+  if (recent.length === 0) {
+    actHtml = '<div style="font-size:13px;color:var(--muted);text-align:center;padding:20px;">No assessment data yet.</div>';
+  } else {
+    recent.forEach(function(r) {
+      var p = progInfo(r.program);
+      var dateStr = r.date || (r.lastUpdated ? r.lastUpdated.substring(0,10) : '');
+      actHtml +=
+        '<div class="activity-row">' +
+          '<span class="activity-badge" style="background:' + p.color + ';">' + esc(p.short) + '</span>' +
+          '<div class="activity-info">' +
+            '<div class="activity-title">Week ' + esc(String(r.week||'')) + ' Assessment</div>' +
+            '<div class="activity-date">' + esc(dateStr) + '</div>' +
+          '</div>' +
+        '</div>';
+    });
+  }
+  document.getElementById('activityContainer').innerHTML = actHtml;
+}
+
+// ── Day dot grid ──
+function buildDayDots(daysArr, currentDay) {
+  if (!Array.isArray(daysArr)) return '';
+  var html = '<div class="day-dots">';
+  for (var i = 1; i <= 84; i++) {
+    var done = daysArr.indexOf(i) >= 0 || daysArr.indexOf(String(i)) >= 0;
+    var cur  = (i === Number(currentDay));
+    html += '<div class="d-dot' + (done ? ' done' : '') + (cur ? ' today' : '') + '" title="Day ' + i + '">' + i + '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+// ── Tabs ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.style.display = 'none'; });
+  document.getElementById('tab-btn-' + tab).classList.add('active');
+  document.getElementById('tab-panel-' + tab).style.display = 'block';
+}
+</script>
+</body>
+</html>
