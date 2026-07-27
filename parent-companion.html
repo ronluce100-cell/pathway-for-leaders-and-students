@@ -340,7 +340,7 @@ input:focus { outline: none; border-color: var(--teal); }
 //  Link URL after creating it in the Stripe dashboard.
 //  Example: https://buy.stripe.com/test_XXXXXXXXXXXX
 // ═══════════════════════════════════════════════════════
-var STRIPE_LINK = 'https://buy.stripe.com/REPLACE_WITH_YOUR_STRIPE_PAYMENT_LINK';
+var STRIPE_LINK = 'https://buy.stripe.com/fZu4gz8Tx1dUgt30j4ds41g';
 
 // ── Firebase (same project as all other PTF apps) ──
 if (!firebase.apps.length) firebase.initializeApp({
@@ -466,7 +466,8 @@ function recheckSubscription() {
   showView('view-checking');
   document.getElementById('checkingTitle').textContent = 'Verifying subscription…';
   document.getElementById('checkingMsg').textContent = '';
-  checkSubscription();
+  // Try the Netlify verify function first (checks Stripe live), then fall back to Firestore
+  pollSubscription(0);
 }
 
 function routeAfterCheck() {
@@ -482,34 +483,59 @@ function routeAfterCheck() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  POLL AFTER STRIPE REDIRECT
+//  VERIFY AFTER STRIPE REDIRECT
+//  Calls the Netlify function which checks Stripe directly
+//  and writes confirmed status to Firestore — no webhook needed
 // ═══════════════════════════════════════════════════════
 function pollSubscription(count) {
-  var sid = san(P.email||'');
-  _db.collection('ptf_parents').doc(sid).get()
-    .then(function(doc) {
-      if (doc.exists && doc.data().subscribed) {
-        var d = doc.data();
+  var email = P.email || '';
+  var fnUrl = '/.netlify/functions/verify-subscription?email=' + encodeURIComponent(email);
+
+  document.getElementById('checkingMsg').textContent =
+    'Confirming with Stripe… (' + (count + 1) + ')';
+
+  fetch(fnUrl)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.subscribed) {
         P.subscribed = true;
-        if (d.name) P.name = d.name;
-        if (d.childName) P.childName = d.childName;
-        if (d.childEmail) P.childEmail = d.childEmail;
         save();
         routeAfterCheck();
-      } else if (count < 15) {
+      } else if (data.error && data.error.indexOf('not configured') >= 0) {
+        // STRIPE_SECRET_KEY not set in Netlify yet
+        document.getElementById('checkingTitle').textContent = 'Almost there!';
         document.getElementById('checkingMsg').textContent =
-          'Confirming with Stripe… (' + (count+1) + ' of 15)';
-        setTimeout(function(){ pollSubscription(count+1); }, 2000);
+          'Your payment went through, but one final step is needed: ' +
+          'add STRIPE_SECRET_KEY to Netlify environment variables, ' +
+          'then tap "I already subscribed" below.';
+      } else if (count < 8) {
+        // Stripe may take a moment — retry
+        setTimeout(function(){ pollSubscription(count + 1); }, 3000);
       } else {
-        // Timed out
-        document.getElementById('checkingTitle').textContent = 'Still processing…';
+        document.getElementById('checkingTitle').textContent = 'Payment received!';
         document.getElementById('checkingMsg').textContent =
-          'Your payment is being confirmed. This can take 1–2 minutes. ' +
-          'You can close this page and come back, or tap the button below.';
+          'Stripe confirmed your payment but verification is still warming up. ' +
+          'Tap "I already subscribed" below to try again in a moment.';
       }
     })
     .catch(function() {
-      if (count < 15) setTimeout(function(){ pollSubscription(count+1); }, 2000);
+      // Function not deployed yet — fall back to Firestore polling
+      var sid = san(email);
+      _db.collection('ptf_parents').doc(sid).get()
+        .then(function(doc) {
+          if (doc.exists && doc.data().subscribed) {
+            P.subscribed = true; save(); routeAfterCheck();
+          } else if (count < 8) {
+            setTimeout(function(){ pollSubscription(count + 1); }, 3000);
+          } else {
+            document.getElementById('checkingTitle').textContent = 'Tap below to verify';
+            document.getElementById('checkingMsg').textContent =
+              'Your payment went through. Tap "I already subscribed" to check again.';
+          }
+        })
+        .catch(function() {
+          if (count < 8) setTimeout(function(){ pollSubscription(count + 1); }, 3000);
+        });
     });
 }
 
