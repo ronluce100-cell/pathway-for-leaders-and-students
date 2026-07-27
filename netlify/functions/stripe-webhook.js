@@ -1,46 +1,54 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  stripe-webhook.js — Netlify Function
-//  Handles Stripe subscription events and writes status to Firestore
-//  (ptf_parents/{sanitized_email})
+//  Writes subscription status to Firestore via REST API (no service account needed)
 //
-//  Required Netlify environment variables:
-//    STRIPE_SECRET_KEY       — from Stripe dashboard → Developers → API Keys
-//    STRIPE_WEBHOOK_SECRET   — from Stripe dashboard → Developers → Webhooks
-//    FIREBASE_SERVICE_ACCOUNT — full JSON content of your Firebase service
-//                               account key (minified to one line)
+//  Required Netlify environment variables (2 only):
+//    STRIPE_SECRET_KEY      — Stripe dashboard → Developers → API Keys → Secret key
+//    STRIPE_WEBHOOK_SECRET  — Stripe dashboard → Developers → Webhooks → signing secret
 //
 //  Stripe webhook events to enable:
 //    checkout.session.completed
 //    customer.subscription.deleted
-//    invoice.payment_failed
 // ─────────────────────────────────────────────────────────────────────────────
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const admin  = require('firebase-admin');
 
-// Initialize Firebase Admin SDK (only once across warm invocations)
-if (!admin.apps.length) {
-  try {
-    const sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
-    admin.initializeApp({ credential: admin.credential.cert(sa) });
-  } catch (e) {
-    console.error('Firebase Admin init error:', e.message);
-  }
-}
+// Same Firebase project & API key used by all PTF apps
+const FB_PROJECT = 'pathway-to-freedom';
+const FB_API_KEY  = 'AIzaSyA4u3QQgC39uxTAIXuzexTg0Pz889YovoI';
 
-const db = admin.firestore ? admin.firestore() : null;
-
-function sanitize(s) {
+function san(s) {
   return (s || '').toLowerCase().replace(/[^a-z0-9]/g, '_').substring(0, 60);
 }
 
-async function setParent(email, data) {
-  if (!db || !email) return;
-  const sid = sanitize(email);
-  await db.collection('ptf_parents').doc(sid).set(
-    { ...data, updatedAt: new Date().toISOString() },
-    { merge: true }
-  );
+// Merge-write to Firestore using the REST API (PATCH with updateMask)
+async function fsSet(docId, data) {
+  const fields = {};
+  for (const [k, v] of Object.entries(data)) {
+    if (typeof v === 'boolean')     fields[k] = { booleanValue: v };
+    else if (typeof v === 'string') fields[k] = { stringValue: v };
+    else if (typeof v === 'number') fields[k] = { integerValue: String(v) };
+  }
+
+  const mask = Object.keys(data)
+    .map(k => `updateMask.fieldPaths=${encodeURIComponent(k)}`)
+    .join('&');
+
+  const url =
+    `https://firestore.googleapis.com/v1/projects/${FB_PROJECT}` +
+    `/databases/(default)/documents/ptf_parents/${docId}?key=${FB_API_KEY}&${mask}`;
+
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fields })
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Firestore write failed (${res.status}): ${text}`);
+  }
+  return res.json();
 }
 
 exports.handler = async (event) => {
@@ -48,7 +56,7 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: 'Method not allowed' };
   }
 
-  // ── Verify Stripe signature ──
+  // Verify Stripe signature
   const sig = event.headers['stripe-signature'];
   let stripeEvent;
   try {
@@ -58,7 +66,7 @@ exports.handler = async (event) => {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    console.error('Webhook signature error:', err.message);
+    console.error('Stripe signature error:', err.message);
     return { statusCode: 400, body: `Webhook Error: ${err.message}` };
   }
 
@@ -67,29 +75,35 @@ exports.handler = async (event) => {
   try {
     switch (stripeEvent.type) {
 
-      // ── Checkout completed → subscription started ──
+      // ── Payment complete → activate subscription ──
       case 'checkout.session.completed': {
         if (obj.mode !== 'subscription') break;
+
         const email =
           obj.customer_email ||
           (obj.customer_details && obj.customer_details.email);
+
         if (!email) {
-          console.warn('checkout.session.completed: no email found in event');
+          console.warn('No email in checkout.session.completed');
           break;
         }
-        await setParent(email.toLowerCase(), {
+
+        const sid = san(email);
+        await fsSet(sid, {
           email:                email.toLowerCase(),
           subscribed:           true,
-          stripeCustomerId:     obj.customer,
-          stripeSubscriptionId: obj.subscription,
-          subscribedAt:         new Date().toISOString()
+          stripeCustomerId:     obj.customer     || '',
+          stripeSubscriptionId: obj.subscription || '',
+          subscribedAt:         new Date().toISOString(),
+          updatedAt:            new Date().toISOString()
         });
-        console.log('✅ Subscription activated for:', email);
+        console.log('✅ Activated:', email);
         break;
       }
 
-      // ── Subscription canceled or expired ──
+      // ── Subscription canceled ──
       case 'customer.subscription.deleted': {
+        // Look up email from Stripe customer record
         let email = null;
         try {
           const customer = await stripe.customers.retrieve(obj.customer);
@@ -97,30 +111,23 @@ exports.handler = async (event) => {
         } catch (e) {
           console.warn('Could not retrieve customer:', e.message);
         }
+
         if (email) {
-          await setParent(email.toLowerCase(), {
-            subscribed:  false,
-            canceledAt:  new Date().toISOString()
+          await fsSet(san(email), {
+            subscribed: false,
+            canceledAt: new Date().toISOString(),
+            updatedAt:  new Date().toISOString()
           });
-          console.log('❌ Subscription canceled for:', email);
+          console.log('❌ Canceled:', email);
         }
         break;
       }
 
-      // ── Payment failed — log but don't immediately revoke ──
-      case 'invoice.payment_failed': {
-        console.warn('⚠️ Payment failed for customer:', obj.customer);
-        // Stripe will retry; subscription stays active during grace period.
-        // If you want to revoke immediately, add setParent logic here.
-        break;
-      }
-
       default:
-        // Ignore all other events
-        break;
+        break; // Ignore other events
     }
   } catch (err) {
-    console.error('Error handling event', stripeEvent.type, err);
+    console.error('Handler error:', err);
     return { statusCode: 500, body: 'Internal error' };
   }
 
