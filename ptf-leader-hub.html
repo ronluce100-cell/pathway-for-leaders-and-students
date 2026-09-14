@@ -150,8 +150,7 @@ textarea{min-height:80px;resize:vertical;}
     </div>
   </div>
   <div id="groupNameWrap">
-    <label class="form-label">Your Group Name</label>
-    <input type="text" id="sGroup" placeholder="e.g. Fire Squad, Tuesday Night..."/>
+    <div style="background:#e8f9fb;border-radius:10px;padding:12px 14px;font-size:13px;color:#005f6e;margin-bottom:8px;">✅ <strong>No code needed!</strong> Just share your email address with your students and ask them to enter it in their app under "Connect Group Leader Email."</div>
   </div>
   <div id="churchNameWrap" style="display:none;">
     <label class="form-label">Your Church Name</label>
@@ -183,12 +182,12 @@ textarea{min-height:80px;resize:vertical;}
   <div style="font-size:12px;color:var(--muted);" id="settingsEmail">—</div>
   <div style="font-size:12px;color:var(--muted);margin-top:2px;" id="settingsRole">—</div>
   <div id="settingsCodeWrap">
-    <div class="form-label">Your Group Code</div>
+    <div class="form-label">Share Your Email With Students</div>
     <div class="code-display">
       <div class="code-val" id="settingsCode">——</div>
       <div style="font-size:11px;color:var(--muted);margin-top:6px;">Share this code with your group members</div>
     </div>
-    <button class="btn btn-outline btn-sm" onclick="copyCode()" style="width:100%;margin-bottom:8px;">📋 Copy Group Code</button>
+    <button class="btn btn-outline btn-sm" onclick="copyCode()" style="width:100%;margin-bottom:8px;">📋 Copy My Email to Share</button>
   </div>
   <button class="btn btn-sm" style="width:100%;background:#e8f4f5;color:#005f6e;border:none;margin-top:8px;" onclick="changeRole()">🔄 Change Role</button>
   <button class="btn btn-sm" style="width:100%;background:#fee;color:#c0392b;border:none;margin-top:8px;" onclick="resetAll()">Reset Dashboard</button>
@@ -489,9 +488,9 @@ function clientGroupCode(group, email){
 function startSetup(){
   var name = document.getElementById("sName").value.trim();
   var email = document.getElementById("sEmail").value.trim();
-  var group = selectedRole==="cgl" ? document.getElementById("sGroup").value.trim() : "";
+  var group = ""; // Group name removed — students connect via leader email
   if (!name||!email){ toast("Please fill in name and email"); return; }
-  var code = selectedRole==="cgl" ? clientGroupCode(group, email) : "";
+  var code = ""; // No codes — connection via leaderEmail in student profile
   if (selectedRole==="admin"||selectedRole==="superadmin"||selectedRole==="nl") { group=""; code=""; }
   var church = (selectedRole==="yp" && document.getElementById("sChurch")) ? document.getElementById("sChurch").value.trim() : (cfg.church||"");
   cfg = {name:name,email:email,role:selectedRole,group:group,code:code,done:true,church:church};
@@ -1883,7 +1882,7 @@ function openSettings(){
     codeWrap.style.display="none";
   } else {
     codeWrap.style.display="block";
-    document.getElementById("settingsCode").textContent = cfg.code||"——";
+    document.getElementById("settingsCode").textContent = cfg.email||"——";
   }
 }
 function closeSettings(e){
@@ -1891,6 +1890,11 @@ function closeSettings(e){
     document.getElementById("settingsOverlay").style.display="none";
 }
 function copyCode(){
+  var val = cfg.email || "";
+  if(val){ navigator.clipboard.writeText(val).then(function(){ toast("Email copied! Share it with your students."); }); }
+});} return;
+  // OLD CODE BELOW (unused)
+  (
   if (!cfg.code){ toast("No code yet"); return; }
   navigator.clipboard.writeText(cfg.code).then(function(){ toast("Code copied! "+cfg.code); });
 }
