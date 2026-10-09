@@ -69,15 +69,16 @@ exports.handler = async (event) => {
     let subscriptionId = '';
 
     for (const customer of customers.data) {
+      // Check all non-canceled subscription states (active, trialing, past_due, incomplete)
       const subs = await stripe.subscriptions.list({
         customer: customer.id,
-        status:   'active',
-        limit:    5
+        limit:    10
       });
-      if (subs.data.length > 0) {
+      const validSub = subs.data.find(s => s.status !== 'canceled' && s.status !== 'unpaid');
+      if (validSub) {
         subscribed     = true;
         customerId     = customer.id;
-        subscriptionId = subs.data[0].id;
+        subscriptionId = validSub.id;
         break;
       }
     }

@@ -134,8 +134,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="splash-sub">Breaking the Addiction to Distraction</div>
       <div style="background:rgba(45,106,79,.3);border:1px solid var(--green2);border-radius:20px;padding:4px 16px;display:inline-block;font-size:12px;font-weight:700;color:var(--green2);letter-spacing:.5px;text-transform:uppercase;margin-bottom:16px;">Parent Companion App</div>
       <div class="splash-desc">A 12-week daily companion for parents — daily scripture, teaching, action steps, parenting challenges, and weekly media scorecards.</div>
-      <button class="splash-btn" onclick="showProfileSetup()">Get Started →</button>
-      <div style="font-size:12px;color:var(--text2);">by Ron Luce</div>
+      <!-- Feature list -->
+      <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:18px;margin-bottom:20px;text-align:left;width:100%;max-width:340px;box-sizing:border-box;">
+        <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;">What's included:</div>
+        <div style="font-size:13px;color:var(--text2);line-height:2.0;">
+          ✅ 84 days of daily scripture &amp; action steps<br>
+          ✅ Weekly media scorecards &amp; progress tracking<br>
+          ✅ See your teen's daily Pathway progress<br>
+          ✅ Accountability partner updates<br>
+          ✅ Streak tracking &amp; milestones
+        </div>
+      </div>
+
+      <!-- Subscribe CTA -->
+      <button class="splash-btn" onclick="goToStripe()" style="font-size:18px;padding:16px 32px;margin-bottom:6px;">Subscribe — $7.99/month →</button>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:20px;">Secure payment via Stripe · Cancel anytime</div>
+
+      <!-- Already subscribed -->
+      <div style="width:100%;max-width:340px;border-top:1px solid rgba(255,255,255,.1);padding-top:18px;margin-top:4px;">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:8px;font-weight:700;">Already subscribed?</div>
+        <input id="verifyEmail" type="email" placeholder="Enter your email to restore access" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--white);font-size:13px;margin-bottom:8px;" />
+        <button onclick="verifyAccess()" style="background:transparent;border:1px solid var(--gold);color:var(--gold);padding:10px 24px;border-radius:24px;font-size:13px;font-weight:700;cursor:pointer;width:100%;">✅ Restore My Access</button>
+        <div id="verifyMsg" style="margin-top:10px;font-size:12px;color:var(--text2);min-height:18px;text-align:center;"></div>
+      </div>
+
+      <div style="font-size:12px;color:rgba(255,255,255,.3);margin-top:20px;">by Ron Luce</div>
     </div>
   </div>
 
@@ -151,8 +174,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <input class="profile-input" id="p_name" placeholder="First name" />
       </div>
       <div class="profile-section">
-        <label>Your Email</label>
+        <label>Your Email <span style="color:#f87171;font-weight:700;">*</span></label>
         <input class="profile-input" id="p_email" type="email" placeholder="your@email.com" />
+      </div>
+      <div class="profile-section">
+        <label>Your Teen's Email <span style="font-weight:400;color:rgba(255,255,255,.45);">(optional — see their daily progress)</span></label>
+        <input class="profile-input" id="p_teen_email" type="email" placeholder="teen@email.com" />
       </div>
       <div class="profile-section">
         <label>Children's Ages (optional)</label>
@@ -235,6 +262,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="tab" id="tab-weeks" onclick="showTab('weeks')">Weeks</button>
       <button class="tab" id="tab-scores" onclick="showTab('scores')">Scores</button>
       <button class="tab" id="tab-progress" onclick="showTab('progress')">Progress</button>
+      <button class="tab" id="tab-teen" onclick="showTab('teen')">Teen</button>
     </div>
     <div class="main" id="mainContent"></div>
   </div>
@@ -256,6 +284,19 @@ const _app = firebase.initializeApp({
   appId:"1:123456789:web:abcdef"
 });
 const _db = firebase.firestore(_app);
+
+// Second Firebase app for reading teen's Pathway progress
+const _ptfApp = firebase.initializeApp({
+  apiKey:"AIzaSyA4u3QQgC39uxTAIXuzexTg0Pz889YovoI",
+  authDomain:"pathway-to-freedom.firebaseapp.com",
+  projectId:"pathway-to-freedom",
+  storageBucket:"pathway-to-freedom.firebasestorage.app",
+  messagingSenderId:"",
+  appId:""
+}, "ptf");
+const _ptfDb = firebase.firestore(_ptfApp);
+
+var STRIPE_LINK = 'https://buy.stripe.com/fZu4gz8Tx1dUgt30j4ds41g';
 
 // ── Platforms (defined early so buildBaselineTable can use it) ────────────────
 var PLATFORMS=[
@@ -968,16 +1009,50 @@ function totalDays(){ return W.length*7; }
 // ── Init ─────────────────────────────────────────────────────────────────────
 window.addEventListener('load', function(){
   load();
-  if(!S.profile){ document.getElementById('splashView').style.display=''; }
-  else { document.getElementById('mainApp').style.display=''; renderTab('today'); }
+  // Check for Stripe redirect
+  var params = new URLSearchParams(window.location.search);
+  if(params.get('subscribed')==='1'){
+    S.subscribed=true; save();
+    history.replaceState({},'',window.location.pathname);
+  }
+  if(S.subscribed && S.profile){ document.getElementById('mainApp').style.display=''; renderTab('today'); }
+  else if(S.subscribed && !S.profile){ document.getElementById('profileModal').style.display=''; buildBaselineTable(); }
+  else if(!S.subscribed && S.profile){ document.getElementById('mainApp').style.display=''; renderTab('today'); } // legacy free users already set up
+  else { document.getElementById('splashView').style.display=''; }
 });
 
 function showProfileSetup(){
+  // Called after subscription is confirmed
   document.getElementById('splashView').style.display='none';
   document.getElementById('profileModal').style.display='';
   var bl=document.getElementById('baselineBody');
   if(bl) bl.innerHTML='';
   buildBaselineTable();
+}
+function goToStripe(){
+  var email=document.getElementById('verifyEmail').value.trim();
+  window.location.href=STRIPE_LINK+(email?'?prefilled_email='+encodeURIComponent(email):'');
+}
+function verifyAccess(){
+  var email=document.getElementById('verifyEmail').value.trim().toLowerCase();
+  if(!email){document.getElementById('verifyMsg').textContent='Please enter your email.';return;}
+  document.getElementById('verifyMsg').textContent='Checking…';
+  fetch('/.netlify/functions/verify-subscription?email='+encodeURIComponent(email))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.subscribed){
+        S.subscribed=true;
+        if(!S.profile) S.profile={email:email,name:'',kids:'',challenge:'',partner_name:'',partner_email:'',teen_email:'',baseline:{}};
+        else S.profile.email=S.profile.email||email;
+        save();
+        document.getElementById('profileModal').style.display='';
+        buildBaselineTable();
+        openProfileModal();
+      } else {
+        document.getElementById('verifyMsg').textContent='No active subscription found for that email. Subscribe below to get access.';
+      }
+    })
+    .catch(function(){document.getElementById('verifyMsg').textContent='Could not verify — please check your connection.';});
 }
 function closeProfileModal(){ document.getElementById('profileModal').style.display='none'; if(S.profile){ document.getElementById('mainApp').style.display=''; renderTab('today'); } else { document.getElementById('splashView').style.display=''; } }
 function openProfileModal(){
@@ -993,6 +1068,7 @@ function openProfileModal(){
     if(S.profile.challenge) document.getElementById('p_challenge').value=S.profile.challenge;
     if(S.profile.partner_name) document.getElementById('p_partner_name').value=S.profile.partner_name;
     if(S.profile.partner_email) document.getElementById('p_partner_email').value=S.profile.partner_email;
+    if(S.profile.teen_email) document.getElementById('p_teen_email').value=S.profile.teen_email;
     // Populate baseline rows
     if(S.profile.baseline){
       PLATFORMS.forEach(function(p){
@@ -1039,7 +1115,9 @@ function saveProfile(){
   var challenge=document.getElementById('p_challenge').value.trim();
   var partner_name=document.getElementById('p_partner_name').value.trim();
   var partner_email=document.getElementById('p_partner_email').value.trim();
+  var teen_email=document.getElementById('p_teen_email').value.trim().toLowerCase();
   if(!name){toast('Please enter your name'); return;}
+  if(!email){toast('Please enter your email address'); return;}
   // Collect baseline (guard against missing inputs)
   var baseline={};
   PLATFORMS.forEach(function(p){
@@ -1049,7 +1127,7 @@ function saveProfile(){
     baseline[p.key+'_wk']=Math.round(baseline[p.key+'_day']*7*10)/10;
     baseline[p.key+'_goal']=goalEl?parseFloat(goalEl.value)||0:0;
   });
-  S.profile={name,email,kids,challenge,partner_name,partner_email,baseline};
+  S.profile={name,email,teen_email,kids,challenge,partner_name,partner_email,baseline};
   // Auto-save Week 0 baseline scorecard if not already set and baseline has data
   var hasData=PLATFORMS.some(function(p){return baseline[p.key+'_day']>0;});
   if(hasData && !S.scorecards['baseline']){
@@ -1072,7 +1150,7 @@ function saveProfile(){
 
 // ── Tabs ─────────────────────────────────────────────────────────────────────
 function showTab(tab){
-  ['today','weeks','scores','progress'].forEach(function(t){
+  ['today','weeks','scores','progress','teen'].forEach(function(t){
     document.getElementById('tab-'+t).classList.toggle('active',t===tab);
   });
   renderTab(tab);
@@ -1083,6 +1161,7 @@ function renderTab(tab){
   else if(tab==='weeks') renderWeeks(c);
   else if(tab==='scores') renderScores(c);
   else if(tab==='progress') renderProgress(c);
+  else if(tab==='teen') renderTeenTab();
 }
 
 // ── Today ────────────────────────────────────────────────────────────────────
@@ -1369,6 +1448,41 @@ function renderScores(c){
 }
 
 // ── Progress Tab ──────────────────────────────────────────────────────────────
+function renderTeenTab(){
+  var mc=document.getElementById('mainContent');
+  if(!S.profile||!S.profile.teen_email){
+    mc.innerHTML='<div style="padding:24px;text-align:center;color:var(--text2);"><div style="font-size:36px;margin-bottom:12px;">👤</div><div style="font-weight:700;color:var(--white);margin-bottom:8px;">No teen email saved yet</div><p style="font-size:13px;line-height:1.6;">Add your teen's email in your profile to see their daily Pathway progress here.</p><button onclick="openProfileModal()" style="background:var(--gold);color:#0a1628;border:none;padding:10px 24px;border-radius:20px;font-weight:700;font-size:13px;cursor:pointer;margin-top:8px;">Edit Profile</button></div>';
+    return;
+  }
+  mc.innerHTML='<div style="padding:16px;"><div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:12px;">📱 '+esc(S.profile.teen_email)+''s Recent Progress</div><div id="teenCheckins" style="color:var(--text2);font-size:13px;">Loading…</div></div>';
+  _ptfDb.collection('ptf_checkins')
+    .where('email','==',S.profile.teen_email)
+    .orderBy('ts','desc')
+    .limit(30)
+    .get()
+    .then(function(snap){
+      var el=document.getElementById('teenCheckins');
+      if(!el) return;
+      if(snap.empty){el.innerHTML='<div style="text-align:center;padding:20px 0;">No check-ins found yet.<br><span style="font-size:12px;">Your teen\'s email must match what they entered in the Pathway app.</span></div>';return;}
+      var out='';
+      snap.forEach(function(doc){
+        var r=doc.data();
+        var date=r.date||r.ts||'';
+        if(date && date.toDate) date=date.toDate().toLocaleDateString();
+        out+='<div style="background:rgba(255,255,255,.05);border-radius:10px;padding:12px;margin-bottom:8px;">'
+          +'<div style="font-weight:700;color:var(--white);font-size:13px;">'+esc(r.title||r.book||'Day '+esc(String(r.day||'')))+ '</div>'
+          +'<div style="font-size:11px;color:var(--text2);margin-top:2px;">'+esc(String(date))+(r.type?' · '+esc(r.type):'')+ '</div>'
+          +(r.reflection?'<div style="font-size:12px;color:var(--text2);margin-top:6px;font-style:italic;">&#8220;'+esc(r.reflection)+'&#8221;</div>':'')
+          +'</div>';
+      });
+      el.innerHTML=out;
+    })
+    .catch(function(e){
+      var el=document.getElementById('teenCheckins');
+      if(el) el.innerHTML='<div style="color:#f87171;">Could not load: '+esc(e.message)+'</div>';
+    });
+}
+
 function renderProgress(c){
   var total=totalDays();
   var done=S.done.length;
