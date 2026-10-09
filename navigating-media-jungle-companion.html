@@ -1451,10 +1451,19 @@ function renderScores(c){
 function renderTeenTab(){
   var mc=document.getElementById('mainContent');
   if(!S.profile||!S.profile.teen_email){
-    mc.innerHTML='<div style="padding:24px;text-align:center;color:var(--text2);"><div style="font-size:36px;margin-bottom:12px;">👤</div><div style="font-weight:700;color:var(--white);margin-bottom:8px;">No teen email saved yet</div><p style="font-size:13px;line-height:1.6;">Add your teen's email in your profile to see their daily Pathway progress here.</p><button onclick="openProfileModal()" style="background:var(--gold);color:#0a1628;border:none;padding:10px 24px;border-radius:20px;font-weight:700;font-size:13px;cursor:pointer;margin-top:8px;">Edit Profile</button></div>';
+    mc.innerHTML='<div style="padding:24px;text-align:center;color:var(--text2);">'
+      +'<div style="font-size:36px;margin-bottom:12px;">👤</div>'
+      +'<div style="font-weight:700;color:var(--white);margin-bottom:8px;">No teen email saved yet</div>'
+      +'<p style="font-size:13px;line-height:1.6;">Add your teen\'s email in your profile to see their daily Pathway progress here.</p>'
+      +'<button onclick="openProfileModal()" style="background:var(--gold);color:#0a1628;border:none;padding:10px 24px;border-radius:20px;font-weight:700;font-size:13px;cursor:pointer;margin-top:8px;">Edit Profile</button>'
+      +'</div>';
     return;
   }
-  mc.innerHTML='<div style="padding:16px;"><div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:12px;">📱 '+esc(S.profile.teen_email)+''s Recent Progress</div><div id="teenCheckins" style="color:var(--text2);font-size:13px;">Loading…</div></div>';
+  var teenLabel=esc(S.profile.teen_email)+"'s Recent Progress";
+  mc.innerHTML='<div style="padding:16px;">'
+    +'<div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:12px;">📱 '+teenLabel+'</div>'
+    +'<div id="teenCheckins" style="color:var(--text2);font-size:13px;">Loading…</div>'
+    +'</div>';
   _ptfDb.collection('ptf_checkins')
     .where('email','==',S.profile.teen_email)
     .orderBy('ts','desc')
@@ -1463,16 +1472,22 @@ function renderTeenTab(){
     .then(function(snap){
       var el=document.getElementById('teenCheckins');
       if(!el) return;
-      if(snap.empty){el.innerHTML='<div style="text-align:center;padding:20px 0;">No check-ins found yet.<br><span style="font-size:12px;">Your teen\'s email must match what they entered in the Pathway app.</span></div>';return;}
+      if(snap.empty){
+        el.innerHTML='<div style="text-align:center;padding:20px 0;line-height:1.7;">'
+          +'No check-ins found yet.<br>'
+          +'<span style="font-size:12px;">Your teen\'s email must match what they entered in the Pathway app.</span>'
+          +'</div>';
+        return;
+      }
       var out='';
       snap.forEach(function(doc){
         var r=doc.data();
         var date=r.date||r.ts||'';
-        if(date && date.toDate) date=date.toDate().toLocaleDateString();
+        if(date&&date.toDate) date=date.toDate().toLocaleDateString();
         out+='<div style="background:rgba(255,255,255,.05);border-radius:10px;padding:12px;margin-bottom:8px;">'
-          +'<div style="font-weight:700;color:var(--white);font-size:13px;">'+esc(r.title||r.book||'Day '+esc(String(r.day||'')))+ '</div>'
-          +'<div style="font-size:11px;color:var(--text2);margin-top:2px;">'+esc(String(date))+(r.type?' · '+esc(r.type):'')+ '</div>'
-          +(r.reflection?'<div style="font-size:12px;color:var(--text2);margin-top:6px;font-style:italic;">&#8220;'+esc(r.reflection)+'&#8221;</div>':'')
+          +'<div style="font-weight:700;color:var(--white);font-size:13px;">'+esc(r.title||r.book||('Day '+(r.day||'')))+'</div>'
+          +'<div style="font-size:11px;color:var(--text2);margin-top:2px;">'+esc(String(date))+(r.type?' · '+esc(r.type):'')+'</div>'
+          +(r.reflection?'<div style="font-size:12px;color:var(--text2);margin-top:6px;font-style:italic;">“'+esc(r.reflection)+'”</div>':'')
           +'</div>';
       });
       el.innerHTML=out;
@@ -1482,6 +1497,7 @@ function renderTeenTab(){
       if(el) el.innerHTML='<div style="color:#f87171;">Could not load: '+esc(e.message)+'</div>';
     });
 }
+
 
 function renderProgress(c){
   var total=totalDays();
