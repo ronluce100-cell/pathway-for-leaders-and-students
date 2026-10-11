@@ -264,6 +264,8 @@ var PROGRAMS = {
   ptf5:    {label:"Pathway to Freedom — Tri 5",    short:"Tri 5",      color:"#bd3f6f"},
   ptf6:    {label:"Pathway to Freedom — Tri 6",    short:"Tri 6",      color:"#3f8fbd"},
   ptf7:    {label:"Pathway to Freedom — Tri 7",    short:"Tri 7",      color:"#6f8f3f"},
+  ptf8:    {label:"Pathway to Freedom — Tri 8",    short:"Tri 8",      color:"#a3283b"},
+  ptf8_parent: {label:"Pathway to Freedom — Tri 8 Parent", short:"Tri 8 Parent", color:"#d4677b"},
   nmj_parent: {label:"Navigating Media Jungle — Parent", short:"Parent",    color:"#8b5cf6"},
   portal:     {label:"Student Registration",              short:"Registered", color:"#64748b"}
 };
@@ -774,7 +776,7 @@ function computeKingdomStats(){
   var totalCompleted = Object.keys(completedAny).length;
 
   // 4. Progression rates between sequential trimesters
-  var progOrder = ["ptf1","ptf1_es","ptf2","ptf3","ptl4","ptl5","ptf5","ptf6","ptf7"];
+  var progOrder = ["ptf1","ptf1_es","ptf2","ptf3","ptl4","ptl5","ptf5","ptf6","ptf7","ptf8"];
   // Merge ptf1+ptf1_es into "ptf1_any" for progression purposes
   var merged = {};  // name -> Set of normalised codes
   Object.keys(allNames).forEach(function(name){
@@ -834,7 +836,7 @@ function renderKingdomStats(){
 
   // Active in each trimester
   var codesSorted = Object.keys(st.activeCounts).sort(function(a,b){
-    var order = ["ptf1","ptf1_es","ptf2","ptf3","ptl4","ptl5","ptf5","ptf6","ptf7"];
+    var order = ["ptf1","ptf1_es","ptf2","ptf3","ptl4","ptl5","ptf5","ptf6","ptf7","ptf8"];
     var ia=order.indexOf(a), ib=order.indexOf(b);
     if(ia<0)ia=99; if(ib<0)ib=99;
     return ia-ib;
@@ -1034,7 +1036,9 @@ function renderCGLStudents(){
         ["Understanding",r.understand?r.understand+"/10":null],["Self-Awareness",r.self?r.self+"/10":null],
         ["Insight",r.insight],["Servant Leadership",r.servant?r.servant+"/10":null],
         ["Known by Group",r.known?r.known+"/10":null],["Word",r.word],
-        ["Readiness",r.ready],["Love",r.love],["Transformation",r.transform],["Leading Others",r.lead]
+        ["Readiness",r.ready],["Love",r.love],["Transformation",r.transform],["Leading Others",r.lead],
+        ["Faith Confidence",r.conf?r.conf+"/10":null],["Toughest Question",r.hard_question],["Topic That Changed Thinking",r.topic_changed],["Faith Conversation",r.convo],["Worldview Learned",r.worldview_learned],["Gentleness",r.gentleness],["Changed Most",r.changed],["Witness Plan",r.witness_plan],["Accountability",r.accountable],["Next Trimester",r.next_tri],
+        ["Parent: Learned",r.learned],["Parent: Conversation Plan",r.talk_plan]
       ];
       fields.forEach(function(f){
         if (!f[1]) return;
@@ -1172,7 +1176,9 @@ function renderYPGroups(){
         ["Understanding",r.understand?r.understand+"/10":null],["Self-Awareness",r.self?r.self+"/10":null],
         ["Insight",r.insight],["Servant Leadership",r.servant?r.servant+"/10":null],
         ["Known by Group",r.known?r.known+"/10":null],["Word",r.word],
-        ["Readiness",r.ready],["Love",r.love],["Transformation",r.transform],["Leading Others",r.lead]
+        ["Readiness",r.ready],["Love",r.love],["Transformation",r.transform],["Leading Others",r.lead],
+        ["Faith Confidence",r.conf?r.conf+"/10":null],["Toughest Question",r.hard_question],["Topic That Changed Thinking",r.topic_changed],["Faith Conversation",r.convo],["Worldview Learned",r.worldview_learned],["Gentleness",r.gentleness],["Changed Most",r.changed],["Witness Plan",r.witness_plan],["Accountability",r.accountable],["Next Trimester",r.next_tri],
+        ["Parent: Learned",r.learned],["Parent: Conversation Plan",r.talk_plan]
         ];
         fields.forEach(function(f){
           if (!f[1]) return;
@@ -1552,7 +1558,9 @@ function renderAdminGroups(){
             ["Understanding",r.understand?r.understand+"/10":null],["Self-Awareness",r.self?r.self+"/10":null],
             ["Insight",r.insight],["Servant Leadership",r.servant?r.servant+"/10":null],
             ["Known by Group",r.known?r.known+"/10":null],["Word",r.word],
-            ["Readiness",r.ready],["Love",r.love],["Transformation",r.transform],["Leading Others",r.lead]
+            ["Readiness",r.ready],["Love",r.love],["Transformation",r.transform],["Leading Others",r.lead],
+        ["Faith Confidence",r.conf?r.conf+"/10":null],["Toughest Question",r.hard_question],["Topic That Changed Thinking",r.topic_changed],["Faith Conversation",r.convo],["Worldview Learned",r.worldview_learned],["Gentleness",r.gentleness],["Changed Most",r.changed],["Witness Plan",r.witness_plan],["Accountability",r.accountable],["Next Trimester",r.next_tri],
+        ["Parent: Learned",r.learned],["Parent: Conversation Plan",r.talk_plan]
           ];
           fields.forEach(function(f){
             if (!f[1]) return;
