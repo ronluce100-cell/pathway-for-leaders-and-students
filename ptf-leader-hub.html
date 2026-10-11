@@ -1892,11 +1892,6 @@ function closeSettings(e){
 function copyCode(){
   var val = cfg.email || "";
   if(val){ navigator.clipboard.writeText(val).then(function(){ toast("Email copied! Share it with your students."); }); }
-});} return;
-  // OLD CODE BELOW (unused)
-  (
-  if (!cfg.code){ toast("No code yet"); return; }
-  navigator.clipboard.writeText(cfg.code).then(function(){ toast("Code copied! "+cfg.code); });
 }
 function changeRole(){
   closeSettings();
