@@ -1141,6 +1141,24 @@ function saveProfile(){
     S.scorecards['baseline']=bsc;
   }
   save();
+
+  // Write parent registration to pathway-to-freedom Firestore so super admin can see it
+  try {
+    var pSan = function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,40);};
+    var docId = 'parent_'+pSan(email)+'_nmj_registration';
+    _ptfDb.collection('ptf_checkins').doc(docId).set({
+      type: 'parent_registration',
+      program: 'nmj_parent',
+      name: name,
+      email: email,
+      teen_email: teen_email || '',
+      kids: kids || '',
+      date: new Date().toLocaleDateString(),
+      ts: firebase.firestore.FieldValue.serverTimestamp(),
+      registeredAt: new Date().toISOString()
+    }).catch(function(e){ console.warn('parent reg write err', e); });
+  } catch(e){ console.warn('parent reg err', e); }
+
   closeProfileModal();
   document.getElementById('mainApp').style.display='';
   renderTab('today');
